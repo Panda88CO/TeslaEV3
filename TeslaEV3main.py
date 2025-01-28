@@ -52,7 +52,6 @@ class TeslaEVController(udi_interface.Node):
         self.Notices = Custom(polyglot, 'notices')
 
         self.poly.subscribe(self.poly.ADDNODEDONE, self.node_queue)
-
         #logging.debug('self.address : ' + str(self.address))
         #logging.debug('self.name :' + str(self.name))
         self.hb = 0
@@ -200,6 +199,9 @@ class TeslaEVController(udi_interface.Node):
             logging.warning('No LOCATION')
             self.customParameters['LOCATION_EN'] = 'True or False'   
         self.customParam_done = True
+
+    def webhook(data): 
+        LOGGER.info(f"Webhook received: { data }")
 
 
     def start(self):
@@ -450,9 +452,11 @@ if __name__ == "__main__":
         polyglot.subscribe(polyglot.NOTICES, TEV.handleNotices)
         polyglot.subscribe(polyglot.POLL, TEV.systemPoll)
         polyglot.subscribe(polyglot.START, TEV.start, 'controller')
+        polyglot.subscribe(polyglot.WEBHOOK, TEV.webhook)
         logging.debug('Calling start')
         polyglot.subscribe(polyglot.CUSTOMNS, TEV.customNSHandler)
         polyglot.subscribe(polyglot.OAUTH, TEV.oauthHandler)
+        
         logging.debug('after subscribe')
         polyglot.ready()
         polyglot.runForever()
