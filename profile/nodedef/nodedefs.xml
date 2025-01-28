@@ -1,0 +1,182 @@
+<nodeDefs> 
+   <nodeDef id="controller" nls="nlscontroller">
+      <editors />
+      <sts>
+         <st id="ST" editor="NODEST" />
+         <st id="GV0" editor="API" />
+         <st id="GV1" editor="NBREV" />
+         <st id="GV2" editor="DUNIT" />
+         <st id="GV3" editor="TUNIT" />
+      </sts>
+      <cmds>
+         <sends>
+            <cmd id="DON" /> 
+            <cmd id="DOF" /> 
+         </sends>
+         <accepts>
+            <cmd id="UPDATE" /> 
+       
+         </accepts>
+      </cmds>
+   </nodeDef> 
+
+   <nodeDef id="evstatus" nls="nlsevstatus">
+      <editors />
+      <sts>
+         <!--<st id="ST" editor="NODEST" />-->
+         <st id="ST" editor="CARSTATE" />
+         <st id="GV1" editor="CONSOLE" />
+         <st id="GV2" editor="BOOLSTATE" />
+         <st id="GV0" editor="NUMBER" />
+         <st id="GV3" editor="LOCKUNLOCK" />
+         <st id="GV4" editor="ODOMETER" />
+         <!--<st id="GV5" editor="BOOLSTATE" />-->
+         <st id="GV6" editor="WINDOW" />
+         <st id="GV7" editor="WINDOW" />
+         <st id="GV8" editor="WINDOW" />
+         <st id="GV9" editor="WINDOW" />
+         <!--<st id="GV10" editor="PERCENT" />-->
+         <st id="GV11" editor="OPENCLOSE" />
+         <st id="GV12" editor="OPENCLOSE" />
+         <!-- <st id="GV13" editor="CARSTATE" /> -->
+         <!-- <st id="GV16" editor="IDEADIST" /> !-->
+         <st id="GV17" editor="LONGITUDE" />         
+         <st id="GV18" editor="LATITUDE" />  
+         <st id="GV19" editor="MINU" />         
+         <!--<st id="GV20" editor="MINU" />    -->
+         <st id="GV21" editor="LASTCMD" />   
+      </sts>
+      <cmds>
+         <sends>
+         </sends>
+         <accepts>
+            <cmd id="UPDATE" /> 
+            <cmd id="WAKEUP" />
+            <cmd id="HONKHORN" />
+            <cmd id="FLASHLIGHT" />   
+            <cmd id="DOORS" > 
+               <p id="" editor="LOCKUNLOCK" init="GV3" /> 
+            </cmd>
+            <cmd id="SUNROOF" > 
+               <p id="" editor="SUNROOFCTRL" init="0" /> 
+            </cmd >
+            <cmd id="TRUNK" /> 
+            <cmd id="FRUNK" /> 
+            <cmd id="HOMELINK" /> 
+            <cmd id="PLAYSOUND" > 
+               <p id="" editor="SOUNDS" init="0" /> 
+            </cmd >
+         </accepts>
+      </cmds>
+   </nodeDef> 
+
+   <nodeDef id="evclimate" nls="nlsevclimate">
+      <editors />
+      <sts>
+         <st id="ST" editor="TEMP"/>
+         <!--<st id="GV1"  />-->
+         <st id="GV2" editor="TEMP" />
+         <st id="GV3" editor="TEMP" />
+         <st id="GV4" editor="TEMP" />
+         <st id="GV5" editor="HEATLVL" />
+         <st id="GV6" editor="HEATLVL" />
+         <st id="GV7" editor="HEATLVL" />
+         <st id="GV8" editor="HEATLVL" />
+         <st id="GV9" editor="HEATLVL" />
+         <st id="GV15" editor="HEATLVL" />
+         <st id="GV16" editor="HEATLVL" />
+         <st id="GV10" editor="PRECSTATUS" />
+         <st id="GV11" editor="PRECSTATUS" />
+         <st id="GV12" editor="TEMP" />
+         <st id="GV13" editor="TEMP" />
+         <st id="GV14" editor="HEAT" />
+
+         <st id="GV19" editor="MINU" />
+         <!--<st id="GV20" editor="MINU" />    -->
+         <st id="GV21" editor="LASTCMD" />  
+      </sts>
+      <cmds>
+         <sends>
+         </sends>
+         <accepts>
+
+            <cmd id="SUNROOF" > 
+                  <p id="" editor="SUNROOFCTRL" init="0" /> 
+            </cmd>
+            <cmd id="WINDOWS" > 
+                  <p id="" editor="WINDOWCTRL" init="0" /> 
+            </cmd >            
+            <cmd id="AUTOCON"> 
+                  <p id="" editor="AUTOCONCTRL" init="GV10" /> 
+            </cmd >            
+            <cmd id="CABINTEMP" >
+                  <p id="driver" editor="CABINTEMP" init="GV3" />
+                  <p id="passenger" editor="CABINTEMP" init="GV4" /> 
+            </cmd>            
+  
+            <cmd id="DEFROST" > 
+                  <p id="" editor="DEFROST" init="GV1" /> 
+            </cmd >    
+            <cmd id="SEAT" > 
+                  <p id="seat" editor="SEATSEL" init="0" /> 
+                  <p id="heatlvl" editor="HEAT" init="GV5" /> 
+            </cmd > 
+                
+            <cmd id="STEERINGW" > 
+                  <p id="" editor="HEAT" init="GV1" /> 
+            </cmd >
+         </accepts>
+      </cmds>
+   </nodeDef> 
+
+   <nodeDef id="evcharge" nls="nlsevcharge">
+      <editors />
+      <sts>
+         <st id="ST" editor="PERCENT" />
+         <st id="GV1" editor="PRESENT" />
+         <st id="GV2" editor="OPENCLOSE" />
+         <st id="GV3" editor="CPLSTATE" />
+          <!--<st id="BATLVL" editor="PERCENT" />-->
+         <st id="GV4" editor="DISTANCE" />
+         <st id="GV5" editor="AMPS" />
+         <st id="GV6" editor="CHGSTATE" />
+         <st id="GV7" editor="STARTSTOP" />
+         <st id="GV8" editor="KW" />
+         <st id="GV9" editor="PERCENT" />
+         <st id="GV10" editor="VOLT" />
+         <st id="GV11" editor="AMPS" />
+         <st id="GV12" editor="AMPS" />
+      <!--  <st id="GV13" editor="AMPS" /> -->
+         <st id="GV14" editor="MINU" />
+         <st id="GV15" editor="KWH" />
+         <st id="GV16" editor="DISTANCE" />
+
+         <st id="GV19" editor="MINU" />
+         <!--<st id="GV20" editor="MINU" />    -->
+         <st id="GV21" editor="LASTCMD" />  
+
+      </sts>
+      <cmds>
+         <sends>
+         </sends>
+         <accepts>
+
+            <cmd id="CHARGEPORT" >
+                   <p id="" editor="CHARGEPORT" init="GV3" /> 
+            </cmd >
+            <cmd id="CHARGECTRL" >
+                   <p id="" editor="CHARGECTRL" init="GV6" /> 
+            </cmd >
+            <cmd id="BATPERCENT" >
+                  <p id="" editor="PERCENTINP" init="GV9" /> 
+            </cmd >
+            <cmd id="CHARGEAMPS" >
+                   <p id="" editor="AMPSINP" init="GV5" /> 
+            </cmd >
+
+         </accepts>
+      </cmds>
+   </nodeDef> 
+
+  
+</nodeDefs> 
