@@ -17,7 +17,7 @@ from TeslaEVStatusNode import teslaEV_StatusNode
 from TeslaEVOauth import teslaAccess
 
 
-VERSION = '0.1.51'
+VERSION = '0.0.1'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, wait_for_node_done,tempUnitAdjust,  setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -231,6 +231,8 @@ class TeslaEVController(udi_interface.Node):
             self.vehicleList = self.TEVcloud.teslaEV_get_vehicle_list()
             logging.debug(f'vehicleList: {code} - {self.vehicleList}')
             self.EV_setDriver('GV0', self.bool2ISY(True), 25)   
+
+            
         else:
             logging.error('Failed to retrieve EVs')
             self.EV_setDriver('GV0', self.bool2ISY(False), 25)   
@@ -238,7 +240,18 @@ class TeslaEVController(udi_interface.Node):
 
         self.GV1 = int(len(self.vehicleList))
         self.EV_setDriver('GV1', self.GV1, 56)
+        if self.GV1 > 0:
+            init_webhook ={}
+            init_webhook['name'] = 'Tesla'
+            init_webhook['assets']  = []
+            for indx, EVid in enumerate( self.vehicleList):
+                tmp = {}
+                tmp['id'] = str(EVid)
+                init_webhook['assets'].append(tmp)
+            logging.debug(f'webhook_ init {init_webhook}')
+            self.poly.webhookStart(init_webhook)
 
+            
         for indx, EVid in enumerate( self.vehicleList):
         #for indx in range(0,len(self.vehicleList)):
             #EVid = self.vehicleList[indx]
@@ -414,7 +427,7 @@ class TeslaEVController(udi_interface.Node):
 if __name__ == "__main__":
     try:
         logging.info('Starting TeslaEV Controller')
-        polyglot = udi_interface.Interface([])
+        polyglot = udi_interface.Interface([],{ "enableWebhook": True })
 
         #TeslaEVController(polyglot, 'controller', 'controller', 'Tesla EVs')
         polyglot.start(VERSION)
