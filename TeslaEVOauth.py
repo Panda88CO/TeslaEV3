@@ -132,7 +132,7 @@ class teslaEVAccess(teslaAccess):
         logging.debug(f'certificate - response {response}')
         if response.status_code == 200:
             self.stream_certificate = response.json()
-
+        
 
 
 
