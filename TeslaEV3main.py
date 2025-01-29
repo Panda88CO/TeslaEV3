@@ -30,6 +30,7 @@ class TeslaEVController(udi_interface.Node):
         self.portalSecret = None
         self.n_queue = []
         self.vehicleList = []
+        #self.stream_cert = {}
         self.TEVcloud = ev_cloud_access
         
         logging.info('_init_ Tesla EV Controller ')
@@ -49,9 +50,11 @@ class TeslaEVController(udi_interface.Node):
         self.paramsProcessed = False
         self.customParameters = Custom(self.poly, 'customparams')
         self.portalData = Custom(self.poly, 'customNSdata')
+        #self.customData = Custom(self.poly, 'customdata')
         self.Notices = Custom(polyglot, 'notices')
 
         self.poly.subscribe(self.poly.ADDNODEDONE, self.node_queue)
+        #self.poly.subscribe(self.poly.CUSTOMDATA, self.customDataHandler) 
         #logging.debug('self.address : ' + str(self.address))
         #logging.debug('self.name :' + str(self.name))
         self.hb = 0
@@ -108,6 +111,7 @@ class TeslaEVController(udi_interface.Node):
 
     def customNSHandler(self, key, data):        
         self.portalData.load(data)
+        stream_cert = {}
         logging.debug(f'customNSHandler : key:{key}  data:{data}')
         if key == 'nsdata':
             if 'portalID' in data:
@@ -118,10 +122,22 @@ class TeslaEVController(udi_interface.Node):
                 #self.customNsDone = True
             if self.TEVcloud.initializePortal(self.portalID, self.portalSecret):
                 self.portalReady = True
-            logging.debug(f'Custom Data portal: {self.portalID} {self.portalSecret}')
+
+            if 'issuedAt' in data:
+                stream_cert['issuedAt'] = data['issuedAt']
+                stream_cert['expiry'] = data['expiry']
+                stream_cert['expectedRenewal'] = data['expectedRenewal']
+                stream_cert['ca'] = data['ca']
+                self.TEVcloud.stream_cert  = self.stream_cert
+            logging.debug(f'Custom Data portal: {self.portalID} {self.portalSecret} {self.stream_cert}')
+
         self.TEVcloud.customNsHandler(key, data)
         
-        
+    #def customDataHandler(self, Data):
+    #    logging.debug('customDataHandler')
+    #    self.customData.load(Data)
+    #    #logging.debug('handleData load - {}'.format(self.customData))
+         
 
     def customParamsHandler(self, userParams):
         self.customParameters.load(userParams)
@@ -201,7 +217,7 @@ class TeslaEVController(udi_interface.Node):
         self.customParam_done = True
 
     def webhook(data): 
-        LOGGER.info(f"Webhook received: { data }")
+        logging.info(f"Webhook received: { data }")
 
 
     def start(self):
@@ -209,6 +225,7 @@ class TeslaEVController(udi_interface.Node):
         nodeName = None
         #self.Parameters.load(customParams)
         self.poly.updateProfile()
+
         #self.poly.setCustomParamsDoc()
 
         #while not self.customParam_done or not self.customNsDone and not self.config_done:
@@ -253,7 +270,8 @@ class TeslaEVController(udi_interface.Node):
             logging.debug(f'webhook_ init {init_webhook}')
             self.poly.webhookStart(init_webhook)
 
-            
+        self.TEVcloud.
+        
         for indx, EVid in enumerate( self.vehicleList):
         #for indx in range(0,len(self.vehicleList)):
             #EVid = self.vehicleList[indx]

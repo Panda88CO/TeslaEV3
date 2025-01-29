@@ -45,7 +45,10 @@ class teslaEVAccess(teslaAccess):
         logging.info('OAuth initializing')
         self.poly = polyglot
         self.scope = scope
+        self.stream_cert = {}
         self.customParameters = Custom(self.poly, 'customparams')
+        self.poly.subscribe(self.poly.CUSTOMDATA, self.customDataHandler) 
+        self.strean_cert = Custom(self.poly, 'customdata')
         #self.scope_str = None
         self.EndpointNA= 'https://fleet-api.prd.na.vn.cloud.tesla.com'
         self.EndpointEU= 'https://fleet-api.prd.eu.vn.cloud.tesla.com'
@@ -97,7 +100,16 @@ class teslaEVAccess(teslaAccess):
     def customParamsDone(self):
         return(self.handleCustomParamsDone)
 
-
+    def customDataHandler(self, data):
+        logging.debug('customDataHandler')
+        self.strean_cert.load(data)
+        logging.debug('handleData load - {}'.format(self.customData))
+        if 'issuedAt' in data:
+                stream_cert['issuedAt'] = data['issuedAt']
+                stream_cert['expiry'] = data['expiry']
+                stream_cert['expectedRenewal'] = data['expectedRenewal']
+                stream_cert['ca'] = data['ca']
+                self.TEVcloud.stream_cert  = self.stream_cert 
     def location_enabled(self):
         return(self.locationEn)
     
@@ -131,8 +143,8 @@ class teslaEVAccess(teslaAccess):
         response = requests.get('https://my.isy.io/api/certificate')
         logging.debug(f'certificate - response {response}')
         if response.status_code == 200:
-            self.stream_certificate = response.json()
-        
+            self.stream_cert = response.json()
+
 
 
 
