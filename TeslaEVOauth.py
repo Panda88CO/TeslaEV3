@@ -104,14 +104,7 @@ class teslaEVAccess(teslaAccess):
         logging.debug('customDataHandler')
         self.strean_cert.load(data)
         logging.debug('handleData load - {}'.format(self.customData))
-        if 'issuedAt' in data:
-                self.stream_cert['issuedAt'] = data['issuedAt']
-                self.stream_cert['expiry'] = data['expiry']
-                self.stream_cert['expectedRenewal'] = data['expectedRenewal']
-                self.stream_cert['ca'] = data['ca']
-                #self.TEVcloud.stream_cert  = self.stream_cert 
-
-        else:
+        if 'issuedAt' not in  self.strean_cert.keys():
                 self.stream_cert['issuedAt'] = None
                 self.stream_cert['expiry'] = None
                 self.stream_cert['expectedRenewal'] = None
@@ -119,14 +112,26 @@ class teslaEVAccess(teslaAccess):
     
 
     
-    def teslaEV_check_streaming_certificate(self):
+    def teslaEV_get_streaming_certificate(self):
         response = requests.get('https://my.isy.io/api/certificate')
         logging.debug(f'certificate - response {response}')
+        cert = {}
         if response.status_code == 200:
-            cert = response.json()
-            cert[]
+            res = response.json()
+            if res['successful']:
+                cert['issuedAt'] = self.datestr_to_epoch(str(res['data']['issuedAt']))
+                cert['expiry'] = self.datestr_to_epoch(str(res['data']['expiry']))
+                cert['expectedRenewal'] = self.datestr_to_epoch(str(res['data']['expectedRenewal']))
+                cert['ca'] = str(res['data']['ca'])
+        return (cert)
     
-    
+
+    def datestr_to_epoch(self, datestr):
+        p = '%Y-%m-%dT%H:%M:%S.%fZ'
+        mytime = str(datestr)
+        epoch = datetime(1970, 1, 1)
+        return(datetime.strptime(mytime, p) - epoch).total_seconds()
+               
     def location_enabled(self):
         return(self.locationEn)
     
