@@ -202,15 +202,45 @@ class teslaEVAccess(teslaAccess):
                     'service'
                     ],
                 'fields': {                    
-                    #'EstBatteryRange': { 'interval_seconds': 600 },
-                    'IdealBatteryRange' : { 'interval_seconds': 600 },
+                    'IdealBatteryRange' : { 'interval_seconds': 60 },
+                    'EstBatteryRange' : { 'interval_seconds': 60 },                    
                     'ChargeCurrentRequestMax' : {},
                     'ChargeCurrentRequest' : {},
                     #charger_actual_current
                     'ChargeAmps' : {},
                     'TimeToFullCharge' : {},
-
-
+                    #charge_energy_added
+                    #charge_miles_added_rated
+                    'ChargerVoltage' : {},                    
+                    'FastChargerPresent' : {},
+                    'ChargePort' : {},
+                    'ChargePortLatch' : { 'interval_seconds': 60 },
+                    'BatteryLevel' : { 'interval_seconds': 60 },
+                    'ChargeCurrentRequestMaxs': { 'interval_seconds': 60 },
+                    #charger_power
+                    'ChargeState': { 'interval_seconds': 60 },
+                    'ChargeLimitSoc': { 'interval_seconds': 60 },
+                    'InsideTemp': { 'interval_seconds': 60 },
+                    'OutsideTemp': { 'interval_seconds': 60 },
+                    'SeatHeaterLeft' : { 'interval_seconds': 60 },
+                    'SeatHeaterRight' : { 'interval_seconds': 60 },
+                    'SeatHeaterRearLeft' : { 'interval_seconds': 60 },
+                    'SeatHeaterRearRight' : { 'interval_seconds': 60 },
+                    'SeatHeaterRearCenter' : { 'interval_seconds': 60 },
+                    'AutoSeatClimateLeft' : { 'interval_seconds': 60 },
+                    'AutoSeatClimateRight' : { 'interval_seconds': 60 },
+                    'HvacLeftTemperatureRequest' : { 'interval_seconds': 60 },
+                    'HvacRightTemperatureRequest' : { 'interval_seconds': 60 },
+                    'PreconditioningEnabled' : { 'interval_seconds': 60 },
+                    'HvacSteeringWheelHeatAuto' : { 'interval_seconds': 60 },
+                    'HvacSteeringWheelHeatLevel' : { 'interval_seconds': 60 },
+                    'HomelinkDeviceCount' : { 'interval_seconds': 60 },
+                    'HomelinkNearby' : { 'interval_seconds': 60 },
+                    'WindowState' : { 'interval_seconds': 60 },
+                    'Doors' : { 'interval_seconds': 60 },
+                    'DetailedChargeStateValue' : { 'interval_seconds': 60 },
+                    'ChargingState' : { 'interval_seconds': 60 },
+                    'LocationValue' : { 'interval_seconds': 60 },
                     },
                 'ca' : self.stream_cert['ca'],
                 'hostname': 'my.isy.io'
