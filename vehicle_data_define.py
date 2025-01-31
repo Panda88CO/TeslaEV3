@@ -4,9 +4,9 @@ package telemetry.vehicle_data;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/teslamotors/fleet-telemetry/protos";
+#option go_package = "github.com/teslamotors/fleet-telemetry/protos";
 
-enum Field {
+class Field (Enum):
   Unknown = 0;
   DriveRail = 1;
   ChargeState = 2;

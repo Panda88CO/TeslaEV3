@@ -194,20 +194,28 @@ class teslaEVAccess(teslaAccess):
             vin_str = '{'+str(vin)+'}'
             vinstr_list.append(vin_str)
         payload = {
-            "config": {
-                "prefer_typed": True,
-                "port": 443,
-                "exp": self.stream_cert['expiry'],
-                "alert_types": [
-                    "service"
+            'config': {
+                'prefer_typed': True,
+                'port': 443,
+                'exp': self.stream_cert['expiry'],
+                'alert_types': [
+                    'service'
                     ],
-                "fields": {                    
-                    "VehicleSpeed": { "interval_seconds": 10 }
+                'fields': {                    
+                    #'EstBatteryRange': { 'interval_seconds': 600 },
+                    'IdealBatteryRange' : { 'interval_seconds': 600 },
+                    'ChargeCurrentRequestMax' : {},
+                    'ChargeCurrentRequest' : {},
+                    #charger_actual_current
+                    'ChargeAmps' : {},
+                    'TimeToFullCharge' : {},
+
+
                     },
-                "ca" : self.stream_cert['ca'],
-                "hostname": "my.isy.io"
+                'ca' : self.stream_cert['ca'],
+                'hostname': 'my.isy.io'
                 },
-            "vins": vin_str
+            'vins': vin_str
             }
         code, res  = self._callApi('POST','/vehicles/fleet_telemetry_config', payload)
         logging.debug(f' config res {code} {res}')
