@@ -270,8 +270,8 @@ class TeslaEVController(udi_interface.Node):
             logging.debug(f'webhook_ init {init_webhook}')
             self.poly.webhookStart(init_webhook)
 
-        
-        
+        if self.TEVcloud.teslaEV_check_streaming_certificate_update(): #We need to update streaming server credentials
+            
         for indx, EVid in enumerate( self.vehicleList):
         #for indx in range(0,len(self.vehicleList)):
             #EVid = self.vehicleList[indx]
