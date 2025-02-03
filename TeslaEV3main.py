@@ -111,7 +111,7 @@ class TeslaEVController(udi_interface.Node):
 
     def customNSHandler(self, key, data):        
         self.portalData.load(data)
-        stream_cert = {}
+        #stream_cert = {}
         logging.debug(f'customNSHandler : key:{key}  data:{data}')
         if key == 'nsdata':
             if 'portalID' in data:
@@ -123,13 +123,13 @@ class TeslaEVController(udi_interface.Node):
             if self.TEVcloud.initializePortal(self.portalID, self.portalSecret):
                 self.portalReady = True
 
-            if 'issuedAt' in data:
-                stream_cert['issuedAt'] = data['issuedAt']
-                stream_cert['expiry'] = data['expiry']
-                stream_cert['expectedRenewal'] = data['expectedRenewal']
-                stream_cert['ca'] = data['ca']
-                self.TEVcloud.stream_cert  = self.stream_cert
-            logging.debug(f'Custom Data portal: {self.portalID} {self.portalSecret} {self.stream_cert}')
+            #if 'issuedAt' in data:
+            #    stream_cert['issuedAt'] = data['issuedAt']
+            #    stream_cert['expiry'] = data['expiry']
+            #    stream_cert['expectedRenewal'] = data['expectedRenewal']
+            #    stream_cert['ca'] = data['ca']
+            #    self.TEVcloud.stream_cert  = self.stream_cert
+            logging.debug(f'Custom Data portal: {self.portalID} {self.portalSecret}')
 
         self.TEVcloud.customNsHandler(key, data)
         

@@ -103,13 +103,13 @@ class teslaEVAccess(teslaAccess):
     def customDataHandler(self, data):
         logging.debug('customDataHandler')
         self.stream_cert.load(data)
-        logging.debug('handleData load - {}'.format(self.customData))
+        logging.debug('handleData load - {}'.format(self.stream_cert))
         if 'issuedAt' not in  self.stream_cert.keys():
                 self.stream_cert['issuedAt'] = None
                 self.stream_cert['expiry'] = None
                 self.stream_cert['expectedRenewal'] = None
                 self.stream_cert['ca'] = ''
-    
+        self.customDataHandlerDone = True
 
     
     def teslaEV_get_streaming_certificate(self):
