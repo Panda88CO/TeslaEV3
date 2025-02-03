@@ -216,7 +216,7 @@ class TeslaEVController(udi_interface.Node):
             self.customParameters['LOCATION_EN'] = 'True or False'   
         self.customParam_done = True
 
-    def webhook(data): 
+    def webhook(self, data): 
         logging.info(f"Webhook received: { data }")
 
 
@@ -249,7 +249,8 @@ class TeslaEVController(udi_interface.Node):
         if code in ['ok']:
             self.vehicleList = self.TEVcloud.teslaEV_get_vehicle_list()
             logging.debug(f'vehicleList: {code} - {self.vehicleList}')
-            self.EV_setDriver('GV0', self.bool2ISY(True), 25)   
+            self.EV_setDriver('GV0', self.bool2ISY(True), 25)
+
 
             
         else:
@@ -259,6 +260,7 @@ class TeslaEVController(udi_interface.Node):
 
         self.GV1 = int(len(self.vehicleList))
         self.EV_setDriver('GV1', self.GV1, 56)
+        vin_list = []
         if self.GV1 > 0:
             init_webhook ={}
             init_webhook['name'] = 'Tesla'
@@ -267,18 +269,20 @@ class TeslaEVController(udi_interface.Node):
                 tmp = {}
                 tmp['id'] = str(EVid)
                 init_webhook['assets'].append(tmp)
+                vin_list.append(str(EVid))
+
             logging.debug(f'webhook_ init {init_webhook}')
             self.poly.webhookStart(init_webhook)
 
         if self.TEVcloud.teslaEV_check_streaming_certificate_update(): #We need to update streaming server credentials
-            
+            self.TEVcloud.teslaEV_create_streaming_config(vin_list)
         for indx, EVid in enumerate( self.vehicleList):
         #for indx in range(0,len(self.vehicleList)):
             #EVid = self.vehicleList[indx]
             #vehicleId = vehicle['vehicle_id']
             nodeName = None
             logging.debug(f'loop: {indx} {EVid}')
-            code, res = self.TEVcloud.teslaEV_update_vehicle_status(EVid)
+            code, res = self.TEVcloud.teslaEV_create_streaming_config(EVid)
             logging.debug(f'self.TEVcloud.teslaEV_update_vehicle_status {code} - {res}')
 
             if code in ['ok']:

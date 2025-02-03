@@ -178,11 +178,11 @@ class teslaEVAccess(teslaAccess):
             return(False)
     ###  Register car pem
 
-    def teslaEV_check_streaming_certificate(self):
-        response = requests.get('https://my.isy.io/api/certificate')
-        logging.debug(f'certificate - response {response}')
-        if response.status_code == 200:
-            self.stream_cert = response.json()
+    #def teslaEV_check_streaming_certificate(self):
+    #    response = requests.get('https://my.isy.io/api/certificate')
+    #    logging.debug(f'certificate - response {response}')
+    #    if response.status_code == 200:
+    #        self.stream_cert = response.json()
 
 
 
@@ -190,9 +190,9 @@ class teslaEVAccess(teslaAccess):
     def teslaEV_create_streaming_config(self, vin_list):
         logging.debug(f'teslaEV_create_config {vin_list}')
         vinstr_list = []
-        for vin in vin_list:
-            vin_str = '{'+str(vin)+'}'
-            vinstr_list.append(vin_str)
+        #for vin in vin_list:
+        #    vin_str = '{'+str(vin)+'}'
+        #    vinstr_list.append(vin_str)
         payload = {
             'config': {
                 'prefer_typed': True,
@@ -245,7 +245,7 @@ class teslaEVAccess(teslaAccess):
                 'ca' : self.stream_cert['ca'],
                 'hostname': 'my.isy.io'
                 },
-            'vins': vin_str
+            'vins': vin_list
             }
         code, res  = self._callApi('POST','/vehicles/fleet_telemetry_config', payload)
         logging.debug(f' config res {code} {res}')
