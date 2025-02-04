@@ -248,7 +248,7 @@ class teslaEVAccess(teslaAccess):
                 'vins': vinstr_list 
             }
         
-        gfc1={
+        cfg1={
             "config": {
             "prefer_typed": True,
             "port": 443,
@@ -268,7 +268,7 @@ class teslaEVAccess(teslaAccess):
             "vins": ["5YJ3E1EA5RF721953" ]
         }
 
-        payload = json.dumps(cfg)
+        payload = json.dumps(cfg1)
         logging.debug(f'payload: {payload}')
         code, res  = self._callApi('POST','/vehicles/fleet_telemetry_config', payload)
         logging.debug(f' config res {code} {res}')
