@@ -192,7 +192,7 @@ class teslaEVAccess(teslaAccess):
         vinstr_list = []
         #for item in vin_list:
         #    logging.debug(f'item{item}')
-        istr = '{' + str(vin_list) + '}'
+        istr =  str(vin_list)
         vinstr_list.append(istr)
         logging.debug(f'vinstr_list {vinstr_list}')
         payload = json.dumps({
@@ -250,7 +250,7 @@ class teslaEVAccess(teslaAccess):
             'vins': vinstr_list 
             })
         logging.debug(f'payload: {payload}')
-        code, res  = self._callApi('POST','/vehicles/fleet_telemetry_config', payload)
+        code, res  = self._callApi('GET','/vehicles/fleet_telemetry_config', payload)
         logging.debug(f' config res {code} {res}')
    
     def extract_needed_delay(self, input_string):
