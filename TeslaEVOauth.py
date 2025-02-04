@@ -190,9 +190,8 @@ class teslaEVAccess(teslaAccess):
     def teslaEV_create_streaming_config(self, vin_list):
         logging.debug(f'teslaEV_create_config {vin_list}')
         vinstr_list = []
-        #for vin in vin_list:
-        #    vin_str = '{'+str(vin)+'}'
-        #    vinstr_list.append(vin_str)
+        for vin in vin_list:
+            vinstr_list.append(str(vin))
         payload = json.dumps({
             'config': {
                 'prefer_typed': True,
@@ -245,7 +244,9 @@ class teslaEVAccess(teslaAccess):
                 'ca' : self.stream_cert['ca'],
                 'hostname': 'my.isy.io'
                 },
-            'vins': vin_list })
+            'vins': vinstr_list 
+            })
+        logging.debug(f'payload: {payload}')
         code, res  = self._callApi('POST','/vehicles/fleet_telemetry_config', payload)
         logging.debug(f' config res {code} {res}')
    
