@@ -195,16 +195,13 @@ class teslaEVAccess(teslaAccess):
         istr =  str(vin_list)
         vinstr_list.append(istr)
         logging.debug(f'vinstr_list {vinstr_list}')
-        payload = json.dumps({
-                'config': {
-                'prefer_typed': True,
+        
+        cfg = {'config': { 'prefer_typed': True,
                 'port': 443,
                 'exp': int(self.stream_cert['expiry']),
-                'alert_types': [
-                    'service'
-                    ],
-                'fields':
-                {   'IdealBatteryRange' : { 'interval_seconds': 60, 'minimum_delta': 1 },
+                'alert_types': [ 'service' ],
+                'fields': {
+                    'IdealBatteryRange' : { 'interval_seconds': 60, 'minimum_delta': 1 },
                     'EstBatteryRange' : { 'interval_seconds': 60, 'minimum_delta': 1 },                    
                     'ChargeCurrentRequestMax' : { 'interval_seconds': 60 },
                     'ChargeCurrentRequest' : { 'interval_seconds': 60 },
@@ -239,7 +236,7 @@ class teslaEVAccess(teslaAccess):
                     'HomelinkDeviceCount' : { 'interval_seconds': 600 },
                     'HomelinkNearby' : { 'interval_seconds': 60 },
                     'WindowState' : { 'interval_seconds': 60 },
-                    'Odometer': { 'interval_seconds': 60 'minimum_delta': 1},
+                    'Odometer': { 'interval_seconds': 60,'minimum_delta': 1},
                     'Doors' : { 'interval_seconds': 60 },
                     'DetailedChargeStateValue' : { 'interval_seconds': 60 },
                     'ChargingState' : { 'interval_seconds': 60 },
@@ -249,8 +246,9 @@ class teslaEVAccess(teslaAccess):
                 'hostname': 'my.isy.io'
                 },
             'vins': vinstr_list 
-            })
-        payload = json.dumps({
+        }
+        
+        gfc1={
             "config": {
             "prefer_typed": True,
             "port": 443,
@@ -268,11 +266,13 @@ class teslaEVAccess(teslaAccess):
             "hostname": "my.isy.io"
             },
             "vins": ["5YJ3E1EA5RF721953" ]
-    })
+        }
 
 
 
 
+    
+        payload = json.dumps(cfg)
         logging.debug(f'payload: {payload}')
         code, res  = self._callApi('GET','/vehicles/fleet_telemetry_config', payload)
         logging.debug(f' config res {code} {res}')
