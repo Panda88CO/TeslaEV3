@@ -197,56 +197,56 @@ class teslaEVAccess(teslaAccess):
         logging.debug(f'vinstr_list {vinstr_list}')
         
         cfg = {'config': { 'prefer_typed': True,
-                'port': 443,
-                'exp': int(self.stream_cert['expiry']),
-                'alert_types': [ 'service' ],
-                'fields': {
-                    'IdealBatteryRange' : { 'interval_seconds': 60, 'minimum_delta': 1 },
-                    'EstBatteryRange' : { 'interval_seconds': 60, 'minimum_delta': 1 },                    
-                    'ChargeCurrentRequestMax' : { 'interval_seconds': 60 },
-                    'ChargeCurrentRequest' : { 'interval_seconds': 60 },
-                    #charger_actual_current
-                    'ChargeAmps' : { 'interval_seconds': 60,'minimum_delta': 1 },
-                    'TimeToFullCharge' : { 'interval_seconds': 60 },
-                    #charge_energy_added
-                    #charge_miles_added_rated
-                    'ChargerVoltage' : { 'interval_seconds': 60, 'minimum_delta': 1 },                    
-                    'FastChargerPresent' : { 'interval_seconds': 60 },
-                    'ChargePort' : { 'interval_seconds': 60 },
-                    'ChargePortLatch' : { 'interval_seconds': 60 },
-                    'BatteryLevel' : { 'interval_seconds': 60, 'minimum_delta': 1 },
-                    'ChargeCurrentRequestMaxs': { 'interval_seconds': 60 },
-                    #charger_power
-                    'ChargeState': { 'interval_seconds': 60 },
-                    'ChargeLimitSoc': { 'interval_seconds': 60 },
-                    'InsideTemp': { 'interval_seconds': 60, 'minimum_delta': 1, },
-                    'OutsideTemp': { 'interval_seconds': 60,'minimum_delta': 1,  },
-                    'SeatHeaterLeft' : { 'interval_seconds': 60 },
-                    'SeatHeaterRight' : { 'interval_seconds': 60 },
-                    'SeatHeaterRearLeft' : { 'interval_seconds': 60 },
-                    'SeatHeaterRearRight' : { 'interval_seconds': 60 },
-                    'SeatHeaterRearCenter' : { 'interval_seconds': 60 },
-                    'AutoSeatClimateLeft' : { 'interval_seconds': 60 },
-                    'AutoSeatClimateRight' : { 'interval_seconds': 60 },
-                    'HvacLeftTemperatureRequest' : { 'interval_seconds': 60 },
-                    'HvacRightTemperatureRequest' : { 'interval_seconds': 60 },
-                    'PreconditioningEnabled' : { 'interval_seconds': 60 },
-                    'HvacSteeringWheelHeatAuto' : { 'interval_seconds': 60 },
-                    'HvacSteeringWheelHeatLevel' : { 'interval_seconds': 60 },
-                    'HomelinkDeviceCount' : { 'interval_seconds': 600 },
-                    'HomelinkNearby' : { 'interval_seconds': 60 },
-                    'WindowState' : { 'interval_seconds': 60 },
-                    'Odometer': { 'interval_seconds': 60,'minimum_delta': 1},
-                    'Doors' : { 'interval_seconds': 60 },
-                    'DetailedChargeStateValue' : { 'interval_seconds': 60 },
-                    'ChargingState' : { 'interval_seconds': 60 },
-                    'LocationValue' : { 'interval_seconds': 60 },
+                    'port': 443,
+                    'exp': int(self.stream_cert['expiry']),
+                    'alert_types': [ 'service' ],
+                    'fields': {
+                        'IdealBatteryRange' : { 'interval_seconds': 60, 'minimum_delta': 1 },
+                        'EstBatteryRange' : { 'interval_seconds': 60, 'minimum_delta': 1 },                    
+                        'ChargeCurrentRequestMax' : { 'interval_seconds': 60 },
+                        'ChargeCurrentRequest' : { 'interval_seconds': 60 },
+                        #charger_actual_current
+                        'ChargeAmps' : { 'interval_seconds': 60,'minimum_delta': 1 },
+                        'TimeToFullCharge' : { 'interval_seconds': 60 },
+                        #charge_energy_added
+                        #charge_miles_added_rated
+                        'ChargerVoltage' : { 'interval_seconds': 60, 'minimum_delta': 1 },                    
+                        'FastChargerPresent' : { 'interval_seconds': 60 },
+                        'ChargePort' : { 'interval_seconds': 60 },
+                        'ChargePortLatch' : { 'interval_seconds': 60 },
+                        'BatteryLevel' : { 'interval_seconds': 60, 'minimum_delta': 1 },
+                        'ChargeCurrentRequestMaxs': { 'interval_seconds': 60 },
+                        #charger_power
+                        'ChargeState': { 'interval_seconds': 60 },
+                        'ChargeLimitSoc': { 'interval_seconds': 60 },
+                        'InsideTemp': { 'interval_seconds': 60, 'minimum_delta': 1, },
+                        'OutsideTemp': { 'interval_seconds': 60,'minimum_delta': 1,  },
+                        'SeatHeaterLeft' : { 'interval_seconds': 60 },
+                        'SeatHeaterRight' : { 'interval_seconds': 60 },
+                        'SeatHeaterRearLeft' : { 'interval_seconds': 60 },
+                        'SeatHeaterRearRight' : { 'interval_seconds': 60 },
+                        'SeatHeaterRearCenter' : { 'interval_seconds': 60 },
+                        'AutoSeatClimateLeft' : { 'interval_seconds': 60 },
+                        'AutoSeatClimateRight' : { 'interval_seconds': 60 },
+                        'HvacLeftTemperatureRequest' : { 'interval_seconds': 60 },
+                        'HvacRightTemperatureRequest' : { 'interval_seconds': 60 },
+                        'PreconditioningEnabled' : { 'interval_seconds': 60 },
+                        'HvacSteeringWheelHeatAuto' : { 'interval_seconds': 60 },
+                        'HvacSteeringWheelHeatLevel' : { 'interval_seconds': 60 },
+                        'HomelinkDeviceCount' : { 'interval_seconds': 600 },
+                        'HomelinkNearby' : { 'interval_seconds': 60 },
+                        'WindowState' : { 'interval_seconds': 60 },
+                        'Odometer': { 'interval_seconds': 60,'minimum_delta': 1},
+                        'Doors' : { 'interval_seconds': 60 },
+                        'DetailedChargeStateValue' : { 'interval_seconds': 60 },
+                        'ChargingState' : { 'interval_seconds': 60 },
+                        'LocationValue' : { 'interval_seconds': 60 },
+                        },
+                    'ca' : self.stream_cert['ca'],
+                    'hostname': 'my.isy.io'
                     },
-                'ca' : self.stream_cert['ca'],
-                'hostname': 'my.isy.io'
-                },
-            'vins': vinstr_list 
-        }
+                'vins': vinstr_list 
+            }
         
         gfc1={
             "config": {
@@ -268,10 +268,6 @@ class teslaEVAccess(teslaAccess):
             "vins": ["5YJ3E1EA5RF721953" ]
         }
 
-
-
-
-    
         payload = json.dumps(cfg)
         logging.debug(f'payload: {payload}')
         code, res  = self._callApi('GET','/vehicles/fleet_telemetry_config', payload)
