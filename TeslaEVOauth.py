@@ -198,32 +198,32 @@ class teslaEVAccess(teslaAccess):
         payload = json.dumps({
             'config': {
                 'prefer_typed': True,
-                'port': 443,
+                'port': 4443,
                 'exp': int(self.stream_cert['expiry']),
                 'alert_types': [
                     'service'
                     ],
                 'fields': {                    
-                    'IdealBatteryRange' : { 'interval_seconds': 60 },
-                    'EstBatteryRange' : { 'interval_seconds': 60 },                    
+                    'IdealBatteryRange' : { 'interval_seconds': 60, 'minimum_delta': 1 },
+                    'EstBatteryRange' : { 'interval_seconds': 60, 'minimum_delta': 1 },                    
                     'ChargeCurrentRequestMax' : { 'interval_seconds': 60 },
                     'ChargeCurrentRequest' : { 'interval_seconds': 60 },
                     #charger_actual_current
-                    'ChargeAmps' : { 'interval_seconds': 60 },
+                    'ChargeAmps' : { 'interval_seconds': 60,'minimum_delta': 1 },
                     'TimeToFullCharge' : { 'interval_seconds': 60 },
                     #charge_energy_added
                     #charge_miles_added_rated
-                    'ChargerVoltage' : { 'interval_seconds': 60 },                    
+                    'ChargerVoltage' : { 'interval_seconds': 60, 'minimum_delta': 1 },                    
                     'FastChargerPresent' : { 'interval_seconds': 60 },
                     'ChargePort' : { 'interval_seconds': 60 },
                     'ChargePortLatch' : { 'interval_seconds': 60 },
-                    'BatteryLevel' : { 'interval_seconds': 60 },
+                    'BatteryLevel' : { 'interval_seconds': 60, 'minimum_delta': 1 },
                     'ChargeCurrentRequestMaxs': { 'interval_seconds': 60 },
                     #charger_power
                     'ChargeState': { 'interval_seconds': 60 },
                     'ChargeLimitSoc': { 'interval_seconds': 60 },
-                    'InsideTemp': { 'interval_seconds': 60 },
-                    'OutsideTemp': { 'interval_seconds': 60 },
+                    'InsideTemp': { 'interval_seconds': 60, 'minimum_delta': 1, },
+                    'OutsideTemp': { 'interval_seconds': 60,'minimum_delta': 1,  },
                     'SeatHeaterLeft' : { 'interval_seconds': 60 },
                     'SeatHeaterRight' : { 'interval_seconds': 60 },
                     'SeatHeaterRearLeft' : { 'interval_seconds': 60 },
@@ -239,7 +239,7 @@ class teslaEVAccess(teslaAccess):
                     'HomelinkDeviceCount' : { 'interval_seconds': 600 },
                     'HomelinkNearby' : { 'interval_seconds': 60 },
                     'WindowState' : { 'interval_seconds': 60 },
-                    'Odometer': { 'interval_seconds': 60 },
+                    'Odometer': { 'interval_seconds': 60 'minimum_delta': 1},
                     'Doors' : { 'interval_seconds': 60 },
                     'DetailedChargeStateValue' : { 'interval_seconds': 60 },
                     'ChargingState' : { 'interval_seconds': 60 },
