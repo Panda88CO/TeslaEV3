@@ -190,8 +190,8 @@ class teslaEVAccess(teslaAccess):
     def teslaEV_create_streaming_config(self, vin_list):
         logging.debug(f'teslaEV_create_config {vin_list}')
         vinstr_list = []
-        for vin in vin_list:
-            vinstr_list.append(str(vin))
+        vinstr_list.append(str('{'+vin_list+'}'))
+        logging.debug(f'vinstr_list {vinstr_list}')
         payload = json.dumps({
             'config': {
                 'prefer_typed': True,

@@ -270,7 +270,7 @@ class TeslaEVController(udi_interface.Node):
                 tmp['id'] = str(EVid)
                 init_webhook['assets'].append(tmp)
                 vin_list.append(str(EVid))
-
+            logging.debug(f'vin_list = {vin_list}')
             logging.debug(f'webhook_ init {init_webhook}')
             self.poly.webhookStart(init_webhook)
 
