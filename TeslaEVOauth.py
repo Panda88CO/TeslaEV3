@@ -195,10 +195,10 @@ class teslaEVAccess(teslaAccess):
         istr =  str(vin_list)
         vinstr_list.append(istr)
         logging.debug(f'vinstr_list {vinstr_list}')
-        payload = json.dumps({
-            'config': {
+        payload = json.dumps(
+            {'config': {
                 'prefer_typed': True,
-                'port': 4443,
+                'port': 443,
                 'exp': int(self.stream_cert['expiry']),
                 'alert_types': [
                     'service'
