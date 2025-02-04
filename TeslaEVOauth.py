@@ -193,7 +193,7 @@ class teslaEVAccess(teslaAccess):
         #for vin in vin_list:
         #    vin_str = '{'+str(vin)+'}'
         #    vinstr_list.append(vin_str)
-        payload = {
+        payload = json.dumps({
             'config': {
                 'prefer_typed': True,
                 'port': 443,
@@ -245,8 +245,7 @@ class teslaEVAccess(teslaAccess):
                 'ca' : self.stream_cert['ca'],
                 'hostname': 'my.isy.io'
                 },
-            'vins': vin_list
-            }
+            'vins': vin_list })
         code, res  = self._callApi('POST','/vehicles/fleet_telemetry_config', payload)
         logging.debug(f' config res {code} {res}')
    
