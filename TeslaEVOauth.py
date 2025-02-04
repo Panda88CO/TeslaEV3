@@ -119,9 +119,9 @@ class teslaEVAccess(teslaAccess):
         if response.status_code == 200:
             res = response.json()
             if res['successful']:
-                cert['issuedAt'] = self.datestr_to_epoch(str(res['data']['issuedAt']))
-                cert['expiry'] = self.datestr_to_epoch(str(res['data']['expiry']))
-                cert['expectedRenewal'] = self.datestr_to_epoch(str(res['data']['expectedRenewal']))
+                cert['issuedAt'] = self.datestr_to_epoch(str(int(res['data']['issuedAt'])))
+                cert['expiry'] = self.datestr_to_epoch(str(int(res['data']['expiry'])))
+                cert['expectedRenewal'] = self.datestr_to_epoch(str(int(res['data']['expectedRenewal'])))
                 cert['ca'] = str(res['data']['ca'])
         return (cert)
     
@@ -190,13 +190,16 @@ class teslaEVAccess(teslaAccess):
     def teslaEV_create_streaming_config(self, vin_list):
         logging.debug(f'teslaEV_create_config {vin_list}')
         vinstr_list = []
-        vinstr_list.append(str('{'+vin_list+'}'))
+        #for item in vin_list:
+        #    logging.debug(f'item{item}')
+        istr = '{' + str(vin_list) + '}'
+        vinstr_list.append(istr)
         logging.debug(f'vinstr_list {vinstr_list}')
         payload = json.dumps({
             'config': {
                 'prefer_typed': True,
                 'port': 443,
-                'exp': self.stream_cert['expiry'],
+                'exp': int(self.stream_cert['expiry']),
                 'alert_types': [
                     'service'
                     ],
