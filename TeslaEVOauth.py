@@ -185,7 +185,11 @@ class teslaEVAccess(teslaAccess):
     #        self.stream_cert = response.json()
 
 
-
+    def teslaEV_streaming_synched(self, EVid):
+        logging.debug(f'teslaEV_streaming_synched {EVid}')
+        code, res  = self._callApi('GET','/vehicles/'+str(EVid) +'/fleet_telemetry_config')
+        if code == 'ok':
+            return(code, res)             
 
     def teslaEV_create_streaming_config(self, vin_list):
         logging.debug(f'teslaEV_create_config {vin_list}')
@@ -292,6 +296,7 @@ class teslaEVAccess(teslaAccess):
         logging.debug(f'payload: {payload}')
         code, res  = self._callApi('POST','/vehicles/fleet_telemetry_config', payload)
         logging.debug(f' config res {code} {res}')
+        return(code, res)
    
     def extract_needed_delay(self, input_string):
         temp =  [int(word) for word in input_string.split() if word.isdigit()]

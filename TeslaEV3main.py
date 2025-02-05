@@ -75,7 +75,9 @@ class TeslaEVController(udi_interface.Node):
         self.customParam_done = False
         self.config_done = False
         #self.poly.setLogLevel('debug')
+        self.nbr_stream_EV = 0
         self.EV_setDriver('ST', 1, 25)
+
         logging.info('Controller init DONE')
 
     def check_config(self):
@@ -275,15 +277,52 @@ class TeslaEVController(udi_interface.Node):
             self.poly.webhookStart(init_webhook)
 
         if self.TEVcloud.teslaEV_check_streaming_certificate_update(): #We need to update streaming server credentials
-            self.TEVcloud.teslaEV_create_streaming_config(vin_list)
-        for indx, EVid in enumerate( self.vehicleList):
+            code, res = self.TEVcloud.teslaEV_create_streaming_config(vin_list)
+            if code == 'ok':
+                self.nbr_stream_EV = res['response']['updated_vehicles']
+                if self.GV1 == self.nbr_stream_EV: #registered EVs streaming capable
+                    time.sleep(2) # give car chance to sync
+                    EVs_synced_status = {}
+                    for indx, EVid in enumerate( self.vehicleList):
+                        EVs_synced_status[EVid] = False
+
+                    while True:
+                        for indx, EVid in enumerate( self.vehicleList):
+                            if not EVs_synced_status[EVid]:
+                                code, res = self.TEVcloud.teslaEV_streaming_synched(EVid)
+                                if code == 'ok':
+                                    EVs_synced_status[EVid] = res['response']['synced']
+                                    if EVs_synced_status[EVid] :
+                                        nodeName = self.TEVcloud.teslaEV_GetName(EVid)
+                                        if nodeName == None or nodeName == '':
+                                            # should not happen but just in case 
+                                            nodeName = 'ev'+str(EVid)
+                                        nodeName = str(nodeName)
+                                        nodeAdr = 'ev'+str(EVid)[-14:] 
+                                        nodeName = self.poly.getValidName(nodeName)
+                                        nodeAdr = self.poly.getValidAddress(nodeAdr)
+                                        if not self.poly.getNode(nodeAdr):
+                                            logging.debug('Node Address : {} {}'.format(self.poly.getNode(nodeAdr), nodeAdr))
+                                            logging.info(f'Creating Status node {nodeAdr} for {nodeName}')
+                                            self.status_nodes[EVid] = teslaEV_StatusNode(self.poly, nodeAdr, nodeAdr, nodeName, EVid, self.TEVcloud)
+                                            assigned_addresses.append(nodeAdr)
+                                            #while not (self.status_nodes[EVid].subnodesReady() or self.status_nodes[EVid].statusNodeReady):
+                                            #    logging.debug(f'Subnodes {self.status_nodes[EVid].subnodesReady()}  Status {self.status_nodes[EVid].statusNodeReady}')
+                                            #    logging.debug('waiting for nodes to be created')
+                                            #    time.sleep(5)
+                        if all(EVs_synced_status.values()):
+                            break
+                        else:
+                            time.sleep(5)
+
+
         #for indx in range(0,len(self.vehicleList)):
             #EVid = self.vehicleList[indx]
             #vehicleId = vehicle['vehicle_id']
-            nodeName = None
-            logging.debug(f'loop: {indx} {EVid}')
+            #nodeName = None
+            #logging.debug(f'loop: {indx} {EVid}')
             #code, res = self.TEVcloud.teslaEV_create_streaming_config(EVid)
-            logging.debug(f'self.TEVcloud.teslaEV_update_vehicle_status {code} - {res}')
+            #logging.debug(f'self.TEVcloud.teslaEV_update_vehicle_status {code} - {res}')
             '''
             if code in ['ok']:
                 code1, res = self.TEVcloud.teslaEV_UpdateCloudInfo(EVid)
