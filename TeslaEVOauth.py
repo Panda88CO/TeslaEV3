@@ -230,8 +230,7 @@ class teslaEVAccess(teslaAccess):
                         'HvacSteeringWheelHeatAuto' : { 'interval_seconds': 60 },
                         'HvacSteeringWheelHeatLevel' : { 'interval_seconds': 60 },
                         'HomelinkDeviceCount' : { 'interval_seconds': 600 },
-                        'HomelinkNearby' : { 'interval_seconds': 60 },
-                        'WindowState' : { 'interval_seconds': 60 },
+                        'HomelinkNearby' : { 'interval_seconds': 60 },                        
                         'Odometer': { 'interval_seconds': 60,'minimum_delta': 1},
                         'DoorState' : { 'interval_seconds': 60 },
                         'Location' : { 'interval_seconds': 60 },
@@ -251,8 +250,7 @@ class teslaEVAccess(teslaAccess):
                         'TpmsPressureRl' : { 'interval_seconds': 60 },
                         'TpmsPressureRr': { 'interval_seconds': 60 },
 
-
-
+                        #'WindowState' : { 'interval_seconds': 60 },
                         #'ChargingState' : { 'interval_seconds': 60 },                        
                         #'ChargeCurrentRequestMax' : { 'interval_seconds': 60 },
                         #'DetailedChargeStateValue' : { 'interval_seconds': 60 },                        
