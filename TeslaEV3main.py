@@ -290,6 +290,7 @@ class TeslaEVController(udi_interface.Node):
                         for indx, EVid in enumerate( self.vehicleList):
                             if not EVs_synced_status[EVid]:
                                 code, res = self.TEVcloud.teslaEV_streaming_synched(EVid)
+                                logging.debug(f'{EVid} synched {code} {res}')
                                 if code == 'ok':
                                     EVs_synced_status[EVid] = res['response']['synced']
                                     if EVs_synced_status[EVid] :
