@@ -282,9 +282,9 @@ class TeslaEVController(udi_interface.Node):
             #vehicleId = vehicle['vehicle_id']
             nodeName = None
             logging.debug(f'loop: {indx} {EVid}')
-            code, res = self.TEVcloud.teslaEV_create_streaming_config(EVid)
+            #code, res = self.TEVcloud.teslaEV_create_streaming_config(EVid)
             logging.debug(f'self.TEVcloud.teslaEV_update_vehicle_status {code} - {res}')
-
+            '''
             if code in ['ok']:
                 code1, res = self.TEVcloud.teslaEV_UpdateCloudInfo(EVid)
                 if code1 in ['ok']:
@@ -313,7 +313,7 @@ class TeslaEVController(udi_interface.Node):
 
                 #self.wait_for_node_done()     
                 #self.statusNodeReady = True
-        
+            '''
         logging.debug(f'Scanning db for extra nodes : {assigned_addresses}')
         for nde in range(0, len(self.nodes_in_db)):
             node = self.nodes_in_db[nde]
