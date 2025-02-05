@@ -233,15 +233,29 @@ class teslaEVAccess(teslaAccess):
                         'HomelinkNearby' : { 'interval_seconds': 60 },
                         'WindowState' : { 'interval_seconds': 60 },
                         'Odometer': { 'interval_seconds': 60,'minimum_delta': 1},
-                        'Doors' : { 'interval_seconds': 60 },
-                        'DetailedChargeStateValue' : { 'interval_seconds': 60 },
+                        'DoorState' : { 'interval_seconds': 60 },
                         'Location' : { 'interval_seconds': 60 },
                         'DCChargingEnergyIn': { 'interval_seconds': 60 },
                         'DCChargingPower' : { 'interval_seconds': 60 },
                         'ACChargingEnergyIn': { 'interval_seconds': 60 },
-                        'ACChargingPower' : { 'interval_seconds': 60 },
+                        'ACChargingPower' 
+                        'Locked' : { 'interval_seconds': 60 },
+                        'FdWindow': { 'interval_seconds': 60 },
+                        'FpWindow' : { 'interval_seconds': 60 },
+                        'RdWindow': { 'interval_seconds': 60 },
+                        'RpWindow' : { 'interval_seconds': 60 },
+                        'VehicleName': { 'interval_seconds': 60,'minimum_delta': 60,  },
+                        'Version' : { 'interval_seconds': 60,'minimum_delta': 60,  },
+                        'TpmsPressureFl' : { 'interval_seconds': 60 },
+                        'TpmsPressureFr' : { 'interval_seconds': 60 },
+                        'TpmsPressureRl' : { 'interval_seconds': 60 },
+                        'TpmsPressureRr': { 'interval_seconds': 60 },
+
+
+
                         #'ChargingState' : { 'interval_seconds': 60 },                        
                         #'ChargeCurrentRequestMax' : { 'interval_seconds': 60 },
+                        #'DetailedChargeStateValue' : { 'interval_seconds': 60 },                        
                         #charger_actual_current
                         #charge_energy_added
                         #charge_miles_added_rated   
