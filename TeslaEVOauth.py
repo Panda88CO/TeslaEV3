@@ -235,8 +235,12 @@ class teslaEVAccess(teslaAccess):
                         'Odometer': { 'interval_seconds': 60,'minimum_delta': 1},
                         'Doors' : { 'interval_seconds': 60 },
                         'DetailedChargeStateValue' : { 'interval_seconds': 60 },
-                        'ChargingState' : { 'interval_seconds': 60 },
-                        'LocationValue' : { 'interval_seconds': 60 },
+                        'Location' : { 'interval_seconds': 60 },
+                        'DCChargingEnergyIn': { 'interval_seconds': 60 },
+                        'DCChargingPower' : { 'interval_seconds': 60 },
+                        'ACChargingEnergyIn': { 'interval_seconds': 60 },
+                        'ACChargingPower' : { 'interval_seconds': 60 },
+                        #'ChargingState' : { 'interval_seconds': 60 },                        
                         #'ChargeCurrentRequestMax' : { 'interval_seconds': 60 },
                         #charger_actual_current
                         #charge_energy_added
