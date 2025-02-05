@@ -269,6 +269,7 @@ class teslaEVAccess(teslaAccess):
         }
 
         payload = json.dumps(cfg)
+        payload = cfg
         logging.debug(f'payload: {payload}')
         code, res  = self._callApi('POST','/vehicles/fleet_telemetry_config', payload)
         logging.debug(f' config res {code} {res}')
