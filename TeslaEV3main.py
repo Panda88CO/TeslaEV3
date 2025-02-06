@@ -285,7 +285,7 @@ class TeslaEVController(udi_interface.Node):
                     EVs_synced_status = {}
                     for indx, EVid in enumerate( self.vehicleList):
                         EVs_synced_status[EVid] = False
-
+                        self.TEVcloud._teslaEV_wake_ev(EVid)
                     while True:
                         for indx, EVid in enumerate( self.vehicleList):
                             if not EVs_synced_status[EVid]:
