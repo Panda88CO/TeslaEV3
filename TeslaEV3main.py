@@ -314,7 +314,7 @@ class TeslaEVController(udi_interface.Node):
                         if all(EVs_synced_status.values()):
                             break
                         else:
-                            time.sleep(5)
+                            time.sleep(300)
 
 
         #for indx in range(0,len(self.vehicleList)):
