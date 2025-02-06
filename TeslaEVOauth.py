@@ -212,6 +212,7 @@ class teslaEVAccess(teslaAccess):
                         'ChargeCurrentRequestMax': { 'interval_seconds': 60 },                        
                         'ChargeAmps' : { 'interval_seconds': 60,'minimum_delta': 1 },
                         'TimeToFullCharge' : { 'interval_seconds': 60 },
+                        'Soc' : { 'interval_seconds': 60},
                         'ChargerVoltage' : { 'interval_seconds': 60, 'minimum_delta': 1 },                    
                         'FastChargerPresent' : { 'interval_seconds': 60 },
                         'ChargePort' : { 'interval_seconds': 60 },
