@@ -54,6 +54,7 @@ class TeslaEVController(udi_interface.Node):
         self.Notices = Custom(polyglot, 'notices')
 
         self.poly.subscribe(self.poly.ADDNODEDONE, self.node_queue)
+        self.poly.subscribe(self.poly.WEBHOOK, self.webhook)
         #self.poly.subscribe(self.poly.CUSTOMDATA, self.customDataHandler) 
         #logging.debug('self.address : ' + str(self.address))
         #logging.debug('self.name :' + str(self.name))
@@ -251,10 +252,7 @@ class TeslaEVController(udi_interface.Node):
         if code in ['ok']:
             self.vehicleList = self.TEVcloud.teslaEV_get_vehicle_list()
             logging.debug(f'vehicleList: {code} - {self.vehicleList}')
-            self.EV_setDriver('GV0', self.bool2ISY(True), 25)
-
-
-            
+            self.EV_setDriver('GV0', self.bool2ISY(True), 25)            
         else:
             logging.error('Failed to retrieve EVs')
             self.EV_setDriver('GV0', self.bool2ISY(False), 25)   
@@ -314,7 +312,7 @@ class TeslaEVController(udi_interface.Node):
                         if all(EVs_synced_status.values()):
                             break
                         else:
-                            time.sleep(300)
+                            time.sleep(60)
 
 
         #for indx in range(0,len(self.vehicleList)):
@@ -355,8 +353,8 @@ class TeslaEVController(udi_interface.Node):
                 #self.statusNodeReady = True
             '''
         logging.debug(f'Scanning db for extra nodes : {assigned_addresses}')
-        for nde in range(0, len(self.nodes_in_db)):
-            node = self.nodes_in_db[nde]
+        for indx, node  in enumerate(self.nodes_in_db):
+            #node = self.nodes_in_db[nde]
             logging.debug(f'Scanning db for node : {node}')
             if node['primaryNode'] not in assigned_addresses:
                 logging.debug('Removing node : {} {}'.format(node['name'], node))
@@ -503,7 +501,6 @@ if __name__ == "__main__":
         #TEV_cloud = teslaEVAccess(polyglot, 'open_id vehicle_device_data vehicle_cmds  vehicle_charging_cmds offline_access')
         logging.debug(f'TEV_Cloud {TEV_cloud}')
         TEV =TeslaEVController(polyglot, 'controller', 'controller', 'Tesla EVs', TEV_cloud)
-
         
         logging.debug('before subscribe')
         polyglot.subscribe(polyglot.STOP, TEV.stop)
@@ -514,7 +511,7 @@ if __name__ == "__main__":
         polyglot.subscribe(polyglot.NOTICES, TEV.handleNotices)
         polyglot.subscribe(polyglot.POLL, TEV.systemPoll)
         polyglot.subscribe(polyglot.START, TEV.start, 'controller')
-        polyglot.subscribe(polyglot.WEBHOOK, TEV.webhook)
+        #polyglot.subscribe(polyglot.WEBHOOK, TEV.webhook)
         logging.debug('Calling start')
         polyglot.subscribe(polyglot.CUSTOMNS, TEV.customNSHandler)
         polyglot.subscribe(polyglot.OAUTH, TEV.oauthHandler)
