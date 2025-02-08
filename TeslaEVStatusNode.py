@@ -112,7 +112,8 @@ class teslaEV_StatusNode(udi_interface.Node):
 
     def poll (self, type ):    
         logging.info(f'Status Node Poll for {self.EVid} - poll type: {type}')        
-
+        pass
+        '''
         try:
             if type in ['short']:
                 code, state  = self.TEV.teslaEV_UpdateCloudInfoAwake(self.EVid)
@@ -135,6 +136,7 @@ class teslaEV_StatusNode(udi_interface.Node):
 
         except Exception as e:
                 logging.error(f'Status Poll exception : {e}')
+        '''
 
     def update_all_drivers(self, code):
         self.updateISYdrivers(code)
