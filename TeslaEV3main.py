@@ -249,7 +249,8 @@ class TeslaEVController(udi_interface.Node):
             time.sleep(5)
 
         assigned_addresses =['controller']
-        code, res = self.TEVcloud.teslaEV_get_vehicles()
+        code, vehicles = self.TEVcloud.teslaEV_get_vehicles()
+        
         if code in ['ok']:
             self.vehicleList = self.TEVcloud.teslaEV_get_vehicle_list()
             logging.debug(f'vehicleList: {code} - {self.vehicleList}')
