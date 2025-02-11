@@ -613,19 +613,26 @@ class teslaEVAccess(teslaAccess):
             return(self.stream_data[EVid])
         else:
             return(None)
+        
     def teslaEV_GetLocation(self, EVid):
         try:
             temp = {}
             temp['longitude'] = None
             temp['latitude'] = None
-            logging.debug('teslaEV_GetLocation: {} for {}'.format(EVid,self.carInfo[EVid]['drive_state'] ))
-            if 'longitude' in self.carInfo[EVid]['drive_state']:
-                temp['longitude'] = self.carInfo[EVid]['drive_state']['longitude']
-                temp['latitude'] = self.carInfo[EVid]['drive_state']['latitude']
-            elif 'active_route_longitude'in self.carInfo[EVid]['drive_state']:
-                temp['longitude'] = self.carInfo[EVid]['drive_state']['active_route_longitude']
-                temp['latitude'] = self.carInfo[EVid]['drive_state']['active_route_latitude']                
-            return(temp)
+            if 'location' in self.stream_data[EVid]:
+                logging.debug('teslaEV_GetLocation: {} for {}'.format(EVid,self.stream_data[EVid]['location'] ))
+                loc = self.stream_data[EVid]['Location']['locationValue']
+                temp['longitude'] = self.stream_data[EVid]['Location']['locationValue']['longitude']
+                temp['latitude'] = self.stream_data[EVid]['Location']['locationValue']['latitude']
+            else:
+                logging.debug('teslaEV_GetLocation: {} for {}'.format(EVid,self.carInfo[EVid]['drive_state'] ))
+                if 'longitude' in self.carInfo[EVid]['drive_state']:
+                    temp['longitude'] = self.carInfo[EVid]['drive_state']['longitude']
+                    temp['latitude'] = self.carInfo[EVid]['drive_state']['latitude']
+                elif 'active_route_longitude'in self.carInfo[EVid]['drive_state']:
+                    temp['longitude'] = self.carInfo[EVid]['drive_state']['active_route_longitude']
+                    temp['latitude'] = self.carInfo[EVid]['drive_state']['active_route_latitude']                
+                return(temp)
         except Exception as e:
             logging.error(f'teslaEV_GetLocation - location error')
             return(temp)

@@ -309,10 +309,13 @@ class TeslaEVController(udi_interface.Node):
                                 logging.info(f'Creating Status node {nodeAdr} for {nodeName}')
                                 self.status_nodes[EVid] = teslaEV_StatusNode(self.poly, nodeAdr, nodeAdr, nodeName, EVid, self.TEVcloud)
                                 assigned_addresses.append(nodeAdr)
-                                #while not (self.status_nodes[EVid].subnodesReady() or self.status_nodes[EVid].statusNodeReady):
-                                #    logging.debug(f'Subnodes {self.status_nodes[EVid].subnodesReady()}  Status {self.status_nodes[EVid].statusNodeReady}')
-                                #    logging.debug('waiting for nodes to be created')
-                                #    time.sleep(5)
+
+                                while not (self.status_nodes[EVid].subnodesReady() or self.status_nodes[EVid].statusNodeReady):
+                                    logging.debug(f'Subnodes {self.status_nodes[EVid].subnodesReady()}  Status {self.status_nodes[EVid].statusNodeReady}')
+                                    logging.debug('waiting for nodes to be created')
+                                    time.sleep(5)
+                                # need condition to only do this once 
+                                # self.TEVcloudteslaEV_UpdateCloudInfoAwake(EVid)
             if all(EVs_synced_status.values()):
                 break
             else:
