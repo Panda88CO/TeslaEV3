@@ -50,7 +50,6 @@ class TeslaEVController(udi_interface.Node):
         self.paramsProcessed = False
         self.customParameters = Custom(self.poly, 'customparams')
         self.portalData = Custom(self.poly, 'customNSdata')
-        #self.customData = Custom(self.poly, 'customdata')
         self.Notices = Custom(polyglot, 'notices')
 
         self.poly.subscribe(self.poly.ADDNODEDONE, self.node_queue)
@@ -127,11 +126,12 @@ class TeslaEVController(udi_interface.Node):
                 self.portalReady = True
 
             #if 'issuedAt' in data:
+            #    stream_cert = {}
             #    stream_cert['issuedAt'] = data['issuedAt']
             #    stream_cert['expiry'] = data['expiry']
             #    stream_cert['expectedRenewal'] = data['expectedRenewal']
             #    stream_cert['ca'] = data['ca']
-            #    self.TEVcloud.stream_cert  = self.stream_cert
+            #    self.TEVcloud.stream_cert  = stream_cert
             logging.debug(f'Custom Data portal: {self.portalID} {self.portalSecret}')
 
         self.TEVcloud.customNsHandler(key, data)
@@ -220,7 +220,8 @@ class TeslaEVController(udi_interface.Node):
         self.customParam_done = True
 
     def webhook(self, data): 
-        logging.info(f"Webhook received: { data }")
+        logging.info(f"Webhook received: { data }")        
+        self.TEVcloud.teslaEV_process_stream_data(data)        
 
 
     def start(self):
@@ -277,42 +278,49 @@ class TeslaEVController(udi_interface.Node):
         if self.TEVcloud.teslaEV_check_streaming_certificate_update(): #We need to update streaming server credentials
             code, res = self.TEVcloud.teslaEV_create_streaming_config(vin_list)
             if code == 'ok':
-                self.nbr_stream_EV = res['response']['updated_vehicles']
-                if self.GV1 == self.nbr_stream_EV: #registered EVs streaming capable
-                    time.sleep(2) # give car chance to sync
-                    EVs_synced_status = {}
-                    for indx, EVid in enumerate( self.vehicleList):
-                        EVs_synced_status[EVid] = False
-                        self.TEVcloud._teslaEV_wake_ev(EVid)
-                    while True:
-                        for indx, EVid in enumerate( self.vehicleList):
-                            if not EVs_synced_status[EVid]:
-                                code, res = self.TEVcloud.teslaEV_streaming_synched(EVid)
-                                logging.debug(f'{EVid} synched {code} {res}')
-                                if code == 'ok':
-                                    EVs_synced_status[EVid] = res['response']['synced']
-                                    if EVs_synced_status[EVid] :
-                                        nodeName = self.TEVcloud.teslaEV_GetName(EVid)
-                                        if nodeName == None or nodeName == '':
-                                            # should not happen but just in case 
-                                            nodeName = 'ev'+str(EVid)
-                                        nodeName = str(nodeName)
-                                        nodeAdr = 'ev'+str(EVid)[-14:] 
-                                        nodeName = self.poly.getValidName(nodeName)
-                                        nodeAdr = self.poly.getValidAddress(nodeAdr)
-                                        if not self.poly.getNode(nodeAdr):
-                                            logging.debug('Node Address : {} {}'.format(self.poly.getNode(nodeAdr), nodeAdr))
-                                            logging.info(f'Creating Status node {nodeAdr} for {nodeName}')
-                                            self.status_nodes[EVid] = teslaEV_StatusNode(self.poly, nodeAdr, nodeAdr, nodeName, EVid, self.TEVcloud)
-                                            assigned_addresses.append(nodeAdr)
-                                            #while not (self.status_nodes[EVid].subnodesReady() or self.status_nodes[EVid].statusNodeReady):
-                                            #    logging.debug(f'Subnodes {self.status_nodes[EVid].subnodesReady()}  Status {self.status_nodes[EVid].statusNodeReady}')
-                                            #    logging.debug('waiting for nodes to be created')
-                                            #    time.sleep(5)
-                        if all(EVs_synced_status.values()):
-                            break
-                        else:
-                            time.sleep(60)
+                #self.nbr_stream_EV = res['response']['updated_vehicles']
+                #if self.GV1 == self.nbr_stream_EV: #registered EVs streaming capable
+                time.sleep(2) # give car chance to sync
+                #else:
+                #logging.error('Failed to register synch profile' )
+        EVs_synced_status = {}
+        for indx, EVid in enumerate( self.vehicleList):
+            EVs_synced_status[EVid] = False
+            self.TEVcloud._teslaEV_wake_ev(EVid)
+        while True:
+            for indx, EVid in enumerate( self.vehicleList):
+                if not EVs_synced_status[EVid]:
+                    code, res = self.TEVcloud.teslaEV_streaming_synched(EVid)
+                    logging.debug(f'{EVid} synched {code} {res}')
+                    if code == 'ok':
+                        EVs_synced_status[EVid] = res['response']['synced']
+                        if EVs_synced_status[EVid] :
+                            nodeName = self.TEVcloud.teslaEV_GetName(EVid)
+                            count = 1
+                            while nodeName is None and count < 10:
+                                time.sleep(5)
+                                nodeName = self.TEVcloud.teslaEV_GetName(EVid)
+                                count +=1
+                            if nodeName == None or nodeName == '':
+                                # should not happen but just in case 
+                                nodeName = 'ev'+str(EVid)
+                            nodeName = str(nodeName)
+                            nodeAdr = 'ev'+str(EVid)[-14:] 
+                            nodeName = self.poly.getValidName(nodeName)
+                            nodeAdr = self.poly.getValidAddress(nodeAdr)
+                            if not self.poly.getNode(nodeAdr):
+                                logging.debug('Node Address : {} {}'.format(self.poly.getNode(nodeAdr), nodeAdr))
+                                logging.info(f'Creating Status node {nodeAdr} for {nodeName}')
+                                self.status_nodes[EVid] = teslaEV_StatusNode(self.poly, nodeAdr, nodeAdr, nodeName, EVid, self.TEVcloud)
+                                assigned_addresses.append(nodeAdr)
+                                #while not (self.status_nodes[EVid].subnodesReady() or self.status_nodes[EVid].statusNodeReady):
+                                #    logging.debug(f'Subnodes {self.status_nodes[EVid].subnodesReady()}  Status {self.status_nodes[EVid].statusNodeReady}')
+                                #    logging.debug('waiting for nodes to be created')
+                                #    time.sleep(5)
+            if all(EVs_synced_status.values()):
+                break
+            else:
+                time.sleep(60)
 
 
         #for indx in range(0,len(self.vehicleList)):
@@ -421,11 +429,11 @@ class TeslaEVController(udi_interface.Node):
         logging.info('Tesla EV Controller shortPoll(HeartBeat)')
         self.heartbeat()
         try:
-            temp_list = self.TEVcloud.teslaEV_get_vehicle_list()
-            logging.debug(f'short poll list {temp_list}')
-            for indx, vehicleID in enumerate(temp_list):
-                logging.debug(f'short poll loop {indx} {vehicleID}')
-                self.status_nodes[vehicleID].poll('short')
+            #temp_list = self.TEVcloud.teslaEV_get_vehicle_list()
+            logging.debug(f'short poll list ')
+            #for indx, vehicleID in enumerate(temp_list):
+            #    logging.debug(f'short poll loop {indx} {vehicleID}')
+            #    self.status_nodes[vehicleID].poll('short')
 
         except Exception as E:
             logging.info(f'Not all nodes ready: {E}')
@@ -435,10 +443,10 @@ class TeslaEVController(udi_interface.Node):
 
         try:
             #logging.debug('self.vehicleList {}'.format(self.TEVcloud.teslaEV_get_vehicle_list()))
-            temp_list = self.TEVcloud.teslaEV_get_vehicle_list()
-            logging.debug(f'long poll list {temp_list}')
-            for indx, vehicleID in enumerate (temp_list):
-                self.status_nodes[vehicleID].poll('long')
+            #temp_list = self.TEVcloud.teslaEV_get_vehicle_list()
+            logging.debug(f'long poll list')
+            #for indx, vehicleID in enumerate (temp_list):
+            #    self.status_nodes[vehicleID].poll('long')
 
         except Exception as E:
             logging.info(f'Not all nodes ready: {E}')

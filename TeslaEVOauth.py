@@ -45,10 +45,11 @@ class teslaEVAccess(teslaAccess):
         logging.info('OAuth initializing')
         self.poly = polyglot
         self.scope = scope
-        self.stream_cert = {}
-        self.customParameters = Custom(self.poly, 'customparams')
+
+        #self.customParameters = Custom(self.poly, 'customparams')
+        self.stream_cert = Custom(polyglot, 'customdata')
         self.poly.subscribe(self.poly.CUSTOMDATA, self.customDataHandler) 
-        self.stream_cert = Custom(self.poly, 'customdata')
+        #self.stream_cert = Custom(self.poly, 'customdata')
         #self.scope_str = None
         self.EndpointNA= 'https://fleet-api.prd.na.vn.cloud.tesla.com'
         self.EndpointEU= 'https://fleet-api.prd.eu.vn.cloud.tesla.com'
@@ -88,6 +89,7 @@ class teslaEVAccess(teslaAccess):
         self.next_command_call = temp
         self.next_chaging_call = temp
         self.next_device_data_call = temp
+        self.stream_data = {}
         time.sleep(1)
 
 
@@ -111,10 +113,11 @@ class teslaEVAccess(teslaAccess):
                 self.stream_cert['ca'] = ''
         self.customDataHandlerDone = True
 
+
     
     def teslaEV_get_streaming_certificate(self):
         response = requests.get('https://my.isy.io/api/certificate')
-        logging.debug(f'certificate - response {response}')
+        #logging.debug(f'certificate - response {response}')
         cert = {}
         if response.status_code == 200:
             res = response.json()
@@ -123,7 +126,9 @@ class teslaEVAccess(teslaAccess):
                 cert['expiry'] = int(self.datestr_to_epoch(str((res['data']['expiry']))))
                 cert['expectedRenewal'] = int(self.datestr_to_epoch(str((res['data']['expectedRenewal']))))
                 cert['ca'] = str(res['data']['ca'])
-        return (cert)
+                self.stream_cert = cert
+
+            return (cert)
     
 
     def teslaEV_check_streaming_certificate_update(self):
@@ -199,15 +204,11 @@ class teslaEVAccess(teslaAccess):
         #istr =  vin_list
         #vinstr_list.append(istr)
         #logging.debug(f'vinstr_list {vinstr_list}')
-        
-        cfg = {'vins': vin_list ,
-               'config': { 'prefer_typed': True,
-                    'port': 443,
-                    'exp': int(self.stream_cert['expiry']),
-                    'alert_types': [ 'service' ],
-                    'fields': {
+
+
+        self.stream_fields = {                  
                         'IdealBatteryRange' : { 'interval_seconds': 60, 'minimum_delta': 1 },
-                        'EstBatteryRange' : { 'interval_seconds': 60, 'minimum_delta': 1 },                    
+                        'EstBatteryRange' : { 'interval_seconds': 60, 'minimum_delta': 1, 'resend_interval_seconds' : 600 },                    
                         'ChargeCurrentRequest' : { 'interval_seconds': 60 },
                         'ChargeCurrentRequestMax': { 'interval_seconds': 60 },                        
                         'ChargeAmps' : { 'interval_seconds': 60,'minimum_delta': 1 },
@@ -247,15 +248,16 @@ class teslaEVAccess(teslaAccess):
                         'FdWindow': { 'interval_seconds': 60 },
                         'FpWindow' : { 'interval_seconds': 60 },
                         'RdWindow': { 'interval_seconds': 60 },
-                        'RpWindow' : { 'interval_seconds': 60 },
-                        'VehicleName': { 'interval_seconds': 600},
-                        'Version' : { 'interval_seconds': 600, },
+                        'RpWindow' : { 'interval_seconds': 60,  },
+                        'VehicleName': { 'interval_seconds': 60, 'resend_interval_seconds' : 600},
+                        'Version' : { 'interval_seconds': 60, },
                         'TpmsPressureFl' : { 'interval_seconds': 60 },
                         'TpmsPressureFr' : { 'interval_seconds': 60 },
                         'TpmsPressureRl' : { 'interval_seconds': 60 },
                         'TpmsPressureRr': { 'interval_seconds': 60 },
-
-                        #'WindowState' : { 'interval_seconds': 60 },
+                        'SettingDistanceUnit' :{ 'interval_seconds': 600 },
+                        'SettingTemperatureUnit' :{ 'interval_seconds': 600 },
+                          #'WindowState' : { 'interval_seconds': 60 },
                         #'ChargingState' : { 'interval_seconds': 60 },                        
                         #'ChargeCurrentRequestMax' : { 'interval_seconds': 60 },
                         #'DetailedChargeStateValue' : { 'interval_seconds': 60 },                        
@@ -263,35 +265,22 @@ class teslaEVAccess(teslaAccess):
                         #charge_energy_added
                         #charge_miles_added_rated   
                         #charger_power                     
-                        },
+                        }
+                    
+
+        
+        cfg = {'vins': vin_list ,
+               'config': { 'prefer_typed': True,
+                    'port': 443,
+                    'exp': int(self.stream_cert['expiry']),
+                    'alert_types': [ 'service' ],
+                    'fields': self.stream_fields, 
                     'ca' : self.stream_cert['ca'],
                     'hostname': 'my.isy.io'
                     },
                 
             }
         
-        cfg1={
-            "vins": ["5YJ3E1EA5RF721953"],
-            "config": {
-            "prefer_typed": True,
-            "port": 443,
-            "exp": 1763824091,
-            "alert_types": ["service"],
-            "fields": {
-                "VehicleSpeed": { "interval_seconds": 10 },
-                "Location": { "interval_seconds": 10 },
-                "DoorState": { "interval_seconds": 1 },
-                "Odometer": { "interval_seconds": 60 },
-                "Locked": { "interval_seconds": 1 },
-                "EstBatteryRange": { "interval_seconds": 60 }
-            },
-            'ca' : self.stream_cert['ca'],            
-            #"ca": "-----BEGIN CERTIFICATE-----\nMIIEXjCCA0agAwIBAgITB3MSSkvL1E7HtTvq8ZSELToPoTANBgkqhkiG9w0BAQsF\nADA5MQswCQYDVQQGEwJVUzEPMA0GA1UEChMGQW1hem9uMRkwFwYDVQQDExBBbWF6\nb24gUm9vdCBDQSAxMB4XDTIyMDgyMzIyMjUzMFoXDTMwMDgyMzIyMjUzMFowPDEL\nMAkGA1UEBhMCVVMxDzANBgNVBAoTBkFtYXpvbjEcMBoGA1UEAxMTQW1hem9uIFJT\nQSAyMDQ4IE0wMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALtDGMZa\nqHneKei1by6+pUPPLljTB143Si6VpEWPc6mSkFhZb/6qrkZyoHlQLbDYnI2D7hD0\nsdzEqfnuAjIsuXQLG3A8TvX6V3oFNBFVe8NlLJHvBseKY88saLwufxkZVwk74g4n\nWlNMXzla9Y5F3wwRHwMVH443xGz6UtGSZSqQ94eFx5X7Tlqt8whi8qCaKdZ5rNak\n+r9nUThOeClqFd4oXych//Rc7Y0eX1KNWHYSI1Nk31mYgiK3JvH063g+K9tHA63Z\neTgKgndlh+WI+zv7i44HepRZjA1FYwYZ9Vv/9UkC5Yz8/yU65fgjaE+wVHM4e/Yy\nC2osrPWE7gJ+dXMCAwEAAaOCAVowggFWMBIGA1UdEwEB/wQIMAYBAf8CAQAwDgYD\nVR0PAQH/BAQDAgGGMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjAdBgNV\nHQ4EFgQUwDFSzVpQw4J8dHHOy+mc+XrrguIwHwYDVR0jBBgwFoAUhBjMhTTsvAyU\nlC4IWZzHshBOCggwewYIKwYBBQUHAQEEbzBtMC8GCCsGAQUFBzABhiNodHRwOi8v\nb2NzcC5yb290Y2ExLmFtYXpvbnRydXN0LmNvbTA6BggrBgEFBQcwAoYuaHR0cDov\nL2NydC5yb290Y2ExLmFtYXpvbnRydXN0LmNvbS9yb290Y2ExLmNlcjA/BgNVHR8E\nODA2MDSgMqAwhi5odHRwOi8vY3JsLnJvb3RjYTEuYW1hem9udHJ1c3QuY29tL3Jv\nb3RjYTEuY3JsMBMGA1UdIAQMMAowCAYGZ4EMAQIBMA0GCSqGSIb3DQEBCwUAA4IB\nAQAtTi6Fs0Azfi+iwm7jrz+CSxHH+uHl7Law3MQSXVtR8RV53PtR6r/6gNpqlzdo\nZq4FKbADi1v9Bun8RY8D51uedRfjsbeodizeBB8nXmeyD33Ep7VATj4ozcd31YFV\nfgRhvTSxNrrTlNpWkUk0m3BMPv8sg381HhA6uEYokE5q9uws/3YkKqRiEz3TsaWm\nJqIRZhMbgAfp7O7FUwFIb7UIspogZSKxPIWJpxiPo3TcBambbVtQOcNRWz5qCQdD\nslI2yayq0n2TXoHyNCLEH8rpsJRVILFsg0jc7BaFrMnF462+ajSehgj12IidNeRN\n4zl+EoNaWdpnWndvSpAEkq2P\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nMIIEkjCCA3qgAwIBAgITBn+USionzfP6wq4rAfkI7rnExjANBgkqhkiG9w0BAQsF\nADCBmDELMAkGA1UEBhMCVVMxEDAOBgNVBAgTB0FyaXpvbmExEzARBgNVBAcTClNj\nb3R0c2RhbGUxJTAjBgNVBAoTHFN0YXJmaWVsZCBUZWNobm9sb2dpZXMsIEluYy4x\nOzA5BgNVBAMTMlN0YXJmaWVsZCBTZXJ2aWNlcyBSb290IENlcnRpZmljYXRlIEF1\ndGhvcml0eSAtIEcyMB4XDTE1MDUyNTEyMDAwMFoXDTM3MTIzMTAxMDAwMFowOTEL\nMAkGA1UEBhMCVVMxDzANBgNVBAoTBkFtYXpvbjEZMBcGA1UEAxMQQW1hem9uIFJv\nb3QgQ0EgMTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALJ4gHHKeNXj\nca9HgFB0fW7Y14h29Jlo91ghYPl0hAEvrAIthtOgQ3pOsqTQNroBvo3bSMgHFzZM\n9O6II8c+6zf1tRn4SWiw3te5djgdYZ6k/oI2peVKVuRF4fn9tBb6dNqcmzU5L/qw\nIFAGbHrQgLKm+a/sRxmPUDgH3KKHOVj4utWp+UhnMJbulHheb4mjUcAwhmahRWa6\nVOujw5H5SNz/0egwLX0tdHA114gk957EWW67c4cX8jJGKLhD+rcdqsq08p8kDi1L\n93FcXmn/6pUCyziKrlA4b9v7LWIbxcceVOF34GfID5yHI9Y/QCB/IIDEgEw+OyQm\njgSubJrIqg0CAwEAAaOCATEwggEtMA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/\nBAQDAgGGMB0GA1UdDgQWBBSEGMyFNOy8DJSULghZnMeyEE4KCDAfBgNVHSMEGDAW\ngBScXwDfqgHXMCs4iKK4bUqc8hGRgzB4BggrBgEFBQcBAQRsMGowLgYIKwYBBQUH\nMAGGImh0dHA6Ly9vY3NwLnJvb3RnMi5hbWF6b250cnVzdC5jb20wOAYIKwYBBQUH\nMAKGLGh0dHA6Ly9jcnQucm9vdGcyLmFtYXpvbnRydXN0LmNvbS9yb290ZzIuY2Vy\nMD0GA1UdHwQ2MDQwMqAwoC6GLGh0dHA6Ly9jcmwucm9vdGcyLmFtYXpvbnRydXN0\nLmNvbS9yb290ZzIuY3JsMBEGA1UdIAQKMAgwBgYEVR0gADANBgkqhkiG9w0BAQsF\nAAOCAQEAYjdCXLwQtT6LLOkMm2xF4gcAevnFWAu5CIw+7bMlPLVvUOTNNWqnkzSW\nMiGpSESrnO09tKpzbeR/FoCJbM8oAxiDR3mjEH4wW6w7sGDgd9QIpuEdfF7Au/ma\neyKdpwAJfqxGF4PcnCZXmTA5YpaP7dreqsXMGz7KQ2hsVxa81Q4gLv7/wmpdLqBK\nbRRYh5TmOTFffHPLkIhqhBGWJ6bt2YFGpn6jcgAKUj6DiAdjd4lpFw85hdKrCEVN\n0FE6/V1dN2RMfjCyVSRCnTawXZwXgWHxyvkQAiSr6w10kY17RSlQOYiypok1JR4U\nakcjMS9cmvqtmg5iUaQqqcT5NJ0hGA==\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nMIIEdTCCA12gAwIBAgIJAKcOSkw0grd/MA0GCSqGSIb3DQEBCwUAMGgxCzAJBgNV\nBAYTAlVTMSUwIwYDVQQKExxTdGFyZmllbGQgVGVjaG5vbG9naWVzLCBJbmMuMTIw\nMAYDVQQLEylTdGFyZmllbGQgQ2xhc3MgMiBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0\neTAeFw0wOTA5MDIwMDAwMDBaFw0zNDA2MjgxNzM5MTZaMIGYMQswCQYDVQQGEwJV\nUzEQMA4GA1UECBMHQXJpem9uYTETMBEGA1UEBxMKU2NvdHRzZGFsZTElMCMGA1UE\nChMcU3RhcmZpZWxkIFRlY2hub2xvZ2llcywgSW5jLjE7MDkGA1UEAxMyU3RhcmZp\nZWxkIFNlcnZpY2VzIFJvb3QgQ2VydGlmaWNhdGUgQXV0aG9yaXR5IC0gRzIwggEi\nMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDVDDrEKvlO4vW+GZdfjohTsR8/\ny8+fIBNtKTrID30892t2OGPZNmCom15cAICyL1l/9of5JUOG52kbUpqQ4XHj2C0N\nTm/2yEnZtvMaVq4rtnQU68/7JuMauh2WLmo7WJSJR1b/JaCTcFOD2oR0FMNnngRo\nOt+OQFodSk7PQ5E751bWAHDLUu57fa4657wx+UX2wmDPE1kCK4DMNEffud6QZW0C\nzyyRpqbn3oUYSXxmTqM6bam17jQuug0DuDPfR+uxa40l2ZvOgdFFRjKWcIfeAg5J\nQ4W2bHO7ZOphQazJ1FTfhy/HIrImzJ9ZVGif/L4qL8RVHHVAYBeFAlU5i38FAgMB\nAAGjgfAwge0wDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMCAYYwHQYDVR0O\nBBYEFJxfAN+qAdcwKziIorhtSpzyEZGDMB8GA1UdIwQYMBaAFL9ft9HO3R+G9FtV\nrNzXEMIOqYjnME8GCCsGAQUFBwEBBEMwQTAcBggrBgEFBQcwAYYQaHR0cDovL28u\nc3MyLnVzLzAhBggrBgEFBQcwAoYVaHR0cDovL3guc3MyLnVzL3guY2VyMCYGA1Ud\nHwQfMB0wG6AZoBeGFWh0dHA6Ly9zLnNzMi51cy9yLmNybDARBgNVHSAECjAIMAYG\nBFUdIAAwDQYJKoZIhvcNAQELBQADggEBACMd44pXyn3pF3lM8R5V/cxTbj5HD9/G\nVfKyBDbtgB9TxF00KGu+x1X8Z+rLP3+QsjPNG1gQggL4+C/1E2DUBc7xgQjB3ad1\nl08YuW3e95ORCLp+QCztweq7dp4zBncdDQh/U90bZKuCJ/Fp1U1ervShw3WnWEQt\n8jxwmKy6abaVd38PMV4s/KCHOkdp8Hlf9BRUpJVeEXgSYCfOn8J3/yNTd126/+pZ\n59vPr5KW7ySaNRB6nJHGDn2Z9j8Z3/VyVOEVqQdZe4O/Ui5GjLIAZHYcSNPYeehu\nVsyuLAOQ1xk4meTKCRlb/weWsKh/NEnfVqn3sF/tM+2MR7cwA130A4w=\n-----END CERTIFICATE-----\n",
-            "hostname": "my.isy.io"
-            },
-
-        }
-
         payload = json.dumps(cfg)
         payload = cfg
         logging.debug(f'payload: {payload}')
@@ -309,6 +298,43 @@ class teslaEVAccess(teslaAccess):
     def teslaEV_get_vehicle_list(self) -> list:
         return(self.ev_list)
     
+   
+   
+    def teslaEV_process_stream_data (self, data):
+        try:
+            temp = json.loads(data)
+            #d_type = type(data)
+            logging.debug(f'teslaEV_process_stream_data  {temp}')
+            #t_type = type(temp)
+            #logging.debug(f'data types data {type(data)} - temp {type(temp)}')
+            EVid = temp['stream']['deviceId']
+            if EVid not in self.stream_data:
+                self.stream_data[EVid] = {}
+            for item in temp['payload']['data']:
+                logging.debug(f'item : {item}')
+
+
+                if 'key' in item:
+                    self.stream_data[EVid][item['key']] = {}
+                    if 'value' in item:
+                        for key, val in item['value']:
+                            self.stream_data[EVid][item['key']]['type'] = key
+                            self.stream_data[EVid][item['key']]['value'] = val
+
+
+            logging.debug(f'stream_data {self.stream_data}')
+            self.stream_data[EVid]['created_at'] = temp['payload']['createdAt']['seconds']
+
+
+        except Exception as e:
+            logging.error(f'Exception processing data {data} {self.stream_data} {e}')
+   
+   
+   
+   
+    ########################################   
+   
+   
     def teslaEV_get_vehicles(self):
         EVs = {}
         logging.debug(f'teslaEV_get_vehicles ')
@@ -405,7 +431,6 @@ class teslaEVAccess(teslaAccess):
             return(code, self.get_delay(res))
         else:
            return(code, res) 
-
 
     def get_delay(self, string):
         numbers = [int(word) for word in string.split() if word.isdigit()]
@@ -557,6 +582,7 @@ class teslaEVAccess(teslaAccess):
             logging.error(f'teslaEV_update_connection_status - {e}')
             return('error', e)
 
+    '''
     def teslaEV_GetName(self, EVid):
         try:
             return(self.carInfo[EVid]['vehicle_state']['vehicle_name'])
@@ -564,8 +590,18 @@ class teslaEVAccess(teslaAccess):
         except Exception as e:
             logging.debug(f'teslaEV_GetName - No EV name found - {e}')
             return(None)
+    '''
 
+    def teslaEV_GetName(self, EVid):
+        try:
+            return(self.stream_data[EVid]['VehicleName'])
 
+        except Exception as e:
+            logging.debug(f'teslaEV_GetName - No EV name found - {e}')
+            return(None)
+        
+
+    '''
     def teslaEV_GetInfo(self, EVid):
         if EVid in self.carInfo:
 
@@ -573,8 +609,15 @@ class teslaEVAccess(teslaAccess):
             return(self.carInfo[EVid])
         else:
             return(None)
+    '''
 
+    def teslaEV_GetInfo(self, EVid):
+        if EVid in self.carInfo:
 
+            logging.debug(f'teslaEV_GetInfo {EVid}: {self.carInfo[EVid]}')
+            return(self.stream_data[EVid])
+        else:
+            return(None)
     def teslaEV_GetLocation(self, EVid):
         try:
             temp = {}
