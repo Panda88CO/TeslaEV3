@@ -296,12 +296,7 @@ class TeslaEVController(udi_interface.Node):
                     if code == 'ok':
                         EVs_synced_status[EVid] = res['response']['synced']
                         if EVs_synced_status[EVid] :
-                            nodeName = self.TEVcloud.teslaEV_GetName(EVid)
-                            count = 1
-                            while nodeName is None and count < 10:
-                                time.sleep(5)
-                                nodeName = self.TEVcloud.teslaEV_GetName(EVid)
-                                count +=1
+                            nodeName = self.TEVcloud.teslaEV_GetName(EVid)            
                             if nodeName == None or nodeName == '':
                                 # should not happen but just in case 
                                 nodeName = 'ev'+str(EVid)
@@ -321,7 +316,7 @@ class TeslaEVController(udi_interface.Node):
             if all(EVs_synced_status.values()):
                 break
             else:
-                time.sleep(60)
+                time.sleep(10)
 
 
         #for indx in range(0,len(self.vehicleList)):

@@ -79,45 +79,44 @@ class teslaEV_ChargeNode(udi_interface.Node):
         '''
 
 
-    def updateISYdrivers(self, code):
+    def updateISYdrivers(self):
         try:
-            if code in ['ok']:
-                logging.info(f'ChargeNode updateISYdrivers {self.EVid}')
-                if self.TEV.teslaEV_GetCarState(self.EVid) in ['online']:                
-                    self.EV_setDriver('GV1', self.bool2ISY(self.TEV.teslaEV_FastChargerPresent(self.EVid)), 25)
-                    self.EV_setDriver('GV2', self.bool2ISY(self.TEV.teslaEV_ChargePortOpen(self.EVid)),25)
-                    self.EV_setDriver('GV3', self.latch2ISY(self.TEV.teslaEV_ChargePortLatched(self.EVid)),25)
 
-                    temp_range = self.TEV.teslaEV_GetBatteryRange(self.EVid)
-                    if temp_range is None:
-                        self.EV_setDriver('GV4', temp_range, 25)
-                    else:
-                        if self.TEV.teslaEV_GetDistUnit() == 1:
-                            self.EV_setDriver('GV4', round(float(temp_range),1), 116)
-                        else:
-                            self.EV_setDriver('GV4', round(float(temp_range*1.6),1), 83)
+            logging.info(f'ChargeNode updateISYdrivers {self.EVid}')
+            #if self.TEV.teslaEV_GetCarState(self.EVid) in ['online']:                
+            self.EV_setDriver('GV1', self.bool2ISY(self.TEV.teslaEV_FastChargerPresent(self.EVid)), 25)
+            self.EV_setDriver('GV2', self.bool2ISY(self.TEV.teslaEV_ChargePortOpen(self.EVid)),25)
+            self.EV_setDriver('GV3', self.latch2ISY(self.TEV.teslaEV_ChargePortLatched(self.EVid)),25)
 
-                    self.EV_setDriver('ST', self.TEV.teslaEV_GetBatteryLevel(self.EVid) , 51)
-
-
-                    temp_current = self.TEV.teslaEV_MaxChargeCurrent(self.EVid) 
-                
-                    self.EV_setDriver('GV5', temp_current, 1)
-                    self.EV_setDriver('GV6',self.chargeState2ISY(self.TEV.teslaEV_ChargeState(self.EVid)), 25)
-                    self.EV_setDriver('GV7', self.bool2ISY(self.TEV.teslaEV_ChargingRequested(self.EVid)),25)
-                    self.EV_setDriver('GV8',self.TEV.teslaEV_ChargingRequested(self.EVid), 30)
-                    self.EV_setDriver('GV9', self.TEV.teslaEV_GetBatteryMaxCharge(self.EVid), 51)
-                    self.EV_setDriver('GV10',self.TEV.teslaEV_charger_voltage(self.EVid), 72)
-                    self.EV_setDriver('GV11', self.TEV.teslaEV_charge_current_request(self.EVid),1 )
-                    self.EV_setDriver('GV12', self.TEV.teslaEV_charger_actual_current(self.EVid), 1)
-                    self.EV_setDriver('GV14', self.TEV.teslaEV_time_to_full_charge(self.EVid), 44)
-                    self.EV_setDriver('GV15', self.TEV.teslaEV_charge_energy_added(self.EVid), 33)
-                    if self.TEV.teslaEV_GetDistUnit() == 1:
-                        self.EV_setDriver('GV16', self.TEV.teslaEV_charge_miles_added_rated(self.EVid), 116)
-                    else:
-                        self.EV_setDriver('GV16', self.TEV.teslaEV_charge_miles_added_rated(self.EVid)*1.6 , 83 )
+            temp_range = self.TEV.teslaEV_GetBatteryRange(self.EVid)
+            if temp_range is None:
+                self.EV_setDriver('GV4', temp_range, 25)
             else:
-                logging.info(f'No new data for ChargeNode for ({self.EVid}) - code: {code}')
+                if self.TEV.teslaEV_GetDistUnit() == 1:
+                    self.EV_setDriver('GV4', round(float(temp_range),1), 116)
+                else:
+                    self.EV_setDriver('GV4', round(float(temp_range*1.6),1), 83)
+
+            self.EV_setDriver('ST', self.TEV.teslaEV_GetBatteryLevel(self.EVid) , 51)
+
+
+            temp_current = self.TEV.teslaEV_MaxChargeCurrent(self.EVid) 
+        
+            self.EV_setDriver('GV5', temp_current, 1)
+            self.EV_setDriver('GV6',self.chargeState2ISY(self.TEV.teslaEV_ChargeState(self.EVid)), 25)
+            self.EV_setDriver('GV7', self.bool2ISY(self.TEV.teslaEV_ChargingRequested(self.EVid)),25)
+            self.EV_setDriver('GV8',self.TEV.teslaEV_ChargingRequested(self.EVid), 30)
+            self.EV_setDriver('GV9', self.TEV.teslaEV_GetBatteryMaxCharge(self.EVid), 51)
+            self.EV_setDriver('GV10',self.TEV.teslaEV_charger_voltage(self.EVid), 72)
+            self.EV_setDriver('GV11', self.TEV.teslaEV_charge_current_request(self.EVid),1 )
+            self.EV_setDriver('GV12', self.TEV.teslaEV_charger_actual_current(self.EVid), 1)
+            self.EV_setDriver('GV14', self.TEV.teslaEV_time_to_full_charge(self.EVid), 44)
+            self.EV_setDriver('GV15', self.TEV.teslaEV_charge_energy_added(self.EVid), 33)
+            if self.TEV.teslaEV_GetDistUnit() == 1:
+                self.EV_setDriver('GV16', self.TEV.teslaEV_charge_miles_added_rated(self.EVid), 116)
+            else:
+                self.EV_setDriver('GV16', self.TEV.teslaEV_charge_miles_added_rated(self.EVid)*1.6 , 83 )
+ 
         except Exception as e:
             logging.error(f'updateISYdrivers charge node failed: {e}')
 

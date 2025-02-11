@@ -104,7 +104,7 @@ class teslaEVAccess(teslaAccess):
 
     def customDataHandler(self, data):
         logging.debug('customDataHandler')
-        self.stream_cert.load(data)
+        #self.stream_cert.load(data)
         logging.debug('handleData load - {}'.format(self.stream_cert))
         if 'issuedAt' not in  self.stream_cert.keys():
                 self.stream_cert['issuedAt'] = None
@@ -312,19 +312,12 @@ class teslaEVAccess(teslaAccess):
                 self.stream_data[EVid] = {}
             for item in temp['payload']['data']:
                 logging.debug(f'item : {item}')
-
-
                 if 'key' in item:
-                    self.stream_data[EVid][item['key']] = {}
-                    if 'value' in item:
-                        for key, val in item['value']:
-                            self.stream_data[EVid][item['key']]['type'] = key
-                            self.stream_data[EVid][item['key']]['value'] = val
+                    self.stream_data[EVid][item['key']] = item['value']
 
 
+            self.stream_data[EVid]['created_at'] = temp['stream']['createdAt']
             logging.debug(f'stream_data {self.stream_data}')
-            self.stream_data[EVid]['created_at'] = temp['payload']['createdAt']['seconds']
-
 
         except Exception as e:
             logging.error(f'Exception processing data {data} {self.stream_data} {e}')
@@ -593,8 +586,10 @@ class teslaEVAccess(teslaAccess):
     '''
 
     def teslaEV_GetName(self, EVid):
+
         try:
-            return(self.stream_data[EVid]['VehicleName'])
+            logging.debug(f'teslaEV_GetName {self.carInfo[EVid]}')
+            return(self.carInfo[EVid]['display_name'])
 
         except Exception as e:
             logging.debug(f'teslaEV_GetName - No EV name found - {e}')
