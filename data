@@ -19,14 +19,14 @@
 		#{"key":"TpmsPressureRr","value":{"doubleValue":2.600000038743019}},
 		{"key":"FastChargerPresent","value":{"invalid":true}},
 		#{"key":"HomelinkDeviceCount","value":{"intValue":0}},
-		{"key":"AutoSeatClimateRight","value":{"booleanValue":false}},
+		#{"key":"AutoSeatClimateRight","value":{"booleanValue":false}},
 		#{"key":"SeatHeaterRight","value":{"intValue":0}},
 		#{"key":"VehicleName","value":{"stringValue":"Batmobile"}},
 		#{"key":"FpWindow","value":{"windowStateValue":"WindowStateClosed"}},
 		{"key":"TimeToFullCharge","value":{"invalid":true}},
 		{"key":"EstBatteryRange","value":{"doubleValue":105.87026975410106}},
 		{"key":"Version","value":{"stringValue":"2024.45.25.5 bb0c321a99db"}},
-		{"key":"PreconditioningEnabled","value":{"booleanValue":false}},
+		#{"key":"PreconditioningEnabled","value":{"booleanValue":false}},
 		{"key":"DCChargingEnergyIn","value":{"doubleValue":7.699999827891588}},
 		{"key":"DCChargingPower","value":{"doubleValue":0}},
 		{"key":"ChargeAmps","value":{"doubleValue":0}},
@@ -42,7 +42,7 @@
 		{"key":"ChargePort","value":{"chargePortValue":"ChargePortUS"}},
 		{"key":"DoorState","value":{"doorValue":{}}},
 		#{"key":"RpWindow","value":{"windowStateValue":"WindowStateClosed"}},
-		{"key":"AutoSeatClimateLeft","value":{"booleanValue":false}},
+		#{"key":"AutoSeatClimateLeft","value":{"booleanValue":false}},
 		#{"key":"TpmsPressureRl","value":{"doubleValue":2.57500003837049}},
 		{"key":"IdealBatteryRange","value":{"doubleValue":93.30316533532617}},
 		{"key":"ChargeState","value":{"stringValue":"Idle"}},
@@ -56,10 +56,13 @@
 		#{"key":"InsideTemp","value":{"doubleValue":20.30000089854002}},
 		#{"key":"OutsideTemp","value":{"doubleValue":14.5}},
 		#{"key":"FdWindow","value":{"windowStateValue":"WindowStateClosed"}},
-		{"key":"Odometer","value":{"doubleValue":14785.170933109728}},
+		#{"key":"Odometer","value":{"doubleValue":14785.170933109728}},
 		#?{"key":"HvacSteeringWheelHeatAuto","value":{"booleanValue":false}}],
 	"createdAt":{"seconds":"1739214148","nanos":146155591}}}
 
 
 	sunroof state
 	Door state need to be investigated
+	is_auto_conditioning_on
+	teslaEV_MaxCabinTempCtrl
+	teslaEV_MinCabinTempCtrl

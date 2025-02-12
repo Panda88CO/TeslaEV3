@@ -951,7 +951,7 @@ class teslaEVAccess(teslaAccess):
                 return('error', 'error')
 
         except Exception as e:
-            logging.error(f'Exception teslaEV_AteslaEV_ChargingutoCondition for vehicle id {EVid}: {e}')
+            logging.error(f'Exception teslaEV_Charging for vehicle id {EVid}: {e}')
             return('error', e)
 
 
@@ -1124,8 +1124,10 @@ class teslaEVAccess(teslaAccess):
 
     def teslaEV_AutoConditioningRunning(self, EVid):
         try:
-
-            return( self.carInfo[EVid]['climate_state']['is_auto_conditioning_on']) 
+            if self._stream_data_found(EVid, 'AutoSeatClimateRight') or self._stream_data_found(EVid, 'AutoSeatClimateLeft'):
+                return (self.stream_data[EVid]['AutoSeatClimateRight']['booleanValue'] or self.stream_data[EVid]['AutoSeatClimateLeft']['booleanValue'])
+            else:
+                return( self.carInfo[EVid]['climate_state']['is_auto_conditioning_on']) 
         except Exception as e:
             logging.debug(f' Exception teslaEV_AutoConditioningRunning - {e}')
             return(None)      
@@ -1133,11 +1135,14 @@ class teslaEVAccess(teslaAccess):
     def teslaEV_PreConditioningEnabled(self, EVid):
         #logging.debug(f'teslaEV_PreConditioningEnabled for {EVid}')
         try:
-            return(self.carInfo[EVid]['climate_state']['is_preconditioning'])
+            if self._stream_data_found(EVid, 'PreconditioningEnabled'):
+                return(self.stream_data[EVid]['PreconditioningEnabled']['booleanValue'])
+            else:
+                return(self.carInfo[EVid]['climate_state']['is_preconditioning'])
         except Exception as e:
             logging.debug(f' Exception teslaEV_PreConditioningEnabled - {e}')
             return(None)      
-
+    '''
     def teslaEV_MaxCabinTempCtrl(self, EVid):
         #logging.debug(f'teslaEV_MaxCabinTempCtrl for {EVid}')
         try:
@@ -1160,7 +1165,7 @@ class teslaEVAccess(teslaAccess):
         except Exception as e:
             logging.debug(f' Exception teslaEV_MinCabinTempCtrl - {e}')
             return(None)
-        
+    '''    
     def teslaEV_SteeringWheelHeatOn(self, EVid):
         #logging.debug(f'teslaEV_SteeringWheelHeatOn for {EVid}')
         try:
@@ -1496,7 +1501,7 @@ class teslaEVAccess(teslaAccess):
         try:
             #logging.debug(f'teslaEV_GetOdometer: for {EVid}')
             if self._stream_data_found(EVid, 'Odometer'):
-                return(self.stream_data[EVid]['Odometer']['doubleValue'])
+                return(round(self.stream_data[EVid]['Odometer']['doubleValue'],2))
             else:
                 return(round(self.carInfo[EVid]['vehicle_state']['odometer'], 2))
 
