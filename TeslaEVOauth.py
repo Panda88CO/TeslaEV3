@@ -331,6 +331,19 @@ class teslaEVAccess(teslaAccess):
         except:
             return(False)
         
+
+    def teslaEV_get_stream_id(self, data):
+        logging.debug(f'teslaEV_get_stream_id :{data}')
+        try:
+            temp = json.loads(data)
+            #d_type = type(data)
+            #t_type = type(temp)
+            #logging.debug(f'data types data {type(data)} - temp {type(temp)}')
+            return(temp['stream']['deviceId'])
+        except ValueError as e:
+            logging.error(f'Exception teslaEV_get_stream_id {e} ')
+            return (None)
+            
     ########################################   
    
    

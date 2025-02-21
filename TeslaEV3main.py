@@ -220,9 +220,13 @@ class TeslaEVController(udi_interface.Node):
         self.customParam_done = True
 
     def webhook(self, data): 
-        logging.info(f"Webhook received: { data }")        
-        self.TEVcloud.teslaEV_process_stream_data(data)        
-
+        try:
+            logging.info(f"Webhook received: { data }")        
+            self.TEVcloud.teslaEV_process_stream_data(data)        
+            vehicleID = self.TEVcloud.teslaEV_get_stream_id(data)  
+            self.status_nodes[vehicleID].update_all_drivers()
+        except Exception as e:
+            logging.error(f'Exception webhook {e}')
 
     def start(self):
         logging.info('start')
