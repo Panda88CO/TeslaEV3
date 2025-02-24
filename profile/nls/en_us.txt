@@ -78,7 +78,7 @@ ST-nlsevstatus-GV16-NAME= Ideal Battery Distance
 ST-nlsevstatus-GV17-NAME= EV Longitude
 ST-nlsevstatus-GV18-NAME= EV Latitude
 
-ST-nlsevstatus-GV19-NAME= Time since last car update
+ST-nlsevstatus-GV19-NAME= Time ONOFF last car update
 ST-nlsevstatus-GV20-NAME= Time since last status update
 ST-nlsevstatus-GV21-NAME= Last Command Status
 CMD_RES-0=OK
@@ -156,7 +156,7 @@ ONOFF-0=Off
 ONOFF-1=On
 ONOFF-99=Unknown
 
-ST-nlsevclimate-GV19-NAME= Time since car last update
+ST-nlsevclimate-GV19-NAME= Time of car last update
 ST-nlsevclimate-GV20-NAME= Time since climate last update
 ST-nlsevclimate-GV21-NAME= Last Command Status
 CMD-nlsevclimate-UPDATE-NAME=Update EV Climate Data
@@ -230,7 +230,7 @@ ST-nlsevcharge-GV14-NAME=Time to full charge
 ST-nlsevcharge-GV15-NAME=Charge energy added
 ST-nlsevcharge-GV16-NAME=Charge miles added rated
 
-ST-nlsevcharge-GV19-NAME= Time since car last update
+ST-nlsevcharge-GV19-NAME= Time of car last update
 ST-nlsevcharge-GV20-NAME= Time since charge last update
 ST-nlsevcharge-GV21-NAME= Last Command Status
 CMD-nlsevcharge-UPDATE-NAME=Update System Data

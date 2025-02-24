@@ -126,10 +126,9 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.EV_setDriver('GV7', self.cond2ISY(seatHeat['RearLeft']), 25)
             self.EV_setDriver('GV8', self.cond2ISY(seatHeat['RearMiddle']), 25)
             self.EV_setDriver('GV9', self.cond2ISY(seatHeat['RearRight']),25)
-            self.EV_setDriver('GV10', self.bool2ISY(self.TEV.teslaEV_AutoConditioningRunning(self.EVid)), 25)
             self.EV_setDriver('GV15', self.cond2ISY(seatHeat['ThirdLeft']),25)
             self.EV_setDriver('GV16', self.cond2ISY(seatHeat['ThirdRight']),25)
-
+            self.EV_setDriver('GV10', self.bool2ISY(self.TEV.teslaEV_AutoConditioningRunning(self.EVid)), 25)
             self.EV_setDriver('GV11', self.bool2ISY(self.TEV.teslaEV_PreConditioningEnabled(self.EVid)), 25)
             
             self.setDriverTemp('GV12', self.TEV.teslaEV_MaxCabinTempCtrl(self.EVid))
@@ -406,12 +405,12 @@ class teslaEV_ClimateNode(udi_interface.Node):
             {'driver': 'GV15', 'value': 0, 'uom': 25},  #seat_heater_third_left
             {'driver': 'GV16', 'value': 0, 'uom': 25},  #seat_heater_third_right
 
-
+            {'driver': 'GV10', 'value': 0, 'uom': 25}, #is_preconditioning
             {'driver': 'GV11', 'value': 0, 'uom': 25}, #is_preconditioning
-            {'driver': 'GV12', 'value': 0, 'uom': 4}, #max_avail_temp
-            {'driver': 'GV13', 'value': 0, 'uom': 4}, #min_avail_temp   
+            #{'driver': 'GV12', 'value': 0, 'uom': 4}, #max_avail_temp
+            #{'driver': 'GV13', 'value': 0, 'uom': 4}, #min_avail_temp   
             {'driver': 'GV14', 'value': 99, 'uom': 25}, #Steering Wheel Heat
-            {'driver': 'GV19', 'value': 0, 'uom': 20},  #Last combined update Hours           
+            {'driver': 'GV19', 'value': 0, 'uom': 151},  #Last combined update Hours           
             #{'driver': 'GV20', 'value': 0, 'uom': 20},  #Last update Hours          
             {'driver': 'GV21', 'value': 99, 'uom': 25}, #Last Command status
             ]

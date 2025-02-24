@@ -42,7 +42,7 @@
          <!-- <st id="GV16" editor="IDEADIST" /> !-->
          <st id="GV17" editor="LONGITUDE" />         
          <st id="GV18" editor="LATITUDE" />  
-         <st id="GV19" editor="MINU" />         
+         <st id="GV19" editor="unixtime" />         
          <!--<st id="GV20" editor="MINU" />    -->
          <st id="GV21" editor="LASTCMD" />   
       </sts>
@@ -87,11 +87,11 @@
          <st id="GV16" editor="HEATLVL" />
          <st id="GV10" editor="PRECSTATUS" />
          <st id="GV11" editor="PRECSTATUS" />
-         <st id="GV12" editor="TEMP" />
-         <st id="GV13" editor="TEMP" />
+         <!--<st id="GV12" editor="TEMP" />
+         <st id="GV13" editor="TEMP" />-->
          <st id="GV14" editor="HEAT" />
 
-         <st id="GV19" editor="MINU" />
+         <st id="GV19" editor="unixtime" />
          <!--<st id="GV20" editor="MINU" />    -->
          <st id="GV21" editor="LASTCMD" />  
       </sts>
@@ -151,7 +151,7 @@
          <st id="GV15" editor="KWH" />
          <!--<st id="GV16" editor="DISTANCE" />-->
 
-         <st id="GV19" editor="MINU" />
+         <st id="GV19" editor="unixtime" />
          <!--<st id="GV20" editor="MINU" />    -->
          <st id="GV21" editor="LASTCMD" />  
 

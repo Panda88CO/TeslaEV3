@@ -332,6 +332,12 @@ class teslaEVAccess(teslaAccess):
             return(False)
         
 
+    def _stream_last_data(self, EVid):
+        try:
+            return(self.stream_data[EVid]['created_at'])
+        except ValueError as e:
+            return(None)
+
     def teslaEV_get_stream_id(self, data):
         logging.debug(f'teslaEV_get_stream_id :{data}')
         try:
@@ -650,9 +656,9 @@ class teslaEVAccess(teslaAccess):
                 elif 'active_route_longitude'in self.carInfo[EVid]['drive_state']:
                     temp['longitude'] = self.carInfo[EVid]['drive_state']['active_route_longitude']
                     temp['latitude'] = self.carInfo[EVid]['drive_state']['active_route_latitude']                
-                return(temp)
+            return(temp)
         except Exception as e:
-            logging.error(f'teslaEV_GetLocation - location error')
+            logging.error(f'teslaEV_GetLocation - location error {e}')
             return(temp)
 
 
@@ -696,7 +702,10 @@ class teslaEVAccess(teslaAccess):
 
     def teslaEV_GetChargeTimestamp(self, EVid):
         try:
-            return(self.carInfo['charge_state']['timestamp'])
+            if self.stream_data[EVid]:
+                return(self._stream_last_data(EVid))
+            else:      
+                return(self.carInfo['charge_state']['timestamp'])
         except Exception as e:
             logging.debug(f'Exception teslaEV_GetChargeTimestamp - {e}')
             return(None)
@@ -1070,7 +1079,11 @@ class teslaEVAccess(teslaAccess):
 
     def teslaEV_GetClimateTimestamp(self, EVid):
         try:
-            return(self.carInfo[EVid]['climate_state']['timestamp'])
+            if self.stream_data[EVid]:
+                return(self._stream_last_data(EVid))
+            else:      
+
+                return(self.carInfo[EVid]['climate_state']['timestamp'])
         except Exception as e:
             logging.debug(f' Exception teslaEV_GetClimateTimestamp - {e}')
             return(None)
@@ -1468,7 +1481,10 @@ class teslaEVAccess(teslaAccess):
 
     def teslaEV_GetStatusTimestamp(self, EVid):
         try:
-            return(self.carInfo[EVid]['vehicle_state']['timestamp'])
+            if self.stream_data[EVid]:
+                return(self._stream_last_data(EVid))
+            else:      
+                return(self.carInfo[EVid]['vehicle_state']['timestamp'])
         except Exception as e:
             logging.debug(f' Exception teslaEV_GetStatusTimestamp - {e}')
             return(None)

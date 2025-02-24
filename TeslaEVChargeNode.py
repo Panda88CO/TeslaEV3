@@ -238,7 +238,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
             {'driver': 'GV14', 'value': 0, 'uom': 44},  #time_to_full_charge
             {'driver': 'GV15', 'value': 0, 'uom': 33},  #charge_energy_added           
             #{'driver': 'GV16', 'value': 0, 'uom': 83},  #charge_miles_added_rated
-            {'driver': 'GV19', 'value': 0, 'uom': 20},  #Last combined update Hours           
+            {'driver': 'GV19', 'value': 0, 'uom': 151},  #Last combined update Hours           
             #{'driver': 'GV20', 'value': 0, 'uom': 20},  #Last update Hours
             {'driver': 'GV21', 'value': 99, 'uom': 25}, #Last Command status
 
