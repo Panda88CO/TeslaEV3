@@ -112,10 +112,10 @@ class teslaEV_ChargeNode(udi_interface.Node):
             self.EV_setDriver('GV12', self.TEV.teslaEV_charger_actual_current(self.EVid), 1)
             self.EV_setDriver('GV14', self.TEV.teslaEV_time_to_full_charge(self.EVid), 44)
             self.EV_setDriver('GV15', self.TEV.teslaEV_charge_energy_added(self.EVid), 33)
-            if self.TEV.teslaEV_GetDistUnit() == 1:
-                self.EV_setDriver('GV16', self.TEV.teslaEV_charge_miles_added_rated(self.EVid), 116)
-            else:
-                self.EV_setDriver('GV16', self.TEV.teslaEV_charge_miles_added_rated(self.EVid)*1.6 , 83 )
+            #if self.TEV.teslaEV_GetDistUnit() == 1:
+            #    self.EV_setDriver('GV16', self.TEV.teslaEV_charge_miles_added_rated(self.EVid), 116)
+            #else:
+            #    self.EV_setDriver('GV16', self.TEV.teslaEV_charge_miles_added_rated(self.EVid)*1.6 , 83 )
  
         except Exception as e:
             logging.error(f'updateISYdrivers charge node failed: {e}')
@@ -237,7 +237,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
             #{'driver': 'GV13', 'value': 0, 'uom': 1},  #charge_amps
             {'driver': 'GV14', 'value': 0, 'uom': 44},  #time_to_full_charge
             {'driver': 'GV15', 'value': 0, 'uom': 33},  #charge_energy_added           
-            {'driver': 'GV16', 'value': 0, 'uom': 83},  #charge_miles_added_rated
+            #{'driver': 'GV16', 'value': 0, 'uom': 83},  #charge_miles_added_rated
             {'driver': 'GV19', 'value': 0, 'uom': 20},  #Last combined update Hours           
             #{'driver': 'GV20', 'value': 0, 'uom': 20},  #Last update Hours
             {'driver': 'GV21', 'value': 99, 'uom': 25}, #Last Command status

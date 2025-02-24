@@ -149,7 +149,7 @@
       <!--  <st id="GV13" editor="AMPS" /> -->
          <st id="GV14" editor="MINU" />
          <st id="GV15" editor="KWH" />
-         <st id="GV16" editor="DISTANCE" />
+         <!--<st id="GV16" editor="DISTANCE" />-->
 
          <st id="GV19" editor="MINU" />
          <!--<st id="GV20" editor="MINU" />    -->
