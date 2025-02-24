@@ -319,7 +319,8 @@ class TeslaEVController(udi_interface.Node):
                                     logging.debug('waiting for nodes to be created')
                                     time.sleep(5)
                                 # need condition to only do this once 
-                                # self.TEVcloudteslaEV_UpdateCloudInfoAwake(EVid)
+                                # Load data once - need to synchronize data available 
+                                self.TEVcloud.teslaEV_UpdateCloudInfoAwake(EVid)
             if all(EVs_synced_status.values()):
                 break
             else:
