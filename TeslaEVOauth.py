@@ -869,7 +869,7 @@ class teslaEVAccess(teslaAccess):
         except Exception as e:
             logging.debug(f'Exception teslaEV_ChargePortLatched - {e}')
             return(None)  
-        ChargePortDoorOpen
+        #ChargePortDoorOpen
     def teslaEV_GetBatteryRange(self, EVid):
         try:
             #logging.debug(f'teslaEV_GetBatteryLevel for {EVid}')
@@ -1535,31 +1535,41 @@ class teslaEVAccess(teslaAccess):
         except Exception as e:
             logging.debug(f' Exception teslaEV_GetLockState - {e}')
             return(None)
-        
+
+    def _window_state2ISY(self, state):
+        try:
+            if state in ['WindowStateClosed', None]:
+                return(0)
+            else:
+                return(1)
+        except Exception:
+            return(None)
+
+
     def teslaEV_GetWindoStates(self, EVid):
         #logging.debug(f'teslaEV_GetWindoStates: for {EVid}')
         try:
             temp = {}
             if self._stream_data_found(EVid, 'FdWindow'):
-                temp['FrontLeft'] = self.stream_data[EVid]['FdWindow']['windowStateValue']
+                temp['FrontLeft'] = self._window_state2ISY(self.stream_data[EVid]['FdWindow']['windowStateValue'])
             elif  'fd_window' in self.carInfo[EVid]['vehicle_state']:
                 temp['FrontLeft'] = self.carInfo[EVid]['vehicle_state']['fd_window']
             else:
                 temp['FrontLeft'] = None
             if self._stream_data_found(EVid, 'FpWindow'):
-                temp['FrontRight'] = self.stream_data[EVid]['FpWindow']['windowStateValue']
+                temp['FrontRight'] = self._window_state2ISY(self.stream_data[EVid]['FpWindow']['windowStateValue'])
             elif 'fp_window' in self.carInfo[EVid]['vehicle_state']:
                 temp['FrontRight'] = self.carInfo[EVid]['vehicle_state']['fp_window']
             else:
                 temp['FrontRight'] = None
             if self._stream_data_found(EVid, 'RdWindow'):
-                temp['RearLeft'] = self.stream_data[EVid]['RdWindow']['windowStateValue']
+                temp['RearLeft'] = self._window_state2ISY(self.stream_data[EVid]['RdWindow']['windowStateValue'])
             elif 'rd_window' in self.carInfo[EVid]['vehicle_state']:
                 temp['RearLeft'] = self.carInfo[EVid]['vehicle_state']['rd_window']
             else:
                 temp['RearLeft'] = None
             if self._stream_data_found(EVid, 'RpWindow'):
-                temp['RearRight'] = self.stream_data[EVid]['RpWindow']['windowStateValue']       
+                temp['RearRight'] = self._window_state2ISY(self.stream_data[EVid]['RpWindow']['windowStateValue'])       
             elif 'rp_window' in self.carInfo[EVid]['vehicle_state']:
                 temp['RearRight'] = self.carInfo[EVid]['vehicle_state']['rp_window']
             else:

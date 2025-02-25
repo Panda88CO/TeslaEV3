@@ -320,7 +320,7 @@ class TeslaEVController(udi_interface.Node):
                                     time.sleep(5)
                                 # need condition to only do this once 
                                 # Load data once - need to synchronize data available 
-                                self.TEVcloud.teslaEV_UpdateCloudInfoAwake(EVid)
+                                #self.TEVcloud.teslaEV_UpdateCloudInfoAwake(EVid) #Needs to be enabled once other stuff is working 
             if all(EVs_synced_status.values()):
                 break
             else:

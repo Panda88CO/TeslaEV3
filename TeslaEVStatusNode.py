@@ -131,8 +131,6 @@ class teslaEV_StatusNode(udi_interface.Node):
 
             #else:
             #    self.EV_setDriver('ST', 99, 25)
-            
-
 
         except Exception as e:
                 logging.error(f'Status Poll exception : {e}')
