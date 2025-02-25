@@ -314,6 +314,12 @@ class teslaEVAccess(teslaAccess):
             for item in temp['payload']['data']:
                 logging.debug(f'item : {item}')
                 if 'key' in item:
+                    #if item['key'] in ['Location']:
+
+                    #elif item['key'] in ['DoorState']:
+
+                    #else:
+
                     self.stream_data[EVid][item['key']] = item['value']
 
 
@@ -642,13 +648,12 @@ class teslaEVAccess(teslaAccess):
             temp = {}
             temp['longitude'] = None
             temp['latitude'] = None
-            if EVid in self.stream_data:
-                if 'location' in self.stream_data[EVid]:
-                    logging.debug('teslaEV_GetLocation stream: {} for {}'.format(EVid,self.stream_data[EVid]['location'] ))
-                    loc = self.stream_data[EVid]['Location']['locationValue']
-                    temp['longitude'] = self.stream_data[EVid]['Location']['locationValue']['longitude']
-                    temp['latitude'] = self.stream_data[EVid]['Location']['locationValue']['latitude']
-                    data_found = True
+            if self._stream_data_found(EVid, 'location'):
+                logging.debug('teslaEV_GetLocation stream: {} for {}'.format(EVid,self.stream_data[EVid]['location'] ))
+                loc = self.stream_data[EVid]['Location']['locationValue']
+                temp['longitude'] = self.stream_data[EVid]['Location']['locationValue']['longitude']
+                temp['latitude'] = self.stream_data[EVid]['Location']['locationValue']['latitude']
+                data_found = True
             if not data_found:
                 logging.debug('teslaEV_GetLocation Org: {} for {}'.format(EVid,self.carInfo[EVid]['drive_state'] ))
                 if 'longitude' in self.carInfo[EVid]['drive_state']:
@@ -1620,6 +1625,8 @@ class teslaEVAccess(teslaAccess):
     def teslaEV_GetTrunkState(self, EVid):
         #logging.debug(f'teslaEV_GetTrunkState: for {EVid}')
         try:
+            if self._stream_data_found(EVid, 'DoorState'):
+                logging.debug('DoorsState : {}'.format(self.stream_data[EVid]['DoorState']))
             if self.carInfo[EVid]['vehicle_state']['rt'] == 0:
                 return(0)
             elif self.carInfo[EVid]['vehicle_state']['rt'] == 1:
@@ -1651,7 +1658,7 @@ class teslaEVAccess(teslaAccess):
             temp['tmpsRr'] = self.stream_data[EVid]['TpmsPressureRr']['doubleValue']                       
             temp['tmpsRl'] = self.stream_data[EVid]['TpmsPressureRl']['doubleValue']
             return(temp)
-        except ValueError as e:
+        except ValueError:
             temp['tmpsFr'] = None
             temp['tmpsFl'] = None
             temp['tmpsRr'] = None                       
