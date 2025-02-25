@@ -636,6 +636,7 @@ class teslaEVAccess(teslaAccess):
             return(None)
         
     def teslaEV_GetLocation(self, EVid):
+        logging.debug('teslaEV_GetLocation')
         try:
             data_found = False
             temp = {}
@@ -1105,7 +1106,7 @@ class teslaEVAccess(teslaAccess):
 
     def teslaEV_GetCabinTemp(self, EVid):
         try:
-            logging.debug('teslaEV_GetCabinTemp for {} - {}'.format(EVid, self.carInfo[EVid]['climate_state']['inside_temp'] ))
+            logging.debug('teslaEV_GetCabinTemp for {} '.format(EVid))
             if self._stream_data_found(EVid, 'InsideTemp'):
                 return(round(self.stream_data[EVid]['InsideTemp']['doubleValue'],1))
             else:
@@ -1116,7 +1117,7 @@ class teslaEVAccess(teslaAccess):
         
     def teslaEV_GetOutdoorTemp(self, EVid):
         try:
-            logging.debug('teslaEV_GetOutdoorTemp for {} = {}'.format(EVid, self.carInfo[EVid]['climate_state']['outside_temp']))
+            logging.debug('teslaEV_GetOutdoorTemp for {}'.format(EVid))
             if self._stream_data_found(EVid, 'OutsideTemp'):
                 return(round(self.stream_data[EVid]['OutsideTemp']['doubleValue'],1))
             else:
