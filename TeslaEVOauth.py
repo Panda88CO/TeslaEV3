@@ -200,7 +200,13 @@ class teslaEVAccess(teslaAccess):
         logging.debug(f'teslaEV_streaming_synched {EVid}')
         code, res  = self._callApi('GET','/vehicles/'+str(EVid) +'/fleet_telemetry_config')
         if code == 'ok':
-            return(code, res)             
+            return(code, res)       
+
+    def teslaEV_streaming_delete_config(self, EVid):
+        logging.debug(f'teslaEV_streaming_delete_config {EVid}')
+        code, res  = self._callApi('DELETE','/vehicles/'+str(EVid) +'/fleet_telemetry_config')
+        if code == 'ok':
+            return(code, res)                         
 
     def teslaEV_create_streaming_config(self, vin_list):
         logging.debug(f'teslaEV_create_config {vin_list}')
@@ -216,16 +222,16 @@ class teslaEVAccess(teslaAccess):
                         'EstBatteryRange' : { 'interval_seconds': 60, 'minimum_delta': 1, 'resend_interval_seconds' : 600 },                    
                         'ChargeCurrentRequest' : { 'interval_seconds': 60 },
                         'ChargeCurrentRequestMax': { 'interval_seconds': 60 },                        
-                        'ChargeAmps' : { 'interval_seconds': 60,'minimum_delta': 1 },
-                        'TimeToFullCharge' : { 'interval_seconds': 60 },
-                        #'Soc' : { 'interval_seconds': 60},
-                        'ChargerVoltage' : { 'interval_seconds': 60, 'minimum_delta': 1 },                    
+                        'ChargeAmps' : { 'interval_seconds': 60, 'minimum_delta': 0.5, },
+                        'TimeToFullCharge' : { 'interval_seconds': 60, 'minimum_delta': 1,  },
+                        #'Soc' : { 'interval_seconds': 60, 'minimum_delta': 1 },
+                        'ChargerVoltage' : { 'interval_seconds': 60, 'minimum_delta': 1, },                    
                         'FastChargerPresent' : { 'interval_seconds': 60 },
                         'ChargePortDoorOpen' : { 'interval_seconds': 60 },
                         'ChargePortLatch' : { 'interval_seconds': 60 },
-                        'BatteryLevel' : { 'interval_seconds': 60, 'minimum_delta': 1 },
+                        'BatteryLevel' : { 'interval_seconds': 60, 'minimum_delta': 1,'resend_interval_seconds' : 600 },
                         'ChargeState': { 'interval_seconds': 60 },
-                        'ChargeLimitSoc': { 'interval_seconds': 60 },
+                        'ChargeLimitSoc': { 'interval_seconds': 60, 'minimum_delta': 1, },
                         'InsideTemp': { 'interval_seconds': 60, 'minimum_delta': 1, },
                         'OutsideTemp': { 'interval_seconds': 60,'minimum_delta': 1,  },
                         'SeatHeaterLeft' : { 'interval_seconds': 60 },
@@ -245,21 +251,21 @@ class teslaEVAccess(teslaAccess):
                         'Odometer': { 'interval_seconds': 60,'minimum_delta': 1},
                         'DoorState' : { 'interval_seconds': 60 },
                         'Location' : { 'interval_seconds': 60 },
-                        'DCChargingEnergyIn': { 'interval_seconds': 60 },
-                        'DCChargingPower' : { 'interval_seconds': 60 },
-                        'ACChargingEnergyIn': { 'interval_seconds': 60 },
-                        'ACChargingPower' : { 'interval_seconds': 60 },
+                        'DCChargingEnergyIn': { 'interval_seconds': 60, 'minimum_delta': 1 },
+                        'DCChargingPower' : { 'interval_seconds': 60, 'minimum_delta': 1 },
+                        'ACChargingEnergyIn': { 'interval_seconds': 60,'minimum_delta': 0.25 },
+                        'ACChargingPower' : { 'interval_seconds': 60 ,'minimum_delta': 0.25},
                         'Locked' : { 'interval_seconds': 60 },
                         'FdWindow': { 'interval_seconds': 60 },
                         'FpWindow' : { 'interval_seconds': 60 },
                         'RdWindow': { 'interval_seconds': 60 },
                         'RpWindow' : { 'interval_seconds': 60,  },
-                        'VehicleName': { 'interval_seconds': 60, 'resend_interval_seconds' : 600},
+                        #'VehicleName': { 'interval_seconds': 60},
                         'Version' : { 'interval_seconds': 60, },
-                        'TpmsPressureFl' : { 'interval_seconds': 60 },
-                        'TpmsPressureFr' : { 'interval_seconds': 60 },
-                        'TpmsPressureRl' : { 'interval_seconds': 60 },
-                        'TpmsPressureRr': { 'interval_seconds': 60 },
+                        'TpmsPressureFl' : { 'interval_seconds': 60,'minimum_delta': 0.1 },
+                        'TpmsPressureFr' : { 'interval_seconds': 60,'minimum_delta': 0.1  },
+                        'TpmsPressureRl' : { 'interval_seconds': 60,'minimum_delta': 0.1  },
+                        'TpmsPressureRr': { 'interval_seconds': 60,'minimum_delta': 0.1  },
                         'SettingDistanceUnit' :{ 'interval_seconds': 600 },
                         'SettingTemperatureUnit' :{ 'interval_seconds': 600 },
                         'CenterDisplay': { 'interval_seconds': 60 },
@@ -295,6 +301,10 @@ class teslaEVAccess(teslaAccess):
         logging.debug(f' config res {code} {res}')
         return(code, res)
    
+
+
+
+
     def extract_needed_delay(self, input_string):
         temp =  [int(word) for word in input_string.split() if word.isdigit()]
         if temp != []:
