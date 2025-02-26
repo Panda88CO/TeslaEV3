@@ -109,7 +109,7 @@ class teslaEVAccess(teslaAccess):
         if 'issuedAt' not in  self.stream_cert.keys():
                 self.stream_cert['issuedAt'] = None
                 self.stream_cert['expiry'] = None
-                self.stream_cert['expectedRenewal'] = None
+                self.stream_cert['expectedRenewal'] = 0
                 self.stream_cert['ca'] = ''
         self.customDataHandlerDone = True
 
@@ -131,18 +131,24 @@ class teslaEVAccess(teslaAccess):
             return (cert)
     
 
-    def teslaEV_check_streaming_certificate_update(self):
+    def teslaEV_check_streaming_certificate_update(self, vin_list):
         logging.debug('teslaEV_update_streaming_certificate')
-        temp = self.teslaEV_get_streaming_certificate()
-        logging.debug(f'temp certificat {temp} org {self.stream_cert}')
-        if not self.stream_cert['issuedAt']:
-            self.stream_cert = temp
-            return(True)
-        elif temp['issuedAt'] > self.stream_cert['issuedAt']:
-            self.stream_cert = temp
-            return(True)
-        else:
+        try: 
+            if self.stream_cert['expectedRenewal'] <= time.time():
+                logging.info('Updating Streaming certificate')
+                self.stream_cert = self.teslaEV_get_streaming_certificate()
+            return(self.stream_cert is not {})
+        except ValueError:  #First time - we need to create config
+            self.stream_cert = self.teslaEV_get_streaming_certificate()
+            if self.stream_cert is not {}:
+                code, res = self.TEVcloud.teslaEV_create_streaming_config(vin_list)
+                if code == 'ok':
+                    time.sleep(2) # give car chance to sync
+                    return(True)
             return(False)
+
+
+
         
     
     def datestr_to_epoch(self, datestr):
