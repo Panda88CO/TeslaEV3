@@ -1088,7 +1088,6 @@ class teslaEVAccess(teslaAccess):
             if self.stream_data[EVid]:
                 return(self._stream_last_data(EVid))
             else:      
-
                 return(self.carInfo[EVid]['climate_state']['timestamp'])
         except Exception as e:
             logging.debug(f' Exception teslaEV_GetClimateTimestamp - {e}')
