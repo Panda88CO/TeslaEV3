@@ -226,7 +226,7 @@ class teslaEVAccess(teslaAccess):
                         'ChargeCurrentRequestMax': { 'interval_seconds': 60 },                        
                         'ChargeAmps' : { 'interval_seconds': 60, 'minimum_delta': 0.5, },
                         'TimeToFullCharge' : { 'interval_seconds': 60, 'minimum_delta': 1,  },
-                        #'Soc' : { 'interval_seconds': 60, 'minimum_delta': 1 },
+                        'Soc' : { 'interval_seconds': 60, 'minimum_delta': 1 },
                         'ChargerVoltage' : { 'interval_seconds': 60, 'minimum_delta': 1, },                    
                         'FastChargerPresent' : { 'interval_seconds': 60 },
                         'ChargePortDoorOpen' : { 'interval_seconds': 60 },
@@ -271,8 +271,9 @@ class teslaEVAccess(teslaAccess):
                         'SettingDistanceUnit' :{ 'interval_seconds': 600 },
                         'SettingTemperatureUnit' :{ 'interval_seconds': 600 },
                         'CenterDisplay': { 'interval_seconds': 60 },
+                        'DefrostMode':{ 'interval_seconds': 60 },
 
-                          #'WindowState' : { 'interval_seconds': 60 },
+                        #'WindowState' : { 'interval_seconds': 60 },
                         #'ChargingState' : { 'interval_seconds': 60 },                        
                         #'ChargeCurrentRequestMax' : { 'interval_seconds': 60 },
                         #'DetailedChargeStateValue' : { 'interval_seconds': 60 },                        
@@ -352,14 +353,14 @@ class teslaEVAccess(teslaAccess):
     def _stream_data_found(self, EVid, key):
         try:
             return(key in self.stream_data[EVid])
-        except:
+        except ValueError:
             return(False)
         
 
     def _stream_last_data(self, EVid):
         try:
             return(self.stream_data[EVid]['created_at'])
-        except ValueError as e:
+        except ValueError:
             return(None)
 
     def teslaEV_get_stream_id(self, data):
@@ -628,11 +629,8 @@ class teslaEVAccess(teslaAccess):
     def teslaEV_GetName(self, EVid):
 
         try:
-            if self._stream_data_found(EVid, 'VehicleName' ):
-                return(self.stream_data[EVid]['VehicleName']['stringValue'])
-            else:
-                logging.debug(f'teslaEV_GetName ORG {self.carInfo[EVid]}')
-                return(self.carInfo[EVid]['display_name'])
+            logging.debug(f'teslaEV_GetName {self.carInfo[EVid]}')
+            return(self.carInfo[EVid]['display_name'])
 
         except Exception as e:
             logging.debug(f'teslaEV_GetName - No EV name found - {e}')
