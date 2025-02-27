@@ -76,7 +76,8 @@ class TeslaEVController(udi_interface.Node):
         self.customParam_done = False
         self.config_done = False
         #self.poly.setLogLevel('debug')
-        self.nbr_stream_EV = 0
+        #self.nbr_stream_EV = 0
+        self.EVid = None
         self.EV_setDriver('ST', 1, 25)
 
         logging.info('Controller init DONE')
@@ -201,8 +202,15 @@ class TeslaEVController(udi_interface.Node):
         else:
             logging.warning('No TEMP_UNIT')
             self.customParameters['TEMP_UNIT'] = 'C or F'
-        logging.debug('customParamsHandler finish ')
 
+
+        if 'VIN' in userParams:
+            if self.customParameters['VIN'] != 'EV VIN':
+                self.EVid = str(self.customParameters['VIN'])
+        else:
+            logging.warning('No VIN ')
+            self.customParameters['VIN'] = 'EV VIN'
+            self.EVid = None
 
 
         
@@ -219,6 +227,16 @@ class TeslaEVController(udi_interface.Node):
             logging.warning('No LOCATION')
             self.customParameters['LOCATION_EN'] = 'True or False'   
         self.customParam_done = True
+
+        logging.debug('customParamsHandler finish ')
+
+
+    def init_webhook(self, EVid):
+        init ={}
+        init['name'] = 'Tesla'
+        init['assets']  = [EVid]
+        logging.debug(f'webhook_ init {init}')
+        self.poly.webhookStart(init)
 
     def webhook(self, data): 
         try:
@@ -255,80 +273,60 @@ class TeslaEVController(udi_interface.Node):
 
         assigned_addresses =['controller']
         code, vehicles = self.TEVcloud.teslaEV_get_vehicles()
-        
         if code in ['ok']:
             self.vehicleList = self.TEVcloud.teslaEV_get_vehicle_list()
             logging.debug(f'vehicleList: {code} - {self.vehicleList}')
-            self.EV_setDriver('GV0', self.bool2ISY(True), 25)            
-        else:
-            logging.error('Failed to retrieve EVs')
-            self.EV_setDriver('GV0', self.bool2ISY(False), 25)   
-            exit()
-
-        self.GV1 = int(len(self.vehicleList))
-        self.EV_setDriver('GV1', self.GV1, 56)
-        
-        if self.GV1 > 0:
-            init_webhook ={}
-            init_webhook['name'] = 'Tesla'
-            init_webhook['assets']  = []
-            for indx, EVid in enumerate( self.vehicleList):
-                tmp = {}
-                tmp['id'] = str(EVid)
-                init_webhook['assets'].append(tmp)
-                self.vin_list .append(str(EVid))
-            logging.debug(f'vin_list = {self.vin_list }')
-            logging.debug(f'webhook_ init {init_webhook}')
-            self.poly.webhookStart(init_webhook)
-
-        if not self.TEVcloud.teslaEV_check_streaming_certificate_update(self.vin_list ): #We need to update streaming server credentials
-            logging.info('ERROR failed to connect to streaming server - EV may be too old')
-            logging.info('Continue with legacy operation - this is more expensive')
-
-            self.old_EV = True
-            
-        EVs_synced_status = {}
-        for indx, EVid in enumerate( self.vehicleList):
-            EVs_synced_status[EVid] = False
-            code, state = self.TEVcloud._teslaEV_wake_ev(EVid)
-            
-
-        while True:
-            for indx, EVid in enumerate( self.vehicleList):
-                if not EVs_synced_status[EVid]:
-                    code, res = self.TEVcloud.teslaEV_streaming_synched(EVid)
-                    logging.debug(f'{EVid} synched {code} {res}')
-                    if code == 'ok':
-                        EVs_synced_status[EVid] = res['response']['synced']
-                        if EVs_synced_status[EVid] :
-                            nodeName = self.TEVcloud.teslaEV_GetName(EVid)            
-                            if nodeName == None or nodeName == '':
-                                # should not happen but just in case 
-                                nodeName = 'ev'+str(EVid)
-                            nodeName = str(nodeName)
-                            nodeAdr = 'ev'+str(EVid)[-14:] 
-                            nodeName = self.poly.getValidName(nodeName)
-                            nodeAdr = self.poly.getValidAddress(nodeAdr)
-                            if not self.poly.getNode(nodeAdr):
-                                logging.debug('Node Address : {} {}'.format(self.poly.getNode(nodeAdr), nodeAdr))
-                                logging.info(f'Creating Status node {nodeAdr} for {nodeName}')
-                                self.status_nodes[EVid] = teslaEV_StatusNode(self.poly, nodeAdr, nodeAdr, nodeName, EVid, self.TEVcloud)
-                                assigned_addresses.append(nodeAdr)
-
-                                while not (self.status_nodes[EVid].subnodesReady() or self.status_nodes[EVid].statusNodeReady):
-                                    logging.debug(f'Subnodes {self.status_nodes[EVid].subnodesReady()}  Status {self.status_nodes[EVid].statusNodeReady}')
-                                    logging.debug('waiting for nodes to be created')
-                                    time.sleep(5)
-                                # need condition to only do this once 
-                                # Load data once - need to synchronize data available 
-                                logging.info('Getting startup data for node - not streamed')
-                                self.TEVcloud.teslaEV_UpdateCloudInfoAwake(EVid) #Needs to be enabled once other stuff is working 
-                                time.sleep(1)
-                                self.status_nodes[EVid].update_all_drivers()
-            if all(EVs_synced_status.values()):
-                break
+        if self.EVid not in self.vehicleList:
+            if len(self.vehicleList) > 1:
+                self.poly.Notices['VIN']=f"Please one of the following VINs in configuration: {self.vehicleList}"
+                self.poly.Notices['VIN2']="Then restart"
+                self.EV_setDriver('GV0', self.bool2ISY(self.EVid is not None), 25)   
+                exit()
             else:
-                time.sleep(10)
+                self.EVid = str(self.vehicleList[0])
+                self.customParameters['VIN'] = self.EVid
+        self.EV_setDriver('GV0', self.bool2ISY(self.EVid is not None), 25)            
+
+        self.init_webhook(self.EVid)
+
+        #self.TEVcloud.teslaEV_check_streaming_certificate_update(self.EVid )
+        if not self.TEVcloud.teslaEV_check_streaming_certificate_update(self.EVid ): #We need to update streaming server credentials
+            logging.info('ERROR failed to connect to streaming server - EV may be too old')
+            exit()
+            
+        code, state = self.TEVcloud._teslaEV_wake_ev(self.EVid)
+  
+        sync_status = False
+        while not sync_status:
+            time.sleep(3)
+            code, res = self.TEVcloud.teslaEV_streaming_synched(self.EVid)
+            logging.debug(f'{self.EVid} synched {code} {res}')
+            if code == 'ok':
+                if res['response']['synced'] :
+                    nodeName = self.TEVcloud.teslaEV_GetName(self.EVid)            
+                    if nodeName == None or nodeName == '':
+                        # should not happen but just in case 
+                        nodeName = 'ev'+str(self.EVid)
+                    nodeName = str(nodeName)
+                    nodeAdr = 'ev'+str(self.EVid)[-14:] 
+                    nodeName = self.poly.getValidName(nodeName)
+                    nodeAdr = self.poly.getValidAddress(nodeAdr)
+                    if not self.poly.getNode(nodeAdr):
+                        logging.debug('Node Address : {} {}'.format(self.poly.getNode(nodeAdr), nodeAdr))
+                        logging.info(f'Creating Status node {nodeAdr} for {nodeName}')
+                        self.status_node = teslaEV_StatusNode(self.poly, nodeAdr, nodeAdr, nodeName, self.EVid, self.TEVcloud)
+                        assigned_addresses.append(nodeAdr)
+
+                        while not (self.status_node.subnodesReady() or self.status_node.statusNodeReady):
+                            logging.debug(f'Subnodes {self.status_node.subnodesReady()}  Status {self.status_node.statusNodeReady}')
+                            logging.debug('waiting for nodes to be created')
+                            time.sleep(5)
+                        # need condition to only do this once 
+                        # Load data once - need to synchronize data available 
+                        logging.info('Getting startup data for node - not streamed')
+                        self.TEVcloud.teslaEV_UpdateCloudInfoAwake(self.EVid) #Needs to be enabled once other stuff is working 
+                        time.sleep(1)
+                        self.status_node.update_all_drivers()
 
 
         logging.debug(f'Scanning db for extra nodes : {assigned_addresses}')
@@ -400,34 +398,20 @@ class TeslaEVController(udi_interface.Node):
         logging.info('Tesla EV Controller shortPoll(HeartBeat)')
         self.heartbeat()
         try:
-            #temp_list = self.TEVcloud.teslaEV_get_vehicle_list()
-            logging.debug(f'short poll list ')
-            if self.old_EV:
-                temp_list = self.TEVcloud.teslaEV_get_vehicle_list()
-                for indx, vehicleID in enumerate(temp_list):
-                    logging.debug(f'short poll loop old EV {indx} {vehicleID}')
-                    self.status_nodes[vehicleID].poll('short')
+            logging.debug(f'short poll list - heart beat')
 
-        except Exception as E:
-            logging.info(f'Not all nodes ready: {E}')
+        except Exception:
+            logging.info('Not all nodes ready:')
 
     def longPoll(self):
         logging.info('Tesla EV  Controller longPoll - connected = {}'.format(self.TEVcloud.authenticated()))
 
         try:
-            #logging.debug('self.vehicleList {}'.format(self.TEVcloud.teslaEV_get_vehicle_list()))
-            
-            logging.debug(f'long poll list')
-            self.TEVcloud.teslaEV_check_streaming_certificate_update(self.vin_list) #We need to check if we need to update streaming server credentials
+            logging.debug(f'long poll list - checking for token update required')
+            self.TEVcloud.teslaEV_check_streaming_certificate_update(self.EVid) #We need to check if we need to update streaming server credentials
 
-            if self.old_EV:
-                temp_list = self.TEVcloud.teslaEV_get_vehicle_list()
-                for indx, vehicleID in enumerate (temp_list):
-                    logging.debug(f'long poll loop old EV {indx} {vehicleID}')
-                    self.status_nodes[vehicleID].poll('long')
-
-        except Exception as E:
-            logging.info(f'Not all nodes ready: {E}')
+        except Exception:
+            logging.info(f'Not all nodes ready:')
 
 
 
@@ -441,7 +425,7 @@ class TeslaEVController(udi_interface.Node):
         logging.debug('System updateISYdrivers - Controller')       
         value = self.TEVcloud.authenticated()
         self.EV_setDriver('GV0', self.bool2ISY(value), 25)
-        self.EV_setDriver('GV1', self.GV1, 56)
+        #self.EV_setDriver('GV1', self.GV1, 56)
         self.EV_setDriver('GV2', self.distUnit, 25)
         self.EV_setDriver('GV3', self.tempUnit, 25)
 
@@ -461,7 +445,7 @@ class TeslaEVController(udi_interface.Node):
     drivers = [
             {'driver': 'ST', 'value':0, 'uom':25},
             {'driver': 'GV0', 'value':0, 'uom':25},
-            {'driver': 'GV1', 'value':0, 'uom':56},
+            #{'driver': 'GV1', 'value':0, 'uom':56},
             {'driver': 'GV2', 'value':99, 'uom':25},
             {'driver': 'GV3', 'value':99, 'uom':25},
             ]

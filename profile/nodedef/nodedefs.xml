@@ -4,7 +4,7 @@
       <sts>
          <st id="ST" editor="NODEST" />
          <st id="GV0" editor="API" />
-         <st id="GV1" editor="NBREV" />
+         <!--<st id="GV1" editor="NBREV" />-->
          <st id="GV2" editor="DUNIT" />
          <st id="GV3" editor="TUNIT" />
       </sts>

@@ -131,7 +131,7 @@ class teslaEVAccess(teslaAccess):
             return (cert)
     
 
-    def teslaEV_check_streaming_certificate_update(self, vin_list):
+    def teslaEV_check_streaming_certificate_update(self, EV_vin):
         logging.debug('teslaEV_update_streaming_certificate')
         try: 
             if self.stream_cert['expectedRenewal'] <= time.time():
@@ -141,7 +141,9 @@ class teslaEVAccess(teslaAccess):
         except ValueError:  #First time - we need to create config
             self.stream_cert = self.teslaEV_get_streaming_certificate()
             if self.stream_cert is not {}:
-                code, res = self.TEVcloud.teslaEV_create_streaming_config(vin_list)
+                code, res = self.TEVcloudteslaEV_streaming_delete_config(EV_vin)
+                time.sleep(1)
+                code, res = self.TEVcloud.teslaEV_create_streaming_config([EV_vin])
                 if code == 'ok':
                     time.sleep(2) # give car chance to sync
                     return(True)
