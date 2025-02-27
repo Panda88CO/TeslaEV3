@@ -90,8 +90,8 @@ class teslaEV_StatusNode(udi_interface.Node):
     def update_time(self):
         logging.debug('update_time')
         try:
-            temp = round(float(self.TEV.teslaEV_GetTimeSinceLastCarUpdate(self.EVid)/60),0)
-            self.EV_setDriver('GV19', temp ,44)
+            temp = self.TEV.teslaEV_GetStatusTimestamp(self.EVid)
+            self.EV_setDriver('GV19', temp , 151)
         except ValueError:
             self.EV_setDriver('GV19', None, 25)
         '''
@@ -112,8 +112,8 @@ class teslaEV_StatusNode(udi_interface.Node):
 
     def poll (self, type ):    
         logging.info(f'Status Node Poll for {self.EVid} - poll type: {type}')        
-        pass
-        '''
+        #pass
+        
         try:
             if type in ['short']:
                 code, state  = self.TEV.teslaEV_UpdateCloudInfoAwake(self.EVid)
@@ -122,7 +122,7 @@ class teslaEV_StatusNode(udi_interface.Node):
             else:
                 return
             logging.debug(f'Poll data code {code} , {state}')
-            self.update_all_drivers(code)
+            self.update_all_drivers()
             self.display_update()
 
             #if state in[ 'online', 'offline', 'asleep', 'overload', 'error', 'on-link']:
@@ -134,7 +134,7 @@ class teslaEV_StatusNode(udi_interface.Node):
 
         except Exception as e:
                 logging.error(f'Status Poll exception : {e}')
-        '''
+        
 
     def update_all_drivers(self) :
         self.updateISYdrivers()

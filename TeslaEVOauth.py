@@ -109,7 +109,7 @@ class teslaEVAccess(teslaAccess):
         if 'issuedAt' not in  self.stream_cert.keys():
                 self.stream_cert['issuedAt'] = None
                 self.stream_cert['expiry'] = None
-                self.stream_cert['expectedRenewal'] = None
+                self.stream_cert['expectedRenewal'] = 0
                 self.stream_cert['ca'] = ''
         self.customDataHandlerDone = True
 
@@ -131,18 +131,26 @@ class teslaEVAccess(teslaAccess):
             return (cert)
     
 
-    def teslaEV_check_streaming_certificate_update(self):
+    def teslaEV_check_streaming_certificate_update(self, EV_vin):
         logging.debug('teslaEV_update_streaming_certificate')
-        temp = self.teslaEV_get_streaming_certificate()
-        logging.debug(f'temp certificat {temp} org {self.stream_cert}')
-        if not self.stream_cert['issuedAt']:
-            self.stream_cert = temp
-            return(True)
-        elif temp['issuedAt'] > self.stream_cert['issuedAt']:
-            self.stream_cert = temp
-            return(True)
-        else:
+        try: 
+            if self.stream_cert['expectedRenewal'] <= time.time():
+                logging.info('Updating Streaming certificate')
+                self.stream_cert = self.teslaEV_get_streaming_certificate()
+            return(self.stream_cert is not {})
+        except ValueError:  #First time - we need to create config
+            self.stream_cert = self.teslaEV_get_streaming_certificate()
+            if self.stream_cert is not {}:
+                code, res = self.TEVcloudteslaEV_streaming_delete_config(EV_vin)
+                time.sleep(1)
+                code, res = self.TEVcloud.teslaEV_create_streaming_config([EV_vin])
+                if code == 'ok':
+                    time.sleep(2) # give car chance to sync
+                    return(True)
             return(False)
+
+
+
         
     
     def datestr_to_epoch(self, datestr):
@@ -194,7 +202,13 @@ class teslaEVAccess(teslaAccess):
         logging.debug(f'teslaEV_streaming_synched {EVid}')
         code, res  = self._callApi('GET','/vehicles/'+str(EVid) +'/fleet_telemetry_config')
         if code == 'ok':
-            return(code, res)             
+            return(code, res)       
+
+    def teslaEV_streaming_delete_config(self, EVid):
+        logging.debug(f'teslaEV_streaming_delete_config {EVid}')
+        code, res  = self._callApi('DELETE','/vehicles/'+str(EVid) +'/fleet_telemetry_config')
+        if code == 'ok':
+            return(code, res)                         
 
     def teslaEV_create_streaming_config(self, vin_list):
         logging.debug(f'teslaEV_create_config {vin_list}')
@@ -210,16 +224,16 @@ class teslaEVAccess(teslaAccess):
                         'EstBatteryRange' : { 'interval_seconds': 60, 'minimum_delta': 1, 'resend_interval_seconds' : 600 },                    
                         'ChargeCurrentRequest' : { 'interval_seconds': 60 },
                         'ChargeCurrentRequestMax': { 'interval_seconds': 60 },                        
-                        'ChargeAmps' : { 'interval_seconds': 60,'minimum_delta': 1 },
-                        'TimeToFullCharge' : { 'interval_seconds': 60 },
-                        #'Soc' : { 'interval_seconds': 60},
-                        'ChargerVoltage' : { 'interval_seconds': 60, 'minimum_delta': 1 },                    
+                        'ChargeAmps' : { 'interval_seconds': 60, 'minimum_delta': 0.5, },
+                        'TimeToFullCharge' : { 'interval_seconds': 60, 'minimum_delta': 1,  },
+                        'Soc' : { 'interval_seconds': 60, 'minimum_delta': 1 },
+                        'ChargerVoltage' : { 'interval_seconds': 60, 'minimum_delta': 1, },                    
                         'FastChargerPresent' : { 'interval_seconds': 60 },
                         'ChargePortDoorOpen' : { 'interval_seconds': 60 },
                         'ChargePortLatch' : { 'interval_seconds': 60 },
-                        'BatteryLevel' : { 'interval_seconds': 60, 'minimum_delta': 1 },
+                        'BatteryLevel' : { 'interval_seconds': 60, 'minimum_delta': 1,'resend_interval_seconds' : 600 },
                         'ChargeState': { 'interval_seconds': 60 },
-                        'ChargeLimitSoc': { 'interval_seconds': 60 },
+                        'ChargeLimitSoc': { 'interval_seconds': 60, 'minimum_delta': 1, },
                         'InsideTemp': { 'interval_seconds': 60, 'minimum_delta': 1, },
                         'OutsideTemp': { 'interval_seconds': 60,'minimum_delta': 1,  },
                         'SeatHeaterLeft' : { 'interval_seconds': 60 },
@@ -239,26 +253,27 @@ class teslaEVAccess(teslaAccess):
                         'Odometer': { 'interval_seconds': 60,'minimum_delta': 1},
                         'DoorState' : { 'interval_seconds': 60 },
                         'Location' : { 'interval_seconds': 60 },
-                        'DCChargingEnergyIn': { 'interval_seconds': 60 },
-                        'DCChargingPower' : { 'interval_seconds': 60 },
-                        'ACChargingEnergyIn': { 'interval_seconds': 60 },
-                        'ACChargingPower' : { 'interval_seconds': 60 },
+                        'DCChargingEnergyIn': { 'interval_seconds': 60, 'minimum_delta': 1 },
+                        'DCChargingPower' : { 'interval_seconds': 60, 'minimum_delta': 1 },
+                        'ACChargingEnergyIn': { 'interval_seconds': 60,'minimum_delta': 0.25 },
+                        'ACChargingPower' : { 'interval_seconds': 60 ,'minimum_delta': 0.25},
                         'Locked' : { 'interval_seconds': 60 },
                         'FdWindow': { 'interval_seconds': 60 },
                         'FpWindow' : { 'interval_seconds': 60 },
                         'RdWindow': { 'interval_seconds': 60 },
                         'RpWindow' : { 'interval_seconds': 60,  },
-                        'VehicleName': { 'interval_seconds': 60, 'resend_interval_seconds' : 600},
+                        #'VehicleName': { 'interval_seconds': 60},
                         'Version' : { 'interval_seconds': 60, },
-                        'TpmsPressureFl' : { 'interval_seconds': 60 },
-                        'TpmsPressureFr' : { 'interval_seconds': 60 },
-                        'TpmsPressureRl' : { 'interval_seconds': 60 },
-                        'TpmsPressureRr': { 'interval_seconds': 60 },
+                        'TpmsPressureFl' : { 'interval_seconds': 60,'minimum_delta': 0.1 },
+                        'TpmsPressureFr' : { 'interval_seconds': 60,'minimum_delta': 0.1  },
+                        'TpmsPressureRl' : { 'interval_seconds': 60,'minimum_delta': 0.1  },
+                        'TpmsPressureRr': { 'interval_seconds': 60,'minimum_delta': 0.1  },
                         'SettingDistanceUnit' :{ 'interval_seconds': 600 },
                         'SettingTemperatureUnit' :{ 'interval_seconds': 600 },
                         'CenterDisplay': { 'interval_seconds': 60 },
+                        'DefrostMode':{ 'interval_seconds': 60 },
 
-                          #'WindowState' : { 'interval_seconds': 60 },
+                        #'WindowState' : { 'interval_seconds': 60 },
                         #'ChargingState' : { 'interval_seconds': 60 },                        
                         #'ChargeCurrentRequestMax' : { 'interval_seconds': 60 },
                         #'DetailedChargeStateValue' : { 'interval_seconds': 60 },                        
@@ -289,6 +304,10 @@ class teslaEVAccess(teslaAccess):
         logging.debug(f' config res {code} {res}')
         return(code, res)
    
+
+
+
+
     def extract_needed_delay(self, input_string):
         temp =  [int(word) for word in input_string.split() if word.isdigit()]
         if temp != []:
@@ -334,14 +353,14 @@ class teslaEVAccess(teslaAccess):
     def _stream_data_found(self, EVid, key):
         try:
             return(key in self.stream_data[EVid])
-        except:
+        except ValueError:
             return(False)
         
 
     def _stream_last_data(self, EVid):
         try:
             return(self.stream_data[EVid]['created_at'])
-        except ValueError as e:
+        except ValueError:
             return(None)
 
     def teslaEV_get_stream_id(self, data):
@@ -610,11 +629,8 @@ class teslaEVAccess(teslaAccess):
     def teslaEV_GetName(self, EVid):
 
         try:
-            if self._stream_data_found(EVid, 'VehicleName' ):
-                return(self.stream_data[EVid]['VehicleName']['stringValue'])
-            else:
-                logging.debug(f'teslaEV_GetName ORG {self.carInfo[EVid]}')
-                return(self.carInfo[EVid]['display_name'])
+            logging.debug(f'teslaEV_GetName {self.carInfo[EVid]}')
+            return(self.carInfo[EVid]['display_name'])
 
         except Exception as e:
             logging.debug(f'teslaEV_GetName - No EV name found - {e}')
@@ -1088,7 +1104,6 @@ class teslaEVAccess(teslaAccess):
             if self.stream_data[EVid]:
                 return(self._stream_last_data(EVid))
             else:      
-
                 return(self.carInfo[EVid]['climate_state']['timestamp'])
         except Exception as e:
             logging.debug(f' Exception teslaEV_GetClimateTimestamp - {e}')

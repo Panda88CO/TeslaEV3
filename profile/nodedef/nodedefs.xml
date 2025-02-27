@@ -2,11 +2,11 @@
    <nodeDef id="controller" nls="nlscontroller">
       <editors />
       <sts>
-         <st id="ST" editor="NODEST" />
+        <!-- <st id="ST" editor="NODEST" />
          <st id="GV0" editor="API" />
          <st id="GV1" editor="NBREV" />
          <st id="GV2" editor="DUNIT" />
-         <st id="GV3" editor="TUNIT" />
+         <st id="GV3" editor="TUNIT" />-->
       </sts>
       <cmds>
          <sends>
@@ -14,11 +14,11 @@
             <cmd id="DOF" /> 
          </sends>
          <accepts>
-            <cmd id="UPDATE" /> 
+            <!--<cmd id="UPDATE" /> -->
        
          </accepts>
       </cmds>
-   </nodeDef> 
+   </nodeDef>
 
    <nodeDef id="evstatus" nls="nlsevstatus">
       <editors />

@@ -54,7 +54,6 @@ class TeslaEVController(udi_interface.Node):
         self.Notices = Custom(polyglot, 'notices')
 
         #self.poly.subscribe(self.poly.ADDNODEDONE, self.node_queue)
-
         self.poly.subscribe(self.poly.WEBHOOK, self.webhook)
         self.hb = 0
         self.connected = False
@@ -156,7 +155,7 @@ class TeslaEVController(udi_interface.Node):
             if self.customParameters['REGION'] != 'Input region NA, EU, CN':
                 region = str(self.customParameters['REGION'])
                 if region.upper() not in ['NA', 'EU', 'CN']:
-                    logging.error(f'Unsupported region {region}')
+                    logging.error(F'Unsupported region {region}')
                     self.poly.Notices['REGION'] = 'Unknown Region specified (NA = North America + Asia (-China), EU = Europe. middle East, Africa, CN = China)'
                 else:
                     self.TEVcloud.cloud_set_region(region)
@@ -171,10 +170,10 @@ class TeslaEVController(udi_interface.Node):
                 dist_unit = str(self.customParameters['DIST_UNIT'])
 
                 if dist_unit[0].upper() not in ['K', 'M']:
-                    logging.error(f'Unsupported distance unit {dist_unit}')
+                    logging.error(F'Unsupported distance unit {dist_unit}')
                     self.poly.Notices['dist'] = 'Unknown distance Unit specified'
                 else:
-                    if dist_unit[0].upper() == 'K':
+                    if self.dist_unit[0].upper() == 'K':
                         
                         self.TEVcloud.teslaEV_SetDistUnit(0)
                     else:
@@ -188,7 +187,7 @@ class TeslaEVController(udi_interface.Node):
             if self.customParameters['TEMP_UNIT'] != 'C or F':
                 temp_unit = str(self.customParameters['TEMP_UNIT'])
                 if temp_unit[0].upper() not in ['C', 'F']:
-                    logging.error(f'Unsupported temperatue unit {temp_unit}')
+                    logging.error(F'Unsupported temperatue unit {temp_unit}')
                     self.poly.Notices['temp'] = 'Unknown distance Unit specified'
                 else:
                     if temp_unit[0].upper() == 'C':
@@ -422,16 +421,17 @@ class TeslaEVController(udi_interface.Node):
     #        self.longPoll()
 
  
-    id = 'controller'
-    commands = {   }
+    #id = 'controller'
+    #commands = { 'UPDATE': ISYupdate ,           
+    #            }
 
-    drivers = [
+    #drivers = [
     #        {'driver': 'ST', 'value':0, 'uom':25},
     #        {'driver': 'GV0', 'value':0, 'uom':25},
     #        #{'driver': 'GV1', 'value':0, 'uom':56},
     #        {'driver': 'GV2', 'value':99, 'uom':25},
     #        {'driver': 'GV3', 'value':99, 'uom':25},
-            ]
+    #        ]
     
             # ST - node started
             # GV0 Access to TeslaApi
