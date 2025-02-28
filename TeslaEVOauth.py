@@ -1254,10 +1254,12 @@ class teslaEVAccess(teslaAccess):
         try:
             if self._stream_data_found(EVid, 'HvacSteeringWheelHeatLevel'):
                 return(self.stream_data[EVid]['HvacSteeringWheelHeatLevel']['intValue'])
+            elif self._stream_data_found(EVid, 'HvacSteeringWheelHeatAuto'):
+                return(self.stream_data[EVid]['HvacSteeringWheelHeatLevel']['booleanValue'])
             else:
                 return(self.carInfo[EVid]['climate_state']['steering_wheel_heater'])         
         except Exception as e:
-            logging.error(f'teslaEV_SteeringWheelHeatOn Exception : {e}')
+            #logging.error(f'teslaEV_SteeringWheelHeatOn Exception : {e}')
             return(None)
 
     def teslaEV_Windows(self, EVid, cmd):
@@ -1637,11 +1639,22 @@ class teslaEVAccess(teslaAccess):
             logging.error(f'teslaEV_GetSunRoofState Excaption: {e}')
             return(None)
 
+
+    def teslaEV_getDoorState(self, EVid, door_type):
+        if self._stream_data_found(EVid, 'DoorState'):
+            logging.debug('DoorsState : {}'.format(self.stream_data[EVid]['DoorState']))
+            if 'Doors' in self.stream_data[EVid]['DoorState']:
+                if self.stream_data[EVid]['DoorState']['Doors'] in [door_type]:
+                    return(self.stream_data[EVid]['DoorState']['Doors'][door_type])
+
     def teslaEV_GetTrunkState(self, EVid):
         #logging.debug(f'teslaEV_GetTrunkState: for {EVid}')
         try:
             if self._stream_data_found(EVid, 'DoorState'):
                 logging.debug('DoorsState : {}'.format(self.stream_data[EVid]['DoorState']))
+                if 'Doors' in self.stream_data[EVid]['DoorState']:
+                    if self.stream_data[EVid]['DoorState']['Doors'] in ['TrunkRear']:
+                        return(self.stream_data[EVid]['DoorState']['Doors']['TrunkRear'])
             if self.carInfo[EVid]['vehicle_state']['rt'] == 0:
                 return(0)
             elif self.carInfo[EVid]['vehicle_state']['rt'] == 1:
@@ -1649,12 +1662,17 @@ class teslaEVAccess(teslaAccess):
             else:
                 return(None)
         except Exception as e:
-            logging.error(f'teslaEV_GetTrunkState Excaption: {e}')
+            logging.error(f'teslaEV_GetTrunkState Exception: {e}')
             return(None)
 
     def teslaEV_GetFrunkState(self, EVid):
         #logging.debug(f'teslaEV_GetFrunkState: for {EVid}')
         try:
+            if self._stream_data_found(EVid, 'DoorState'):
+                logging.debug('DoorsState : {}'.format(self.stream_data[EVid]['DoorState']))
+                if 'Doors' in self.stream_data[EVid]['DoorState']:
+                    if self.stream_data[EVid]['DoorState']['Doors'] in ['TrunkFront']:
+                        return(self.stream_data[EVid]['DoorState']['Doors']['TrunkFront'])
             if self.carInfo[EVid]['vehicle_state']['ft'] == 0:
                 return(0)
             elif self.carInfo[EVid]['vehicle_state']['ft'] == 1:
@@ -1662,7 +1680,7 @@ class teslaEVAccess(teslaAccess):
             else:
                 return(None)
         except Exception as e:
-            logging.error(f'teslaEV_GetFrunkState Excaption: {e}')
+            logging.error(f'teslaEV_GetFrunkState Exception: {e}')
             return(None)
         
     def teslaEV_getTpmsPressure(self, EVid):
