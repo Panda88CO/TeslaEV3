@@ -12,7 +12,10 @@ except ImportError:
     logging.basicConfig(level=20)
 
 from TeslaEVOauth import teslaEVAccess
-from TeslaEVStatusNode import teslaEV_StatusNode
+#from TeslaEVStatusNode import teslaEV_StatusNode
+from TeslaEVClimateNode import teslaEV_ClimateNode
+from TeslaEVChargeNode import teslaEV_ChargeNode
+
 #from TeslaCloudEVapi  import teslaCloudEVapi
 from TeslaEVOauth import teslaAccess
 
@@ -20,12 +23,16 @@ from TeslaEVOauth import teslaAccess
 VERSION = '0.0.1'
 
 class TeslaEVController(udi_interface.Node):
-    #from  udiLib import node_queue, wait_for_node_done,tempUnitAdjust,  setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
+    from  udiLib import node_queue, wait_for_node_done,tempUnitAdjust,  setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
 
     def __init__(self, polyglot, primary, address, name, ev_cloud_access):
         super(TeslaEVController, self).__init__(polyglot, primary, address, name)
+        logging.info('_init_ Tesla EV Controller ')
         logging.setLevel(10)
+        
+        
         self.poly = polyglot
+        self.node = None
         self.portalID = None
         self.portalSecret = None
         self.n_queue = []
@@ -34,9 +41,9 @@ class TeslaEVController(udi_interface.Node):
         #self.stream_cert = {}
         self.TEVcloud = ev_cloud_access
         
-        logging.info('_init_ Tesla EV Controller ')
+        
         self.ISYforced = False
-        self.name = 'Tesla EV Info'
+        self.name = name
         self.primary = primary
         self.address = address
         #self.tokenPassword = ""
@@ -52,9 +59,19 @@ class TeslaEVController(udi_interface.Node):
         self.customParameters = Custom(self.poly, 'customparams')
         self.portalData = Custom(self.poly, 'customNSdata')
         self.Notices = Custom(polyglot, 'notices')
+        self.ISYforced = False
 
-        #self.poly.subscribe(self.poly.ADDNODEDONE, self.node_queue)
+        self.primary = primary
+        self.address = address
+        self.name = name
+        self.statusNodeReady = False
+        self.climateNodeReady = False
+        self.chargeNodeReady = False
+        self.n_queue = []
 
+
+        self.poly.subscribe(self.poly.ADDNODEDONE, self.node_queue)
+        #self.poly.subscribe(polyglot.START, self.start, 'controller')
         self.poly.subscribe(self.poly.WEBHOOK, self.webhook)
         self.hb = 0
         self.connected = False
@@ -64,17 +81,16 @@ class TeslaEVController(udi_interface.Node):
         self.portalReady = False
         self.poly.updateProfile()
         self.poly.ready()
-        #self.poly.addNode(self, conn_status = None, rename = False)
-        #self.poly.addNode(self)
-        #self.wait_for_node_done()
-        #self.status_nodes = {}
-        #self.node = self.poly.getNode(self.address)
         self.tempUnit = 0 # C
         self.distUnit = 0 # KM
         self.customParam_done = False
         self.config_done = False
         #self.poly.setLogLevel('debug')
-
+        self.poly.addNode(self, conn_status = None, rename = False)
+        #self.poly.addNode(self)
+        self.wait_for_node_done()
+        #self.status_nodes = {}
+        self.node = self.poly.getNode(self.address)
         self.EVid = None
         self.status_node = None
         #self.EV_setDriver('ST', 1, 25)
@@ -94,7 +110,7 @@ class TeslaEVController(udi_interface.Node):
         self.config_done= True
         try:
             self.TEVcloud.getAccessToken()
-        except ValueError as err:
+        except ValueError:
             logging.warning('Access token is not yet available. Please authenticate.')
             self.poly.Notices['auth'] = 'Please initiate authentication'
         return
@@ -245,7 +261,7 @@ class TeslaEVController(udi_interface.Node):
             logging.error(f'Exception webhook {e}')
 
     def start(self):
-        logging.info('start')
+        logging.info('start main node')
         EVname = None
         #self.Parameters.load(customParams)
         self.poly.updateProfile()
@@ -286,7 +302,7 @@ class TeslaEVController(udi_interface.Node):
             self.customParameters['VIN'] = self.EVid
 
         EVname = self.TEVcloud.teslaEV_GetName(self.EVid)
-            
+
         
 
         logging.debug(f'EVname {EVname}')        
@@ -313,25 +329,32 @@ class TeslaEVController(udi_interface.Node):
                         # should not happen but just in case 
                         EVname = 'ev'+str(self.EVid)
                     EVname = str(EVname)
-                    nodeAdr = 'ev'+str(self.EVid)[-14:] 
+                    #nodeAdr = 'ev'+str(self.EVid)[-14:] 
                     nodeName = self.poly.getValidName(EVname)
-                    nodeAdr = self.poly.getValidAddress(nodeAdr)
-                    if not self.poly.getNode(nodeAdr):
-                        logging.debug('Node Address : {} {}'.format(self.poly.getNode(nodeAdr), nodeAdr))
-                        logging.info(f'Creating Status node {nodeAdr} for {nodeName}')
-                        self.status_node = teslaEV_StatusNode(self.poly, nodeAdr, nodeAdr, nodeName, self.EVid, self.TEVcloud)
-                        assigned_addresses.append(nodeAdr)
+                    #nodeAdr = self.poly.getValidAddress(nodeAdr)
+                    #self.name = nodeName
+                    self.node.rename(nodeName)
+                    #if not self.poly.getNode(self.address):
+                    #self.status_node = self.poly.addNode(self, conn_status = None, rename = False)
+                    #self.wait_for_node_done()
+                    #self.status_nodes = {}
+                    #self.node = self.poly.getNode(self.address)
 
-                        while not (self.status_node.subnodesReady() or self.status_node.statusNodeReady):
-                            logging.debug(f'Subnodes {self.status_node.subnodesReady()}  Status {self.status_node.statusNodeReady}')
-                            logging.debug('waiting for nodes to be created')
-                            time.sleep(5)
-                        # need condition to only do this once 
-                        # Load data once - need to synchronize data available 
-                        logging.info('Getting startup data for node - not streamed')
-                        self.TEVcloud.teslaEV_UpdateCloudInfoAwake(self.EVid) #Needs to be enabled once other stuff is working 
-                        time.sleep(1)
-                        self.status_node.update_all_drivers()
+                    #logging.debug('Node Address : {} {}'.format(self.poly.getNode(self.address), self.address))
+                    #logging.info(f'Creating Status node {self.address} for {nodeName}')
+                    #self.status_node = teslaEV_StatusNode(self.poly, nodeAdr, nodeAdr, nodeName, self.EVid, self.TEVcloud)
+                    assigned_addresses.append(self.address)
+                    self.createSubNodes()
+                    while not (self.node.subnodesReady() or self.node.statusNodeReady):
+                        logging.debug(f'Subnodes {self.node.subnodesReady()}  Status {self.statusNodeReady}')
+                        logging.debug('waiting for nodes to be created')
+                        time.sleep(5)
+                    # need condition to only do this once 
+                    # Load data once - need to synchronize data available 
+                    logging.info('Getting startup data for node - not streamed')
+                    self.TEVcloud.teslaEV_UpdateCloudInfoAwake(self.EVid) #Needs to be enabled once other stuff is working 
+                    time.sleep(1)
+                    self.status_node.update_all_drivers()
 
 
         logging.debug(f'Scanning db for extra nodes : {assigned_addresses}')
@@ -354,8 +377,9 @@ class TeslaEVController(udi_interface.Node):
         self.Notices.clear()
         #if self.TEV:
         #    self.TEV.disconnectTEV()
-        #self.EV_setDriver('ST', 0, 25 )
+        self.EV_setDriver('ST', 0, 25 )
         logging.debug('stop - Cleaning up')
+        #self.scheduler.shutdown()
         self.poly.stop()
 
 
@@ -400,11 +424,300 @@ class TeslaEVController(udi_interface.Node):
 
 
 
-    def poll(self, type ): # dummey poll function
-        #if type in [ 'long']:
-        ##    self.updateISYdrivers()
-        #else:
-        pass
+    def createSubNodes(self):
+        logging.debug(f'Creating sub nodes for {self.EVid}')
+        nodeAdr = 'cl'+str(self.EVid)[-14:]
+        nodeName = self.poly.getValidName('Climate Info')
+        nodeAdr = self.poly.getValidAddress(nodeAdr)
+        #if not self.poly.getNode(nodeAdr):
+        logging.info(f'Creating ClimateNode: {nodeAdr} - {self.address} {nodeAdr} {nodeName} {self.EVid}')
+        self.climateNode = teslaEV_ClimateNode(self.poly, self.address, nodeAdr, nodeName, self.EVid, self.TEV )
+
+
+        nodeAdr = 'cg'+str(self.EVid)[-14:]
+        nodeName = self.poly.getValidName('Charging Info')
+        nodeAdr = self.poly.getValidAddress(nodeAdr)
+        #if not self.poly.getNode(nodeAdr):
+        logging.info(f'Creating ChargingNode: {nodeAdr} - {self.address} {nodeAdr} {nodeName} {self.EVid}')
+        self.chargeNode = teslaEV_ChargeNode(self.poly, self.address, nodeAdr, nodeName, self.EVid, self.TEV )
+
+
+    def subnodesReady(self):
+        return(self.climateNodeReady and self.chargeNodeReady )
+
+    def ready(self):
+        return(self.chargeNodeReady and self.climateNodeReady)
+
+    def update_time(self):
+        logging.debug('update_time')
+        try:
+            temp = self.TEV.teslaEV_GetStatusTimestamp(self.EVid)
+            self.EV_setDriver('GV19', temp , 151)
+        except ValueError:
+            self.EV_setDriver('GV19', None, 25)
+        '''
+        try:
+            temp = round(float(self.TEV.teslaEV_GetTimeSinceLastStatusUpdate(self.EVid)/60), 0)
+            self.EV_setDriver('GV20', temp, 44)
+        except ValueError:
+            self.EV_setDriver('GV20', None, 25)
+        '''
+
+    def display_update(self):
+        logging.debug('display_update')
+        #threading.Timer(update, self.display_time_since, [update]).start()
+        #self.update_time()
+        #self.climateNode.update_time()
+        #self.chargeNode.update_time()
+        
+
+    def poll (self, type ):    
+        logging.info(f'Status Node Poll for {self.EVid} - poll type: {type}')        
+        #pass
+        
+        try:
+            if type in ['short']:
+                code, state  = self.TEV.teslaEV_UpdateCloudInfoAwake(self.EVid)
+            elif type in ['long']:
+                code, state =  self.TEV.teslaEV_UpdateCloudInfo(self.EVid)
+            else:
+                return
+            logging.debug(f'Poll data code {code} , {state}')
+            self.update_all_drivers()
+            self.display_update()
+
+            #if state in[ 'online', 'offline', 'asleep', 'overload', 'error', 'on-link']:
+            #    self.EV_setDriver('ST', self.state2ISY(state), 25)
+                #logging.info('Car appears off-line/sleeping or overload  - not updating data')
+
+            #else:
+            #    self.EV_setDriver('ST', 99, 25)
+
+        except Exception as e:
+                logging.error(f'Status Poll exception : {e}')
+        
+
+    def update_all_drivers(self) :
+        self.updateISYdrivers()
+        self.climateNode.updateISYdrivers()
+        self.chargeNode.updateISYdrivers()
+
+    def updateISYdrivers(self):
+        try:
+            state = self.TEV.teslaEV_GetCarState(self.EVid)
+            logging.debug(f' state : {state}')
+            self.EV_setDriver('ST', self.state2ISY(state), 25)
+
+
+            logging.info(f'updateISYdrivers - Status for {self.EVid}')
+            self.EV_setDriver('GV1', self.TEV.teslaEV_GetCenterDisplay(self.EVid), 25)
+            self.EV_setDriver('GV2', self.bool2ISY(self.TEV.teslaEV_HomeLinkNearby(self.EVid)), 25)
+            self.EV_setDriver('GV0', self.TEV.teslaEV_nbrHomeLink(self.EVid), 25)
+
+            self.EV_setDriver('GV3', self.bool2ISY(self.TEV.teslaEV_GetLockState(self.EVid)), 25)
+            if self.TEV.teslaEV_GetDistUnit() == 1:
+                self.EV_setDriver('GV4', self.TEV.teslaEV_GetOdometer(self.EVid), 116)
+            else:
+                self.EV_setDriver('GV4', int(self.TEV.teslaEV_GetOdometer(self.EVid)*1.6), 83)
+
+            #self.EV_setDriver('GV5', self.online2ISY(self.TEV.teslaEV_GetConnectionStatus(self.EVid)),25)
+            
+            windows  = self.TEV.teslaEV_GetWindoStates(self.EVid)
+            if 'FrontLeft' not in windows:
+                windows['FrontLeft'] = None
+            if 'FrontRight' not in windows:
+                windows['FrontRight'] = None
+            if 'RearLeft' not in windows:
+                windows['RearLeft'] = None
+            if 'RearRight' not in windows:
+                windows['RearRight'] = None
+            self.EV_setDriver('GV6', windows['FrontLeft'], 25)
+            self.EV_setDriver('GV7', windows['FrontRight'], 25)
+            self.EV_setDriver('GV8', windows['RearLeft'], 25)
+            self.EV_setDriver('GV9', windows['RearRight'], 25)
+            
+            #self.EV_setDriver('GV10', self.TEV.teslaEV_GetSunRoofPercent(self.EVid), 51)
+            #if self.TEV.teslaEV_GetSunRoofState(self.EVid) != None:
+            #    self.EV_setDriver('GV10', self.openClose2ISY(self.TEV.teslaEV_GetSunRoofState(self.EVid)), 25)
+    
+            self.EV_setDriver('GV11', self.TEV.teslaEV_GetTrunkState(self.EVid), 25)
+            self.EV_setDriver('GV12', self.TEV.teslaEV_GetFrunkState(self.EVid), 25)
+
+
+            if self.TEV.location_enabled():
+                location = self.TEV.teslaEV_GetLocation(self.EVid)
+                logging.debug(f'teslaEV_GetLocation {location}')
+                if location['longitude']:
+                    logging.debug('GV17: {}'.format(round(location['longitude'], 3)))
+                    self.EV_setDriver('GV17', round(location['longitude'], 3), 56)
+                else:
+                    logging.debug(f'GV17: NONE')
+                    self.EV_setDriver('GV17', None, 25)
+                if location['latitude']:
+                    logging.debug('GV18: {}'.format(round(location['latitude'], 3)))
+                    self.EV_setDriver('GV18', round(location['latitude'], 3), 56)
+                else:
+                    logging.debug('GV18: NONE')
+                    self.EV_setDriver('GV18', None, 25)
+            else:
+                self.EV_setDriver('GV17', 98, 25)
+                self.EV_setDriver('GV18', 98, 25)
+        except Exception as e:
+            logging.error(f'updateISYdriver Status node failed: {e}')
+
+    def ISYupdate (self, command=None):
+        logging.info(f'ISY-update status node  called')
+        code, state = self.TEV.teslaEV_update_connection_status(self.EVid)
+        code, res = self.TEV.teslaEV_UpdateCloudInfo(self.EVid)
+        self.EV_setDriver('ST', self.state2ISY(self.TEV.teslaEV_GetCarState(self.EVid)), 25)
+        self.update_all_drivers()
+        self.display_update()
+        self.EV_setDriver('GV21', self.command_res2ISY(code), 25)
+
+    def evWakeUp (self, command):
+        logging.info(f'EVwakeUp called')
+        code, res = self.TEV._teslaEV_wake_ev(self.EVid)
+        logging.debug(f'Wake result {code} - {res}')
+        if code in ['ok']:               
+            code, res = self.TEV.teslaEV_UpdateCloudInfoAwake(self.EVid)
+            self.update_all_drivers()
+            self.display_update()
+        self.EV_setDriver('GV21', self.command_res2ISY(code), 25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEV.teslaEV_GetCarState(self.EVid)),25)
+
+
+    def evHonkHorn (self, command):
+        logging.info(f'EVhonkHorn called')        
+        code, res = self.TEV.teslaEV_HonkHorn(self.EVid)
+        logging.info(f'return  {code} - {res}')
+        if code in ['ok']:
+             self.EV_setDriver('GV21', self.command_res2ISY(res),25)
+        else:
+            self.EV_setDriver('GV21', self.code2ISY(code),25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEV.teslaEV_GetCarState(self.EVid)),25)
+
+        #return(code, res)
+            
+        #self.EV_setDriver()
+        #self.forceUpdateISYdrivers()
+
+    def evFlashLights (self, command):
+        logging.info(f'EVflashLights called')
+        code, res = self.TEV.teslaEV_FlashLights(self.EVid)
+        logging.info(f'return  {code} - {res}')
+        if code in ['ok']:
+             self.EV_setDriver('GV21', self.command_res2ISY(res),25)
+        else:
+            self.EV_setDriver('GV21', self.code2ISY(code),25)
+
+        self.EV_setDriver('GV21', self.command_res2ISY(code),25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEV.teslaEV_GetCarState(self.EVid)),25)
+
+
+        #self.forceUpdateISYdrivers()
+
+    def evControlDoors (self, command):
+        logging.info(f'EVctrlDoors called')
+        #self.TEV.teslaEV_Wake(self.EVid)
+ 
+        doorCtrl = int(float(command.get('value')))
+        if doorCtrl == 1:
+            cmd = 'unlock'
+            #code, red =  self.TEV.teslaEV_Doors(self.EVid, 'unlock')
+            #self.EV_setDriver('GV3', doorCtrl )
+        elif doorCtrl == 0:
+            cmd = 'unlock'
+            #code, res =  self.TEV.teslaEV_Doors(self.EVid, 'lock')
+            #self.EV_setDriver('GV3', doorCtrl )            
+        else:
+            logging.error(f'Unknown command for evControlDoors {command}')
+            self.EV_setDriver('GV21', self.command_res2ISY('error'), 25)
+            return('error', 'code wrong')
+        code, res =  self.TEV.teslaEV_Doors(self.EVid, cmd)
+        logging.info(f'return  {code} - {res}')
+        self.EV_setDriver('GV3', doorCtrl, 25)
+        if code in ['ok']:
+             self.EV_setDriver('GV21', self.command_res2ISY(res),25)
+        else:
+            self.EV_setDriver('GV21', self.code2ISY(code),25)
+            self.EV_setDriver('GV3', None, 25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEV.teslaEV_GetCarState(self.EVid)),25)
+
+    def evPlaySound (self, command):
+        logging.info(f'evPlaySound called')
+        #self.TEV.teslaEV_Wake(self.EVid)
+        sound = int(float(command.get('value')))
+        if sound == 0 or sound == 2000: 
+            code, res = self.TEV.teslaEV_PlaySound(self.EVid, sound)
+            if code in ['ok']:
+                self.EV_setDriver('GV21', self.command_res2ISY(res),25)
+            else:
+                self.EV_setDriver('GV21', self.code2ISY(code),25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEV.teslaEV_GetCarState(self.EVid)),25)
+
+
+    # needs update
+    def evControlSunroof (self, command):
+        logging.info(f'evControlSunroof called')
+        #self.TEV.teslaEV_Wake(self.EVid)
+        sunroofCtrl = int(float(command.get('value')))
+        res = False
+        if sunroofCtrl == 1:
+            code, res = self.TEV.teslaEV_SunRoof(self.EVid, 'vent')
+            #self.EV_setDriver()
+        elif sunroofCtrl == 0:
+            code, res = self.TEV.teslaEV_SunRoof(self.EVid, 'close')    
+        elif sunroofCtrl == 2:
+            code, res = self.TEV.teslaEV_SunRoof(self.EVid, 'stop')                  
+        else:
+            logging.error(f'Wrong command for evSunroof: {sunroofCtrl}')
+            code = 'error'
+        if code in ['ok']:
+             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
+        else:
+            self.EV_setDriver('GV21', self.code2ISY(code), 25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEV.teslaEV_GetCarState(self.EVid)), 25)
+
+
+    def evOpenFrunk (self, command):
+        logging.info(f'evOpenFrunk called')
+        #self.TEV.teslaEV_Wake(self.EVid)     
+        code, res = self.TEV.teslaEV_TrunkFrunk(self.EVid, 'Frunk')
+        logging.debug(f'Frunk result {code} - {res}')
+        if code in ['ok']:
+            self.EV_setDriver('GV12', 1, 25)
+            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
+        else:
+            logging.info('Not able to send command - EV is not online')
+            self.EV_setDriver('GV21', self.code2ISY(code), 25)
+            self.EV_setDriver('GV12', None, 25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEV.teslaEV_GetCarState(self.EVid)), 25)
+
+
+    def evOpenTrunk (self, command):
+        logging.info('evOpenTrunk called')   
+        code, res = self.TEV.teslaEV_TrunkFrunk(self.EVid, 'Trunk')
+        logging.debug(f'Trunk result {code} - {res}')
+        if code in ['ok']:
+            self.EV_setDriver('GV11', 1, 25)
+            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)    
+        else:
+            logging.info('Not able to send command - EV is not online')
+            self.EV_setDriver('GV21', self.code2ISY(code), 25)
+            self.EV_setDriver('GV11', None, 25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEV.teslaEV_GetCarState(self.EVid)), 25)
+
+
+    def evHomelink (self, command):
+        logging.info('evHomelink called')
+        code, res = self.TEV.teslaEV_HomeLink(self.EVid)
+        if code in ['ok']:
+             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
+        else:
+            self.EV_setDriver('GV21', self.code2ISY(code), 25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEV.teslaEV_GetCarState(self.EVid)), 25)
+
+
 
     #def updateISYdrivers(self):
     #    logging.debug('System updateISYdrivers - Controller')       
@@ -423,21 +736,98 @@ class TeslaEVController(udi_interface.Node):
 
  
     id = 'controller'
-    commands = {   }
+
+
+    commands = { 'UPDATE': ISYupdate, 
+                 'WAKEUP' : evWakeUp,
+                 'HONKHORN' : evHonkHorn,
+                 'FLASHLIGHT' : evFlashLights,
+                 'DOORS' : evControlDoors,
+                 'SUNROOF' : evControlSunroof,
+                 'TRUNK' : evOpenTrunk,
+                 'FRUNK' : evOpenFrunk,
+                 'HOMELINK' : evHomelink,
+                 'PLAYSOUND' : evPlaySound,
+                }
+
 
     drivers = [
-    #        {'driver': 'ST', 'value':0, 'uom':25},
-    #        {'driver': 'GV0', 'value':0, 'uom':25},
-    #        #{'driver': 'GV1', 'value':0, 'uom':56},
-    #        {'driver': 'GV2', 'value':99, 'uom':25},
-    #        {'driver': 'GV3', 'value':99, 'uom':25},
+            {'driver': 'ST', 'value': 99, 'uom': 25}, #car State            
+            {'driver': 'GV1', 'value': 99, 'uom': 25},  #center_display_state
+            {'driver': 'GV2', 'value': 99, 'uom': 25},  # Homelink Nearby
+            {'driver': 'GV0', 'value': 99, 'uom': 25},  # nbr homelink devices
+            {'driver': 'GV3', 'value': 99, 'uom': 25},  #locked
+            {'driver': 'GV4', 'value': 0, 'uom': 116},  #odometer
+
+            {'driver': 'GV6', 'value': 99, 'uom': 25},  #fd_window
+            {'driver': 'GV7', 'value': 99, 'uom': 25},  #fp_window
+            {'driver': 'GV8', 'value': 99, 'uom': 25},  #rd_window
+            {'driver': 'GV9', 'value': 99, 'uom': 25},  #rp_window
+
+            {'driver': 'GV11', 'value': 0, 'uom': 25}, #trunk
+            {'driver': 'GV12', 'value': 0, 'uom': 25}, #frunk
+
+            {'driver': 'GV17', 'value': 99, 'uom': 56}, #longitude
+            {'driver': 'GV18', 'value': 99, 'uom': 56}, #latitude
+            {'driver': 'GV19', 'value': 0, 'uom': 151},  #Last combined update Hours
+
+            {'driver': 'GV21', 'value': 99, 'uom': 25}, #Last Command status
             ]
+
     
             # ST - node started
             # GV0 Access to TeslaApi
             # GV1 Number of EVs
 
-
+    '''
+        <nodeDef id="controller" nls="nlsevstatus">
+        <editors />
+        <sts>
+         <!--<st id="ST" editor="NODEST" />-->
+         <st id="ST" editor="CARSTATE" />
+         <st id="GV1" editor="CONSOLE" />
+         <st id="GV2" editor="BOOLSTATE" />
+         <st id="GV0" editor="NUMBER" />
+         <st id="GV3" editor="LOCKUNLOCK" />
+         <st id="GV4" editor="ODOMETER" />
+         <!--<st id="GV5" editor="BOOLSTATE" />-->
+         <st id="GV6" editor="WINDOW" />
+         <st id="GV7" editor="WINDOW" />
+         <st id="GV8" editor="WINDOW" />
+         <st id="GV9" editor="WINDOW" />
+         <!--<st id="GV10" editor="PERCENT" />-->
+         <st id="GV11" editor="OPENCLOSE" />
+         <st id="GV12" editor="OPENCLOSE" />
+         <!-- <st id="GV13" editor="CARSTATE" /> -->
+         <!-- <st id="GV16" editor="IDEADIST" /> !-->
+         <st id="GV17" editor="LONGITUDE" />         
+         <st id="GV18" editor="LATITUDE" />  
+         <st id="GV19" editor="unixtime" />         
+         <!--<st id="GV20" editor="MINU" />    -->
+         <st id="GV21" editor="LASTCMD" />   
+        </sts>
+        <cmds>
+         <sends>
+            <cmd id="DON" /> 
+            <cmd id="DOF" />          
+         </sends>
+         <accepts>
+            <cmd id="UPDATE" /> 
+            <cmd id="WAKEUP" />
+            <cmd id="HONKHORN" />
+            <cmd id="FLASHLIGHT" />   
+            <cmd id="DOORS" > 
+               <p id="" editor="LOCKUNLOCK" init="GV3" /> 
+            </cmd>
+            <cmd id="SUNROOF" > 
+               <p id="" editor="SUNROOFCTRL" init="0" /> 
+            </cmd >
+            <cmd id="TRUNK" /> 
+            <cmd id="FRUNK" /> 
+            <cmd id="HOMELINK" /> 
+            <cmd id="PLAYSOUND" > 
+               <p id="" editor="SOUNDS" init="0" /> 
+    '''
 
 if __name__ == "__main__":
     try:
@@ -453,7 +843,7 @@ if __name__ == "__main__":
         #TEV_cloud = teslaEVAccess(polyglot, 'energy_device_data energy_cmds open_id offline_access')
         #TEV_cloud = teslaEVAccess(polyglot, 'open_id vehicle_device_data vehicle_cmds  vehicle_charging_cmds offline_access')
         logging.debug(f'TEV_Cloud {TEV_cloud}')
-        TEV =TeslaEVController(polyglot, 'controller', 'controller', 'Tesla EVs', TEV_cloud)
+        TEV =TeslaEVController(polyglot, 'controller', 'controller', 'Tesla EV Name', TEV_cloud)
         
         logging.debug('before subscribe')
         polyglot.subscribe(polyglot.STOP, TEV.stop)
@@ -463,9 +853,10 @@ if __name__ == "__main__":
         polyglot.subscribe(polyglot.LOGLEVEL, TEV.handleLevelChange)
         polyglot.subscribe(polyglot.NOTICES, TEV.handleNotices)
         polyglot.subscribe(polyglot.POLL, TEV.systemPoll)
-        polyglot.subscribe(polyglot.START, TEV.start, 'controller')
+        
         #polyglot.subscribe(polyglot.WEBHOOK, TEV.webhook)
         logging.debug('Calling start')
+        polyglot.subscribe(polyglot.START, TEV.start, 'controller')
         polyglot.subscribe(polyglot.CUSTOMNS, TEV.customNSHandler)
         polyglot.subscribe(polyglot.OAUTH, TEV.oauthHandler)
         
