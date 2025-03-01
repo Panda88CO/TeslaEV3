@@ -14,13 +14,13 @@ class teslaEV_ChargeNode(udi_interface.Node):
     #from  udiLib import node_queue, wait_for_node_done, mask2key, latch2ISY, cond2ISY, heartbeat, state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
     from  udiLib import node_queue, command_res2ISY, wait_for_node_done, tempUnitAdjust, latch2ISY, chargeState2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat,  code2ISY, state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
 
-    def __init__(self, polyglot, parent, address, name, evid,  TEV):
+    def __init__(self, polyglot, parent, address, name, evid,  TEVcloud):
         super(teslaEV_ChargeNode, self).__init__(polyglot, parent, address, name)
         logging.info('_init_ Tesla Charge Node')
         self.poly = polyglot
         self.ISYforced = False
         self.EVid = evid
-        self.TEV = TEV
+        self.TEVcloud = TEVcloud
         self.address = address 
         self.name = name
         self.nodeReady = False
@@ -53,7 +53,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
         pass 
         #logging.debug(f'Charge node {self.EVid}')
         #try:
-        #    if self.TEV.carState != 'Offline':
+        #    if self.TEVcloud.carState != 'Offline':
         #        self.updateISYdrivers()
         #    else:
         #        logging.info('Car appears off-line/sleeping - not updating data')
@@ -66,13 +66,13 @@ class teslaEV_ChargeNode(udi_interface.Node):
    
     def update_time(self):
         try:
-            temp = self.TEV.teslaEV_GetChargeTimestamp(self.EVid)
+            temp = self.TEVcloud.teslaEV_GetChargeTimestamp(self.EVid)
             self.EV_setDriver('GV19', temp, 151)   
         except ValueError:
             self.EV_setDriver('GV19', None, 25)                                                 
         '''
         try:
-            temp = round(float(self.TEV.teslaEV_GetTimeSinceLastStatusUpdate(self.EVid)/60), 0)
+            temp = round(float(self.TEVcloud.teslaEV_GetTimeSinceLastStatusUpdate(self.EVid)/60), 0)
             self.EV_setDriver('GV20', temp, 44)
         except ValueError:
             self.EV_setDriver('GV20', None, 25)          
@@ -83,47 +83,47 @@ class teslaEV_ChargeNode(udi_interface.Node):
         try:
 
             logging.info(f'ChargeNode updateISYdrivers {self.EVid}')
-            #if self.TEV.teslaEV_GetCarState(self.EVid) in ['online']:                
-            self.EV_setDriver('GV1', self.bool2ISY(self.TEV.teslaEV_FastChargerPresent(self.EVid)), 25)
-            self.EV_setDriver('GV2', self.bool2ISY(self.TEV.teslaEV_ChargePortOpen(self.EVid)),25)
-            self.EV_setDriver('GV3', self.latch2ISY(self.TEV.teslaEV_ChargePortLatched(self.EVid)),25)
+            #if self.TEVcloud.teslaEV_GetCarState(self.EVid) in ['online']:                
+            self.EV_setDriver('GV1', self.bool2ISY(self.TEVcloud.teslaEV_FastChargerPresent(self.EVid)), 25)
+            self.EV_setDriver('GV2', self.bool2ISY(self.TEVcloud.teslaEV_ChargePortOpen(self.EVid)),25)
+            self.EV_setDriver('GV3', self.latch2ISY(self.TEVcloud.teslaEV_ChargePortLatched(self.EVid)),25)
 
-            temp_range = self.TEV.teslaEV_GetBatteryRange(self.EVid)
+            temp_range = self.TEVcloud.teslaEV_GetBatteryRange(self.EVid)
             if temp_range is None:
                 self.EV_setDriver('GV4', temp_range, 25)
             else:
-                if self.TEV.teslaEV_GetDistUnit() == 1:
+                if self.TEVcloud.teslaEV_GetDistUnit() == 1:
                     self.EV_setDriver('GV4', round(float(temp_range),1), 116)
                 else:
                     self.EV_setDriver('GV4', round(float(temp_range*1.6),1), 83)
 
-            self.EV_setDriver('ST', self.TEV.teslaEV_GetBatteryLevel(self.EVid) , 51)
+            self.EV_setDriver('ST', self.TEVcloud.teslaEV_GetBatteryLevel(self.EVid) , 51)
 
 
-            temp_current = self.TEV.teslaEV_MaxChargeCurrent(self.EVid) 
+            temp_current = self.TEVcloud.teslaEV_MaxChargeCurrent(self.EVid) 
         
             self.EV_setDriver('GV5', temp_current, 1)
-            self.EV_setDriver('GV6',self.chargeState2ISY(self.TEV.teslaEV_ChargeState(self.EVid)), 25)
-            self.EV_setDriver('GV7', self.bool2ISY(self.TEV.teslaEV_ChargingRequested(self.EVid)),25)
-            self.EV_setDriver('GV8',self.TEV.teslaEV_ChargingRequested(self.EVid), 30)
-            self.EV_setDriver('GV9', self.TEV.teslaEV_GetBatteryMaxCharge(self.EVid), 51)
-            self.EV_setDriver('GV10',self.TEV.teslaEV_charger_voltage(self.EVid), 72)
-            self.EV_setDriver('GV11', self.TEV.teslaEV_charge_current_request(self.EVid),1 )
-            self.EV_setDriver('GV12', self.TEV.teslaEV_charger_actual_current(self.EVid), 1)
-            self.EV_setDriver('GV14', self.TEV.teslaEV_time_to_full_charge(self.EVid), 44)
-            self.EV_setDriver('GV15', self.TEV.teslaEV_charge_energy_added(self.EVid), 33)
-            #if self.TEV.teslaEV_GetDistUnit() == 1:
-            #    self.EV_setDriver('GV16', self.TEV.teslaEV_charge_miles_added_rated(self.EVid), 116)
+            self.EV_setDriver('GV6',self.chargeState2ISY(self.TEVcloud.teslaEV_ChargeState(self.EVid)), 25)
+            self.EV_setDriver('GV7', self.bool2ISY(self.TEVcloud.teslaEV_ChargingRequested(self.EVid)),25)
+            self.EV_setDriver('GV8',self.TEVcloud.teslaEV_ChargingRequested(self.EVid), 30)
+            self.EV_setDriver('GV9', self.TEVcloud.teslaEV_GetBatteryMaxCharge(self.EVid), 51)
+            self.EV_setDriver('GV10',self.TEVcloud.teslaEV_charger_voltage(self.EVid), 72)
+            self.EV_setDriver('GV11', self.TEVcloud.teslaEV_charge_current_request(self.EVid),1 )
+            self.EV_setDriver('GV12', self.TEVcloud.teslaEV_charger_actual_current(self.EVid), 1)
+            self.EV_setDriver('GV14', self.TEVcloud.teslaEV_time_to_full_charge(self.EVid), 44)
+            self.EV_setDriver('GV15', self.TEVcloud.teslaEV_charge_energy_added(self.EVid), 33)
+            #if self.TEVcloud.teslaEV_GetDistUnit() == 1:
+            #    self.EV_setDriver('GV16', self.TEVcloud.teslaEV_charge_miles_added_rated(self.EVid), 116)
             #else:
-            #    self.EV_setDriver('GV16', self.TEV.teslaEV_charge_miles_added_rated(self.EVid)*1.6 , 83 )
+            #    self.EV_setDriver('GV16', self.TEVcloud.teslaEV_charge_miles_added_rated(self.EVid)*1.6 , 83 )
  
         except Exception as e:
             logging.error(f'updateISYdrivers charge node failed: {e}')
 
     #def ISYupdate (self, command):
     #    logging.info('ISY-update called')
-    #    code, state = self.TEV.teslaEV_update_connection_status(self.EVid)
-    #    code, res = self.TEV.teslaEV_UpdateCloudInfo(self.EVid)
+    #    code, state = self.TEVcloud.teslaEV_update_connection_status(self.EVid)
+    #    code, res = self.TEVcloud.teslaEV_UpdateCloudInfo(self.EVid)
     #    self.updateISYdrivers()
     #    self.update_time()
     #    self.EV_setDriver('GV21', self.command_res2ISY(code), 25)
@@ -133,9 +133,9 @@ class teslaEV_ChargeNode(udi_interface.Node):
         logging.info('evChargePort called')
         chargePort = int(float(command.get('value')))
         if chargePort == 1:
-            code, res =  self.TEV.teslaEV_ChargePort(self.EVid, 'open')
+            code, res =  self.TEVcloud.teslaEV_ChargePort(self.EVid, 'open')
         elif chargePort == 0:
-            code, res = self.TEV.teslaEV_ChargePort(self.EVid, 'close')
+            code, res = self.TEVcloud.teslaEV_ChargePort(self.EVid, 'close')
         else:
             logging.debug(f'Wrong parameter passed to evChargePort : {chargePort}')
             code = 'error'
@@ -155,7 +155,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
         chargeCtrl = int(float(command.get('value')))
 
         if chargeCtrl == 1:
-            code, res =  self.TEV.teslaEV_Charging(self.EVid, 'start')
+            code, res =  self.TEVcloud.teslaEV_Charging(self.EVid, 'start')
             if code in ['ok']:
                 self.EV_setDriver('GV6', 3, 25)
                 self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
@@ -164,7 +164,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
                 self.EV_setDriver('GV21', self.code2ISY(code), 25)      
                 self.EV_setDriver('GV6', None, 25)                       
         elif chargeCtrl == 0:
-            code, res =  self.TEV.teslaEV_Charging(self.EVid, 'stop')
+            code, res =  self.TEVcloud.teslaEV_Charging(self.EVid, 'stop')
             if code in ['ok']:
                 self.EV_setDriver('GV6', 4, 25)
                 self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
@@ -181,7 +181,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
     def evSetBatteryChargeLimit (self, command):
         logging.info('evSetBatteryChargeLimit called')
         batLimitPercent = int(float(command.get('value')))
-        code, res =  self.TEV.teslaEV_SetChargeLimit(self.EVid, batLimitPercent)
+        code, res =  self.TEVcloud.teslaEV_SetChargeLimit(self.EVid, batLimitPercent)
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.EV_setDriver('GV9', batLimitPercent, 51) 
@@ -197,7 +197,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
         
         ampLimit = int(float(command.get('value')))
 
-        code, res = self.TEV.teslaEV_SetChargeLimitAmps(self.EVid, ampLimit)
+        code, res = self.TEVcloud.teslaEV_SetChargeLimitAmps(self.EVid, ampLimit)
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.EV_setDriver('CHARGEAMPS', ampLimit, 1)
