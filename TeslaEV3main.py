@@ -259,7 +259,7 @@ class TeslaEVController(udi_interface.Node):
 
     def start(self):
         logging.info('start main node')
-        self.Notices.
+        self.poly.Notices.clear()
         EVname = None
         #self.Parameters.load(customParams)
         self.poly.updateProfile()
