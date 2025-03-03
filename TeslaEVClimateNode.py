@@ -13,12 +13,12 @@ import time
 class teslaEV_ClimateNode(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, wait_for_node_done, tempUnitAdjust, latch2ISY, chargeState2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, code2ISY, state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
 
-    def __init__(self, polyglot, primary, address, name, evid,  TEV):
+    def __init__(self, polyglot, primary, address, name, evid,  TEVcloud):
         super(teslaEV_ClimateNode, self).__init__(polyglot, primary, address, name)
         logging.info('_init_ Tesla ClimateNode Status Node')
         self.poly = polyglot
         self.ISYforced = False
-        self.TEV = TEV
+        self.TEVcloud = TEVcloud
         self.EVid = evid
         self.primary = primary
         self.address = address
@@ -41,7 +41,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
         self.nodeReady = True
         #self.updateISYdrivers()
         #self.update_time()
-        #self.tempUnit = self.TEV.teslaEV_GetTempUnit()
+        #self.tempUnit = self.TEVcloud.teslaEV_GetTempUnit()
 
     def stop(self):
         logging.debug('stop - Cleaning up')
@@ -54,7 +54,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
         pass
         #logging.debug(f'Climate node {self.EVid}')
         #try:
-        #    if self.TEV.carState != 'Offline':
+        #    if self.TEVcloud.carState != 'Offline':
         #        self.updateISYdrivers()
         #    else:
         #        logging.info('Car appears off-line/sleeping - not updating data')
@@ -65,18 +65,18 @@ class teslaEV_ClimateNode(udi_interface.Node):
     #def forceUpdateISYdrivers(self):
     #   logging.debug(f'forceUpdateISYdrivers: {self.EVid}')
     #    time.sleep(1)
-    #    self.TEV.teslaEV_UpdateCloudInfo(self.EVid)
+    #    self.TEVcloud.teslaEV_UpdateCloudInfo(self.EVid)
     #    self.updateISYdrivers()
 
     def update_time(self):
         try:
-            temp = self.TEV.teslaEV_GetClimateTimestamp(self.EVid)
+            temp = self.TEVcloud.teslaEV_GetClimateTimestamp(self.EVid)
             self.EV_setDriver('GV19', temp, 151)
         except ValueError:
             self.EV_setDriver('GV19', None, 25)
         '''
         try:
-            temp = round(float(self.TEV.teslaEV_GetTimeSinceLastStatusUpdate(self.EVid)/60), 0)
+            temp = round(float(self.TEVcloud.teslaEV_GetTimeSinceLastStatusUpdate(self.EVid)/60), 0)
             self.EV_setDriver('GV20', temp, 44)
         except ValueError:
             self.EV_setDriver('GV20', None, 25)
@@ -87,11 +87,11 @@ class teslaEV_ClimateNode(udi_interface.Node):
 
             logging.info(f'Climate setDriverTemp {self.EVid}')
 
-            self.setDriverTemp('ST', self.TEV.teslaEV_GetCabinTemp(self.EVid))
-            self.setDriverTemp('GV2', self.TEV.teslaEV_GetOutdoorTemp(self.EVid))
-            self.setDriverTemp('GV3', self.TEV.teslaEV_GetLeftTemp(self.EVid))
-            self.setDriverTemp('GV4', self.TEV.teslaEV_GetRightTemp(self.EVid))
-            seatHeat = self.TEV.teslaEV_GetSeatHeating(self.EVid)
+            self.setDriverTemp('ST', self.TEVcloud.teslaEV_GetCabinTemp(self.EVid))
+            self.setDriverTemp('GV2', self.TEVcloud.teslaEV_GetOutdoorTemp(self.EVid))
+            self.setDriverTemp('GV3', self.TEVcloud.teslaEV_GetLeftTemp(self.EVid))
+            self.setDriverTemp('GV4', self.TEVcloud.teslaEV_GetRightTemp(self.EVid))
+            seatHeat = self.TEVcloud.teslaEV_GetSeatHeating(self.EVid)
             if 'seat_heater_left' in seatHeat:
                 seatHeat['FrontLeft'] = seatHeat['seat_heater_left']
             elif 'FrontLeft' not in seatHeat:
@@ -128,13 +128,13 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.EV_setDriver('GV9', self.cond2ISY(seatHeat['RearRight']),25)
             self.EV_setDriver('GV15', self.cond2ISY(seatHeat['ThirdLeft']),25)
             self.EV_setDriver('GV16', self.cond2ISY(seatHeat['ThirdRight']),25)
-            self.EV_setDriver('GV10', self.bool2ISY(self.TEV.teslaEV_AutoConditioningRunning(self.EVid)), 25)
-            self.EV_setDriver('GV11', self.bool2ISY(self.TEV.teslaEV_PreConditioningEnabled(self.EVid)), 25)
+            self.EV_setDriver('GV10', self.bool2ISY(self.TEVcloud.teslaEV_AutoConditioningRunning(self.EVid)), 25)
+            self.EV_setDriver('GV11', self.bool2ISY(self.TEVcloud.teslaEV_PreConditioningEnabled(self.EVid)), 25)
             
-            #self.setDriverTemp('GV12', self.TEV.teslaEV_MaxCabinTempCtrl(self.EVid))
-            #self.setDriverTemp('GV13', self.TEV.teslaEV_MinCabinTempCtrl(self.EVid))
+            #self.setDriverTemp('GV12', self.TEVcloud.teslaEV_MaxCabinTempCtrl(self.EVid))
+            #self.setDriverTemp('GV13', self.TEVcloud.teslaEV_MinCabinTempCtrl(self.EVid))
             
-            self.EV_setDriver('GV14', self.bool2ISY(self.TEV.teslaEV_SteeringWheelHeatOn(self.EVid)), 25) #need to be implemented        
+            self.EV_setDriver('GV14', self.bool2ISY(self.TEVcloud.teslaEV_SteeringWheelHeatOn(self.EVid)), 25) #need to be implemented        
         except Exception as e:
             logging.error(f'updateISYdrivers climate node  failed: {e}')
 
@@ -142,8 +142,8 @@ class teslaEV_ClimateNode(udi_interface.Node):
     #def ISYupdate (self, command):
     #    logging.info('ISY-update called')
         #super(teslaEV_ClimateNode, self).ISYupdate()
-        #code, state = self.TEV.teslaEV_update_connection_status(self.EVid)
-        #code, res = self.TEV.teslaEV_UpdateCloudInfo(self.EVid)
+        #code, state = self.TEVcloud.teslaEV_update_connection_status(self.EVid)
+        #code, res = self.TEVcloud.teslaEV_UpdateCloudInfo(self.EVid)
         #super(teslaEV_ClimateNode, self).update_all_drivers(code)
         #super(teslaEV_ClimateNode, self).display_update()
         #self.EV_setDriver('GV21', self.command_res2ISY(code), 25)
@@ -154,10 +154,10 @@ class teslaEV_ClimateNode(udi_interface.Node):
         windowCtrl = int(float(command.get('value')))
 
         if windowCtrl == 1:
-            code, res = self.TEV.teslaEV_Windows(self.EVid, 'vent')
+            code, res = self.TEVcloud.teslaEV_Windows(self.EVid, 'vent')
 
         elif windowCtrl == 0:
-            code, res = self.TEV.teslaEV_Windows(self.EVid, 'close')
+            code, res = self.TEVcloud.teslaEV_Windows(self.EVid, 'close')
         else:
             logging.error(f'Wrong command for evWndows: {windowCtrl}')
             code = 'error'
@@ -175,9 +175,9 @@ class teslaEV_ClimateNode(udi_interface.Node):
         sunroofCtrl = int(float(command.get('value')))
  
         if sunroofCtrl == 1:
-            code, res = self.TEV.teslaEV_SunRoof(self.EVid, 'vent')
+            code, res = self.TEVcloud.teslaEV_SunRoof(self.EVid, 'vent')
         elif sunroofCtrl == 0:
-            code, res = self.TEV.teslaEV_SunRoof(self.EVid, 'close')            
+            code, res = self.TEVcloud.teslaEV_SunRoof(self.EVid, 'close')            
         else:
             logging.error(f'Wrong command for evSunroof: {sunroofCtrl}')
 
@@ -195,9 +195,9 @@ class teslaEV_ClimateNode(udi_interface.Node):
 
         autoCond = int(float(command.get('value')))       
         if autoCond == 1:
-            code, res = self.TEV.teslaEV_AutoCondition(self.EVid, 'start')
+            code, res = self.TEVcloud.teslaEV_AutoCondition(self.EVid, 'start')
         elif autoCond == 0:
-            code, res = self.TEV.teslaEV_AutoCondition(self.EVid, 'stop')
+            code, res = self.TEVcloud.teslaEV_AutoCondition(self.EVid, 'stop')
         else:
             logging.error(f'Wrong command for evAutoCondition: {autoCond}')
             code = 'error'
@@ -216,10 +216,10 @@ class teslaEV_ClimateNode(udi_interface.Node):
         defrost = int(float(command.get('value')))
     
         if defrost == 1:
-            if self.TEV.teslaEV_DefrostMax(self.EVid, 'on'):
+            if self.TEVcloud.teslaEV_DefrostMax(self.EVid, 'on'):
                 self.EV_setDriver('GV11', 2, 25)
         elif defrost == 0:
-            if self.TEV.teslaEV_DefrostMax(self.EVid, 'off'):
+            if self.TEVcloud.teslaEV_DefrostMax(self.EVid, 'off'):
                 self.EV_setDriver('GV11', self.teslaEV_PreConditioningEnabled(self.EVid), 25)
         else:
             logging.error(f'Wrong command for evDefrostMax: {defrost}')
@@ -246,7 +246,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             passengerTemp = int(query.get('passenger.uom4'))  
         elif 'passenger.uom17' in query:
             passengerTemp = int((int(query.get('passenger.uom17'))-32)*5/9)
-        code, res = self.TEV.teslaEV_SetCabinTemps(self.EVid, driverTemp, passengerTemp)
+        code, res = self.TEVcloud.teslaEV_SetCabinTemps(self.EVid, driverTemp, passengerTemp)
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.setDriverTemp( 'GV3', driverTemp )
@@ -270,7 +270,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             seat_select = int(query.get('seat.uom25'))
         if 'heatlvl.uom25' in query:
             seatTemp = int(query.get('heatlvl.uom25'))  
-        code, res = self.TEV.teslaEV_SetSeatHeating(self.EVid, seat_select, seatTemp)
+        code, res = self.TEVcloud.teslaEV_SetSeatHeating(self.EVid, seat_select, seatTemp)
 
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
@@ -289,7 +289,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
         logging.info('evSetSeat0Heat called')
 
         seatTemp = int(command.get('value'))  
-        code, res = self.TEV.teslaEV_SetSeatHeating(self.EVid, 0, seatTemp)
+        code, res = self.TEVcloud.teslaEV_SetSeatHeating(self.EVid, 0, seatTemp)
                 
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
@@ -304,7 +304,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
         logging.info('evSetSeat1Heat called')
   
         seatTemp = int(command.get('value'))  
-        code, res = self.TEV.teslaEV_SetSeatHeating(self.EVid, 1, seatTemp)
+        code, res = self.TEVcloud.teslaEV_SetSeatHeating(self.EVid, 1, seatTemp)
                 
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
@@ -318,7 +318,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
         logging.info('evSetSea2tHeat called')
 
         seatTemp = int(command.get('value'))  
-        code, res = self.TEV.teslaEV_SetSeatHeating(self.EVid, 2, seatTemp)
+        code, res = self.TEVcloud.teslaEV_SetSeatHeating(self.EVid, 2, seatTemp)
                 
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
@@ -332,7 +332,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
         logging.info('evSetSeat4Heat called')
 
         seatTemp = int(command.get('value'))  
-        code, res = self.TEV.teslaEV_SetSeatHeating(self.EVid, 4, seatTemp)
+        code, res = self.TEVcloud.teslaEV_SetSeatHeating(self.EVid, 4, seatTemp)
                 
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
@@ -345,7 +345,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
     def evSetSeat5Heat (self, command):
         logging.info('evSetSeat5Heat called') 
         seatTemp = int(command.get('value'))  
-        code, res = self.TEV.teslaEV_SetSeatHeating(self.EVid, 5, seatTemp)
+        code, res = self.TEVcloud.teslaEV_SetSeatHeating(self.EVid, 5, seatTemp)
                 
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
@@ -360,7 +360,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
         wheel = int(float(command.get('value')))
 
         if 0<= wheel <= 3:     
-            code, res = self.TEV.teslaEV_SteeringWheelHeat(self.EVid, wheel) 
+            code, res = self.TEVcloud.teslaEV_SteeringWheelHeat(self.EVid, wheel) 
         else:
             logging.error(f'Wrong command for evDefrostMax: {wheel}') 
             code = 'error'

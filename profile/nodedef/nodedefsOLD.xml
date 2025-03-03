@@ -1,5 +1,5 @@
 <nodeDefs> 
-   <!--<nodeDef id="controller" nls="nlscontroller">
+   <nodeDef id="controller" nls="nlscontroller">
       <editors />
       <sts>
         <st id="ST" editor="NODEST" />
@@ -14,13 +14,13 @@
             <cmd id="DOF" /> 
          </sends>
          <accepts>
-            <cmd id="UPDATE" />
+            <!--<cmd id="UPDATE" /> -->
        
          </accepts>
       </cmds>
-   </nodeDef>-->
+   </nodeDef>
 
-   <nodeDef id="controller" nls="nlsevstatus">
+   <nodeDef id="evstatus" nls="nlsevstatus">
       <editors />
       <sts>
          <!--<st id="ST" editor="NODEST" />-->
@@ -48,8 +48,6 @@
       </sts>
       <cmds>
          <sends>
-            <cmd id="DON" /> 
-            <cmd id="DOF" />          
          </sends>
          <accepts>
             <cmd id="UPDATE" /> 

@@ -50,7 +50,7 @@ class teslaEV_StatusNode(udi_interface.Node):
 
         #self.ISYupdate()
 
-        self.statusNodeReady = True
+        #self.statusNodeReady = True
         #self.climateNode.updateISYdrivers()
         #self.chargeNode.updateISYdrivers()
 
