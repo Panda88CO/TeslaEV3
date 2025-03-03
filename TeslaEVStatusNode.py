@@ -54,10 +54,10 @@ class teslaEV_StatusNode(udi_interface.Node):
         #self.climateNode.updateISYdrivers()
         #self.chargeNode.updateISYdrivers()
 
-        self.scheduler = BackgroundScheduler()
-        self.scheduler.add_job(self.display_update, 'interval', seconds=self.display_update_sec)
-        self.scheduler.start()
-        self.display_update()
+        #self.scheduler = BackgroundScheduler()
+        #self.scheduler.add_job(self.display_update, 'interval', seconds=self.display_update_sec)
+        #self.scheduler.start()
+        #self.display_update()
 
     def createSubNodes(self):
         logging.debug(f'Creating sub nodes for {self.EVid}')
