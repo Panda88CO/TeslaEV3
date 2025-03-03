@@ -135,7 +135,7 @@ class teslaEVAccess(teslaAccess):
         
         try: 
             logging.debug(f'teslaEV_update_streaming_certificate forse rest {force_reset}')
-            if self.stream_cert['expectedRenewal'] <= time.time() or self.stream_cert['expiry'] <= time.time():
+            if self.stream_cert['expectedRenewal'] <= time.time() or self.stream_cert['expiry'] <= time.time() or force_reset:
                 logging.info('Updating Streaming certificate')
                 self.stream_cert = self.teslaEV_get_streaming_certificate()
 
