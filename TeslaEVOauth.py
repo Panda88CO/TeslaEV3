@@ -345,14 +345,7 @@ class teslaEVAccess(teslaAccess):
             for item in temp['payload']['data']:
                 logging.debug(f'item : {item}')
                 if 'key' in item:
-                    #if item['key'] in ['Location']:
-
-                    #elif item['key'] in ['DoorState']:
-
-                    #else:
-
                     self.stream_data[EVid][item['key']] = item['value']
-
 
             self.stream_data[EVid]['created_at'] = temp['stream']['createdAt']
             logging.debug(f'stream_data {self.stream_data}')
@@ -386,7 +379,33 @@ class teslaEVAccess(teslaAccess):
         except ValueError as e:
             logging.error(f'Exception teslaEV_get_stream_id {e} ')
             return (None)
-            
+
+
+    def testWebhook(self, body):
+        try:
+            config = self.poly.getConfig()
+
+            uuid = config['uuid']
+            slot = config['profileNum']
+            completeUrl = f"https://my.isy.io/api/eisy/pg3/webhook/noresponse/{ uuid }/{ slot }"
+            headers = {  }
+
+            response = requests.post(completeUrl, headers=headers, json=body, timeout=5)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as error:
+            httpStatus = error.response.status_code
+
+            # Not online?
+            if httpStatus == 503:
+                logging.error(f"MQTT connection not online.\nOn my.isy.io, please check Select Tool | PG3 | Remote connection. It has to be active.\nIf you don't see the option, your device does not support it. Make sure you are using an eisy at 5.6.0 or more recent, or a Polisy using PG3x.")
+            # No access to uuid?
+            elif httpStatus == 423:
+                logging.error(f"Make sure that uuid { config['uuid'] } is in your portal account, has a license and is authorized.")
+            else:
+                logging.error(f"Call event url failed GET { completeUrl } failed with HTTP { httpStatus }: { error }")
+
+            raise Exception('Error sending event to Portal webhook')
+
     ########################################   
    
    

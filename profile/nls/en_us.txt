@@ -106,6 +106,12 @@ CMD-nlsevstatus-PLAYSOUND-NAME=Play Sounds
 SOUNDS-0=Random Fart
 SOUNDS-2000=Locate Ping
 
+ST-nlsevstatus-GV30-NAME= Stream Test
+TEST-0 = Not tested
+TEST-1 = Testing...
+TEST-2 = Success
+TEST-3 = Timeout
+TEST-4 = Failure
 
 
 ND-evclimate-NAME=EV climate Control

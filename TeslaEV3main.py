@@ -10,13 +10,12 @@ try:
 except ImportError:
     import logging
     logging.basicConfig(level=20)
-
+import threading
+import json
 from TeslaEVOauth import teslaEVAccess
 #from TeslaEVStatusNode import teslaEV_StatusNode
 from TeslaEVClimateNode import teslaEV_ClimateNode
 from TeslaEVChargeNode import teslaEV_ChargeNode
-
-#from TeslaCloudEVapi  import teslaCloudEVapi
 from TeslaEVOauth import teslaAccess
 
 
@@ -67,6 +66,7 @@ class TeslaEVController(udi_interface.Node):
         self.statusNodeReady = False
         self.climateNodeReady = False
         self.chargeNodeReady = False
+        self.webhookTestTimeoutSeconds = 5
         self.n_queue = []
         self.poly.subscribe(self.poly.ADDNODEDONE, self.node_queue)
         #self.poly.subscribe(polyglot.START, self.start, 'controller')
@@ -251,10 +251,18 @@ class TeslaEVController(udi_interface.Node):
 
     def webhook(self, data): 
         try:
-            logging.info(f"Webhook received: { data }")        
-            self.TEVcloud.teslaEV_process_stream_data(data)        
-            vehicleID = self.TEVcloud.teslaEV_get_stream_id(data)  
-            self.status_nodes[vehicleID].update_all_drivers()
+            logging.info(f"Webhook received: { data }")  
+
+            if 'body' in data:
+                logging.info('webhook test received')
+                eventInfo = json.loads(data['body'])
+
+                if  eventInfo['event'] == 'webhook-test':
+                    self.activate()
+            else:
+                self.TEVcloud.teslaEV_process_stream_data(data)
+                vehicleID = self.TEVcloud.teslaEV_get_stream_id(data)
+                self.status_nodes[vehicleID].update_all_drivers()
         except Exception as e:
             logging.error(f'Exception webhook {e}')
 
@@ -715,7 +723,41 @@ class TeslaEVController(udi_interface.Node):
     #    if self.TEVcloud.authenticated():
     #        self.longPoll()
 
- 
+
+    def webhookTimeout(self):
+        if self.getDriver('GV30') == 1: # Test in progress
+            logging.error(f"Webhook test message timed out after { self.webhookTestTimeoutSeconds } seconds.")
+            self.setDriver('GV30', 3, True, True) # 3=Timeout
+
+    def activate(self):
+        if self.getDriver('GV30') == 1: # Test in progress
+            logging.info('Webhook test message received successfully.')
+            self.webhookTimer.cancel()
+            self.setDriver('GV30', 2, True, True) # 2=Success
+
+    def test(self, param=None):
+        try:
+            self.setDriver('GV30', 1, True, True) # 1=Test in progress
+            time.sleep(1)
+            # Our webhook handler will route this to our activate() function
+            body = {
+               'event': 'webhook-test',
+               'data': {'type':'test',
+                        'description' : 'weebhhok test'
+               }
+            }
+
+            self.TEVcloud.testWebhook(body)
+            logging.info('Webhook test message sent successfully.')
+
+            self.webhookTimer = threading.Timer(self.webhookTestTimeoutSeconds, self.webhookTimeout)
+            self.webhookTimer.start()
+
+        except Exception as error:
+            logging.error(f"Test Ring API call failed: { error }")
+            self.setDriver('GV30', 4, True, True) # 4=failure
+
+    
     id = 'controller'
 
 
@@ -729,6 +771,7 @@ class TeslaEVController(udi_interface.Node):
                  'FRUNK' : evOpenFrunk,
                  'HOMELINK' : evHomelink,
                  'PLAYSOUND' : evPlaySound,
+                 'TESTCON'  : test,
                 }
 
 
