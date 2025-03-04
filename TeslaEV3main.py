@@ -91,7 +91,7 @@ class TeslaEVController(udi_interface.Node):
         self.EVid = None
         self.status_node = None
         #self.EV_setDriver('ST', 1, 25)
-
+        self.t_last = time.time()
         logging.info('Controller init DONE')
 
     def check_config(self):
@@ -244,8 +244,9 @@ class TeslaEVController(udi_interface.Node):
     def init_webhook(self, EVid):
         init ={}
         init['name'] = 'Tesla'
-        init['assets']  = [EVid]
-        logging.debug(f'webhook_ init {init}')
+        
+        init['assets']  = [{"id":EVid}]
+        logging.debug(f'webhook_init {init}')
         self.poly.webhookStart(init)
 
     def webhook(self, data): 
@@ -450,15 +451,16 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV19', None, 25)
 
 
+    '''
     def poll (self, type ):    
         logging.info(f'Status Node Poll for {self.EVid} - poll type: {type}')        
         #pass
         
         try:
             if type in ['short']:
-                code, state  = self.TEVcloud.teslaEV_UpdateCloudInfoAwake(self.EVid)
+               #code, state  = self.TEVcloud.teslaEV_UpdateCloudInfoAwake(self.EVid)
             elif type in ['long']:
-                code, state =  self.TEVcloud.teslaEV_UpdateCloudInfo(self.EVid)
+                #code, state =  self.TEVcloud.teslaEV_UpdateCloudInfo(self.EVid)
             else:
                 return
             logging.debug(f'Poll data code {code} , {state}')
@@ -474,7 +476,7 @@ class TeslaEVController(udi_interface.Node):
 
         except Exception as e:
                 logging.error(f'Status Poll exception : {e}')
-        
+    '''    
 
     def update_all_drivers(self):
         self.updateISYdrivers()

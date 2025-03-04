@@ -49,7 +49,6 @@ class teslaEVAccess(teslaAccess):
         #self.customParameters = Custom(self.poly, 'customparams')
         self.stream_cert = Custom(polyglot, 'customdata')
         self.poly.subscribe(self.poly.CUSTOMDATA, self.customDataHandler) 
-        #self.stream_cert = Custom(self.poly, 'customdata')
         #self.scope_str = None
         self.EndpointNA= 'https://fleet-api.prd.na.vn.cloud.tesla.com'
         self.EndpointEU= 'https://fleet-api.prd.eu.vn.cloud.tesla.com'
@@ -103,19 +102,19 @@ class teslaEVAccess(teslaAccess):
         return(self.handleCustomParamsDone)
 
     def customDataHandler(self, data):
-        logging.debug('customDataHandler')
+        logging.debug(f'customDataHandler start {self.stream_cert}')
         #self.stream_cert.load(data)
         logging.debug('handleData load - {}'.format(self.stream_cert))
         if 'issuedAt' not in  self.stream_cert.keys():
-                self.stream_cert['issuedAt'] = None
-                self.stream_cert['expiry'] = None
-                self.stream_cert['expectedRenewal'] = 0
-                self.stream_cert['ca'] = ''
+            self.stream_cert['issuedAt'] = None
+            self.stream_cert['expiry'] = 0
+            self.stream_cert['expectedRenewal'] = 0
+            #self.stream_cert['ca'] = ''
         self.customDataHandlerDone = True
 
 
     
-    def teslaEV_get_streaming_certificate(self):
+    def _teslaEV_get_streaming_certificate(self):
         response = requests.get('https://my.isy.io/api/certificate')
         #logging.debug(f'certificate - response {response}')
         cert = {}
@@ -126,7 +125,7 @@ class teslaEVAccess(teslaAccess):
                 cert['expiry'] = int(self.datestr_to_epoch(str((res['data']['expiry']))))
                 cert['expectedRenewal'] = int(self.datestr_to_epoch(str((res['data']['expectedRenewal']))))
                 cert['ca'] = str(res['data']['ca'])
-                self.stream_cert = cert
+                #self.stream_cert = cert
 
             return (cert)
     
@@ -135,25 +134,34 @@ class teslaEVAccess(teslaAccess):
         
         try: 
             logging.debug(f'teslaEV_update_streaming_certificate forse rest {force_reset}')
-            if self.stream_cert['expectedRenewal'] <= time.time() or self.stream_cert['expiry'] <= time.time() or force_reset:
-                logging.info('Updating Streaming certificate')
-                self.stream_cert = self.teslaEV_get_streaming_certificate()
-
+            cert = self._teslaEV_get_streaming_certificate()
+            cert_ca = cert['ca']
+            del cert['ca']
             if force_reset:
                 logging.debug('Forced config reset')
+                self.stream_cert = cert
                 code, res = self.teslaEV_streaming_delete_config(EV_vin)
                 time.sleep(1)
-                code, res = self.teslaEV_create_streaming_config([EV_vin])
-
+                code, res = self.teslaEV_create_streaming_config([EV_vin], cert_ca)
+            elif self.stream_cert['expectedRenewal'] <= time.time():
+                self.stream_cert = cert
+                logging.info('Updating Streaming configuration')
+                code, res = self.teslaEV_create_streaming_config(EV_vin, cert_ca)
+    
             return(self.stream_cert is not {})
         except ValueError:  #First time - we need to create config
             logging.debug('teslaEV_update_streaming_certificate creating config')
-            self.stream_cert = self.teslaEV_get_streaming_certificate()
+            cert = self._teslaEV_get_streaming_certificate()
+            cert_ca = cert['ca']
+            del cert['ca']
+            self.stream_cert = cert
             if self.stream_cert is not {}:
                 code, res = self.teslaEV_streaming_delete_config(EV_vin)
                 time.sleep(1)
-            code, res = self.teslaEV_create_streaming_config([EV_vin])
+            code, res = self.teslaEV_create_streaming_config([EV_vin], cert_ca)
             time.sleep(2) # give car chance to sync
+            
+            self.stream_cert = cert
             return(code == 'ok')
         
     
@@ -214,7 +222,7 @@ class teslaEVAccess(teslaAccess):
         if code == 'ok':
             return(code, res)                         
 
-    def teslaEV_create_streaming_config(self, vin_list):
+    def teslaEV_create_streaming_config(self, vin_list, Cert_CA):
         logging.debug(f'teslaEV_create_config {vin_list}')
         #vinstr_list = []
         #for item in vin_list:
@@ -266,8 +274,7 @@ class teslaEVAccess(teslaAccess):
                         'FpWindow' : { 'interval_seconds': 60 },
                         'RdWindow': { 'interval_seconds': 60 },
                         'RpWindow' : { 'interval_seconds': 60,  },
-                        #'VehicleName': { 'interval_seconds': 60},
-                        'Version' : { 'interval_seconds': 60, },
+
                         'TpmsPressureFl' : { 'interval_seconds': 60,'minimum_delta': 0.1 },
                         'TpmsPressureFr' : { 'interval_seconds': 60,'minimum_delta': 0.1  },
                         'TpmsPressureRl' : { 'interval_seconds': 60,'minimum_delta': 0.1  },
@@ -276,7 +283,8 @@ class teslaEVAccess(teslaAccess):
                         'SettingTemperatureUnit' :{ 'interval_seconds': 600 },
                         'CenterDisplay': { 'interval_seconds': 60 },
                         'DefrostMode':{ 'interval_seconds': 60 },
-
+                        #'Version' : { 'interval_seconds': 60, },
+                        #'VehicleName': { 'interval_seconds': 60},
                         #'WindowState' : { 'interval_seconds': 60 },
                         #'ChargingState' : { 'interval_seconds': 60 },                        
                         #'ChargeCurrentRequestMax' : { 'interval_seconds': 60 },
@@ -295,7 +303,7 @@ class teslaEVAccess(teslaAccess):
                     'exp': int(self.stream_cert['expiry']),
                     'alert_types': [ 'service' ],
                     'fields': self.stream_fields, 
-                    'ca' : self.stream_cert['ca'],
+                    'ca' : Cert_CA,
                     'hostname': 'my.isy.io'
                     },
                 
