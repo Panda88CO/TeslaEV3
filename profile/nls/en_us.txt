@@ -107,6 +107,7 @@ SOUNDS-0=Random Fart
 SOUNDS-2000=Locate Ping
 
 ST-nlsevstatus-GV30-NAME= Stream Test
+CMD-nlsevstatus-TESTCON-NAME=Test Connection
 TEST-0 = Not tested
 TEST-1 = Testing...
 TEST-2 = Success
