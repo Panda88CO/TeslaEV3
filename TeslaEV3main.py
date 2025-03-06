@@ -70,7 +70,7 @@ class TeslaEVController(udi_interface.Node):
         self.n_queue = []
         self.poly.subscribe(self.poly.ADDNODEDONE, self.node_queue)
         #self.poly.subscribe(polyglot.START, self.start, 'controller')
-        self.poly.subscribe(self.poly.WEBHOOK, self.webhook)
+        #self.poly.subscribe(self.poly.WEBHOOK, self.webhook)
         self.hb = 0
         self.connected = False
         self.nodeDefineDone = False
@@ -876,9 +876,8 @@ if __name__ == "__main__":
         #polyglot.subscribe(polyglot.ADDNODEDONE, TEV.node_queue)        
         polyglot.subscribe(polyglot.LOGLEVEL, TEV.handleLevelChange)
         polyglot.subscribe(polyglot.NOTICES, TEV.handleNotices)
-        polyglot.subscribe(polyglot.POLL, TEV.systemPoll)
-        
-        #polyglot.subscribe(polyglot.WEBHOOK, TEV.webhook)
+        polyglot.subscribe(polyglot.POLL, TEV.systemPoll)        
+        polyglot.subscribe(polyglot.WEBHOOK, TEV.webhook)
         logging.debug('Calling start')
         polyglot.subscribe(polyglot.START, TEV.start, 'controller')
         polyglot.subscribe(polyglot.CUSTOMNS, TEV.customNSHandler)
