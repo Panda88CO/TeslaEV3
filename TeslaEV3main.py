@@ -245,7 +245,6 @@ class TeslaEVController(udi_interface.Node):
         init ={}
         init['name'] = 'Tesla'        
         init['assets']  = [{'id':'"'+str(EVid)+'"'}]
-
         logging.debug(f'webhook_init {init}')
         self.poly.webhookStart(init)
     
