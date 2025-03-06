@@ -389,7 +389,7 @@ class teslaEVAccess(teslaAccess):
             slot = config['profileNum']
             completeUrl = f"https://my.isy.io/api/eisy/pg3/webhook/noresponse/{ uuid }/{ slot }"
             headers = {  }
-
+            logging.debug(f'complete URL {completeUrl}')
             response = requests.post(completeUrl, headers=headers, json=body, timeout=5)
             response.raise_for_status()
         except requests.exceptions.HTTPError as error:

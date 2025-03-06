@@ -243,11 +243,12 @@ class TeslaEVController(udi_interface.Node):
 
     def init_webhook(self, EVid):
         init ={}
-        init['name'] = 'Tesla'
-        
-        init['assets']  = [{"id":EVid}]
+        init['name'] = 'Tesla'        
+        init['assets']  = [{'id':'"'+str(EVid)+'"'}]
+
         logging.debug(f'webhook_init {init}')
         self.poly.webhookStart(init)
+    
 
     def webhook(self, data): 
         try:
@@ -299,7 +300,7 @@ class TeslaEVController(udi_interface.Node):
 
 
         if len(self.vehicleList) > 1 and self.EVid is None:
-            self.poly.Notices['VIN']=f"Please one of the following VINs in configuration: {self.vehicleList}"
+            self.poly.Notices['VIN']=f"Please enter one of the following VINs in configuration: {self.vehicleList}"
             self.poly.Notices['VIN2']="Then restart"
             #self.EV_setDriver('GV0', 0, 25)   
             sys.exit()
@@ -310,8 +311,6 @@ class TeslaEVController(udi_interface.Node):
 
         EVname = self.TEVcloud.teslaEV_GetName(self.EVid)
 
-        
-
         logging.debug(f'EVname {EVname}')        
         #self.EV_setDriver('GV0', self.bool2ISY(self.EVid is not None), 25)            
 
@@ -321,15 +320,15 @@ class TeslaEVController(udi_interface.Node):
         if not self.TEVcloud.teslaEV_check_streaming_certificate_update(self.EVid, True ): #We need to update streaming server credentials
             logging.info('')
             self.poly.Notices['SYNC']=f'{EVname} ERROR failed to connect to streaming server - EV may be too old'
-
-            self.stop()
+            #self.stop()
             sys.exit()
             
         code, state = self.TEVcloud._teslaEV_wake_ev(self.EVid)
+        logging.debug(f'Wake EV {code} {state}')
         if state not in ['online']:
             self.poly.Notices['NOTONLINE']=f'{EVname} appears offline - cannot continue with EV being online'
-            self.stop()
-            sys.exit()
+            #self.stop()
+            #sys.exit()
             
   
         sync_status = False
@@ -754,7 +753,7 @@ class TeslaEVController(udi_interface.Node):
             self.webhookTimer.start()
 
         except Exception as error:
-            logging.error(f"Test Ring API call failed: { error }")
+            logging.error(f"Test Webhook API call failed: { error }")
             self.setDriver('GV30', 4, True, True) # 4=failure
 
     
@@ -796,6 +795,8 @@ class TeslaEVController(udi_interface.Node):
             {'driver': 'GV19', 'value': 0, 'uom': 151},  #Last combined update Hours
 
             {'driver': 'GV21', 'value': 99, 'uom': 25}, #Last Command status
+            {'driver': 'GV30', 'value': 0, 'uom': 25}, #Last Command status
+         
             ]
 
     
