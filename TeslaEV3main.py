@@ -250,6 +250,8 @@ class TeslaEVController(udi_interface.Node):
         init_w['assets'].append(tmp)
         logging.debug(f'webhook_init {init_w}')
         self.poly.webhookStart(init_w)
+        time.sleep(1)
+        self.test()
 
 
     def webhook(self, data): 
