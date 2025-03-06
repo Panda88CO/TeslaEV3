@@ -242,12 +242,15 @@ class TeslaEVController(udi_interface.Node):
 
 
     def init_webhook(self, EVid):
-        init ={}
-        init['name'] = 'Tesla'        
-        init['assets']  = [{'id':'"'+str(EVid)+'"'}]
-        logging.debug(f'webhook_init {init}')
-        self.poly.webhookStart(init)
-    
+        init_w ={}
+        init_w['name'] = 'Tesla'
+        init_w['assets'] = []
+        tmp = {}
+        tmp['id'] = str(EVid)
+        init_w['assets'].append(tmp)
+        logging.debug(f'webhook_init {init_w}')
+        self.poly.webhookStart(init_w)
+
 
     def webhook(self, data): 
         try:
