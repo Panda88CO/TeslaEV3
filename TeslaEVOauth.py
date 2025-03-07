@@ -130,7 +130,7 @@ class teslaEVAccess(teslaAccess):
             return (cert)
     
 
-    def teslaEV_check_streaming_certificate_update(self, EV_vin, force_reset = False):
+    def teslaEV_streaming_check_certificate_update(self, EV_vin, force_reset = False):
         
         try: 
             logging.debug(f'teslaEV_update_streaming_certificate forse rest {force_reset}')
@@ -142,11 +142,11 @@ class teslaEVAccess(teslaAccess):
                 self.stream_cert = cert
                 code, res = self.teslaEV_streaming_delete_config(EV_vin)
                 time.sleep(1)
-                code, res = self.teslaEV_create_streaming_config([EV_vin], cert_ca)
+                code, res = self.teslaEV_streaming_create_config([EV_vin], cert_ca)
             elif self.stream_cert['expectedRenewal'] <= time.time():
                 self.stream_cert = cert
                 logging.info('Updating Streaming configuration')
-                code, res = self.teslaEV_create_streaming_config(EV_vin, cert_ca)
+                code, res = self.teslaEV_streaming_create_config(EV_vin, cert_ca)
     
             return(self.stream_cert is not {})
         except ValueError:  #First time - we need to create config
@@ -158,7 +158,7 @@ class teslaEVAccess(teslaAccess):
             if self.stream_cert is not {}:
                 code, res = self.teslaEV_streaming_delete_config(EV_vin)
                 time.sleep(1)
-            code, res = self.teslaEV_create_streaming_config([EV_vin], cert_ca)
+            code, res = self.teslaEV_streaming_create_config([EV_vin], cert_ca)
             time.sleep(2) # give car chance to sync
             
             self.stream_cert = cert
@@ -222,7 +222,7 @@ class teslaEVAccess(teslaAccess):
         if code == 'ok':
             return(code, res)                         
 
-    def teslaEV_create_streaming_config(self, vin_list, Cert_CA):
+    def teslaEV_streaming_create_config(self, vin_list, Cert_CA):
         logging.debug(f'teslaEV_create_config {vin_list}')
         #vinstr_list = []
         #for item in vin_list:
@@ -332,11 +332,11 @@ class teslaEVAccess(teslaAccess):
     
    
    
-    def teslaEV_process_stream_data (self, data):
+    def teslaEV_stream_process_data (self, data):
         try:
             temp = json.loads(data)
             #d_type = type(data)
-            logging.debug(f'teslaEV_process_stream_data  {temp}')
+            logging.debug(f'teslaEV_stream_process_data  {temp}')
             #t_type = type(temp)
             #logging.debug(f'data types data {type(data)} - temp {type(temp)}')
             EVid = temp['stream']['deviceId']
@@ -368,8 +368,8 @@ class teslaEVAccess(teslaAccess):
         except ValueError:
             return(None)
 
-    def teslaEV_get_stream_id(self, data):
-        logging.debug(f'teslaEV_get_stream_id :{data}')
+    def teslaEV_stream_get_id(self, data):
+        logging.debug(f'teslaEV_stream_get_id :{data}')
         try:
             temp = json.loads(data)
             #d_type = type(data)
@@ -377,7 +377,7 @@ class teslaEVAccess(teslaAccess):
             #logging.debug(f'data types data {type(data)} - temp {type(temp)}')
             return(temp['stream']['deviceId'])
         except ValueError as e:
-            logging.error(f'Exception teslaEV_get_stream_id {e} ')
+            logging.error(f'Exception teslaEV_stream_get_id {e} ')
             return (None)
 
 
