@@ -22,7 +22,7 @@ from TeslaEVOauth import teslaAccess
 VERSION = '0.0.1'
 
 class TeslaEVController(udi_interface.Node):
-    from  udiLib import node_queue, wait_for_node_done,tempUnitAdjust,  setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
+    from  udiLib import node_queue, wait_for_node_done,tempUnitAdjust,  setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
 
     def __init__(self, polyglot, primary, address, name, ev_cloud_access):
         super(TeslaEVController, self).__init__(polyglot, primary, address, name)
@@ -352,19 +352,9 @@ class TeslaEVController(udi_interface.Node):
             
   
         sync_status = False
-        while not sync_status:
+        while not self.TEVcloud.teslaEV_streaming_synched(self.EVid):
             time.sleep(3)
-            code, res = self.TEVcloud.teslaEV_streaming_synched(self.EVid)
-            logging.debug(f'{self.EVid} synched {code} {res}')
-            if code == 'ok':
-                if res['response']['synced'] :
-                    sync_status = True
 
-                    # need condition to only do this once 
-                    # Load data once - need to synchronize data available 
-                    #logging.info('Getting startup data for node - not streamed')
-                    #self.TEVcloud.teslaEV_UpdateCloudInfoAwake(self.EVid) #Needs to be enabled once other stuff is working 
-                    time.sleep(1)
                     
 
 
@@ -507,10 +497,11 @@ class TeslaEVController(udi_interface.Node):
 
     def updateISYdrivers(self):
         try:
-            state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+            #state = self.TEVcloud.teslaEV_GetCasState(self.EVid)
             logging.debug(f' state : {state}')
+            code, state = self.TEVcloud.teslaEV_update_connection_status(self.EVid)
             self.EV_setDriver('ST', self.state2ISY(state), 25)
-
+            self.EV_setDriver('GV29', self.sync_state2ISY(self.TEVcloud.stream_synched), 25)
 
             logging.info(f'updateISYdrivers - Status for {self.EVid}')
             self.EV_setDriver('GV1', self.TEVcloud.teslaEV_GetCenterDisplay(self.EVid), 25)
@@ -810,6 +801,7 @@ class TeslaEVController(udi_interface.Node):
             {'driver': 'GV19', 'value': 0, 'uom': 151},  #Last combined update Hours
 
             {'driver': 'GV21', 'value': 99, 'uom': 25}, #Last Command status
+            {'driver': 'GV29', 'value': 99, 'uom': 25}, #Synchronized
             {'driver': 'GV30', 'value': 0, 'uom': 25}, #Last Command status
          
             ]

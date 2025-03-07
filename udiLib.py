@@ -138,6 +138,18 @@ def state2ISY(self, state):
     else:
         return(None)
     
+def sync_state2ISY(self, state):
+    logging.debug(f'sync_state2ISY : state {state}')
+    if state is not None:
+        if state:
+            return(1)
+        else:          
+            return(0)
+    else:
+        return(None)
+
+sync_state2ISY
+
 def code2ISY(self, state):
     logging.debug(f'code2ISY : state {state}')
     if state is not None:

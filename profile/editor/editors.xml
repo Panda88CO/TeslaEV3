@@ -206,7 +206,9 @@
    <editor id="LASTCMD" > 
      <range  uom="25" subset="0,1,2,3,4,99" nls="CMD_RES"  />  
   </editor>
-   
+   <editor id="STREAMSYNC" > 
+     <range  uom="25" subset="0,1,99" nls="STREAMSYNC"  />  
+  </editor>
    <editor id="unixtime"> 
      <range uom="151" min="1737400000" max="9999999999" prec="0" />
      <range uom="25" subset="0,99" nls="error" />

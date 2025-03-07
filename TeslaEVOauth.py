@@ -74,7 +74,7 @@ class teslaEVAccess(teslaAccess):
         self.carInfo = {}
         self.carStateList = ['online', 'offline', 'aleep', 'unknown', 'error']
         self.carState = 'Unknown'
-
+        self.stream_synched = False
         self.locationEn = False
         self.canActuateTrunks = False
         self.sunroofInstalled = False
@@ -211,10 +211,14 @@ class teslaEVAccess(teslaAccess):
 
 
     def teslaEV_streaming_synched(self, EVid):
-        logging.debug(f'teslaEV_streaming_synched {EVid}')
-        code, res  = self._callApi('GET','/vehicles/'+str(EVid) +'/fleet_telemetry_config')
-        if code == 'ok':
-            return(code, res)       
+        try:
+            logging.debug(f'teslaEV_streaming_synched {EVid}')
+            code, res  = self._callApi('GET','/vehicles/'+str(EVid) +'/fleet_telemetry_config')
+            self.stream_synched = res['response']['synced']
+            return(self.stream_synched)
+        except ValueError:
+            return(False)
+
 
     def teslaEV_streaming_delete_config(self, EVid):
         logging.debug(f'teslaEV_streaming_delete_config {EVid}')
@@ -618,7 +622,8 @@ class teslaEVAccess(teslaAccess):
 
     def teslaEV_GetCarState(self, EVid):
         try:
-            logging.debug('teslaEV_GetCarState: {}'.format(self.carInfo[EVid]['state']))
+            logging.debug('teslaEV_GetCarState:')
+            code, res = self.teslaEV_update_vehicle_status(EVid)
 
             return(self.carInfo[EVid]['state'])
         except Exception as e:
@@ -651,7 +656,7 @@ class teslaEVAccess(teslaAccess):
         try:
             code, res = self.teslaEV_update_vehicle_status(EVid)
             logging.debug(f'teslaEV_update_connection_status {code} {res}')
-            return(code, self.carInfo[EVid]['state'])
+            return(code, res['state'])
         except Exception as e:
             logging.error(f'teslaEV_update_connection_status - {e}')
             return('error', e)
@@ -695,7 +700,7 @@ class teslaEVAccess(teslaAccess):
             temp = {}
             temp['longitude'] = None
             temp['latitude'] = None
-            if self._stream_data_found(EVid, 'location'):
+            if self.stream_synched:
                 logging.debug('teslaEV_GetLocation stream: {} for {}'.format(EVid,self.stream_data[EVid]['location'] ))
                 loc = self.stream_data[EVid]['Location']['locationValue']
                 temp['longitude'] = self.stream_data[EVid]['Location']['locationValue']['longitude']

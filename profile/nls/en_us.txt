@@ -105,7 +105,10 @@ CMD-nlsevstatus-HOMELINK-NAME=Toggle HomeLink
 CMD-nlsevstatus-PLAYSOUND-NAME=Play Sounds
 SOUNDS-0=Random Fart
 SOUNDS-2000=Locate Ping
-
+ST-nlsevstatus-GV29-NAME= Connection Status
+STREAMSYNC-0=Not Receiving Data
+STREAMSYNC-1=Receiving Data
+STREAMSYNC-99=Unknown
 ST-nlsevstatus-GV30-NAME= Stream Test
 CMD-nlsevstatus-TESTCON-NAME=Test Connection
 TEST-0 = Not tested
