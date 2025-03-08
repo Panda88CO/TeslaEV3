@@ -497,7 +497,7 @@ class TeslaEVController(udi_interface.Node):
 
     def updateISYdrivers(self):
         try:
-            #state = self.TEVcloud.teslaEV_GetCasState(self.EVid)
+            state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
             logging.debug(f' state : {state}')
             code, state = self.TEVcloud.teslaEV_update_connection_status(self.EVid)
             self.EV_setDriver('ST', self.state2ISY(state), 25)
@@ -562,7 +562,7 @@ class TeslaEVController(udi_interface.Node):
     def ISYupdate (self, command=None):
         logging.info(f'ISY-update status node  called')
         code, state = self.TEVcloud.teslaEV_update_connection_status(self.EVid)
-        code, res = self.TEVcloud.teslaEV_UpdateCloudInfo(self.EVid)
+        #code, res = self.TEVcloud.teslaEV_UpdateCloudInfo(self.EVid)
         self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetCarState(self.EVid)), 25)
         self.update_all_drivers()
         self.display_update()
@@ -766,8 +766,8 @@ class TeslaEVController(udi_interface.Node):
     id = 'controller'
 
 
-    commands = { 'UPDATE': ISYupdate, 
-                 'WAKEUP' : evWakeUp,
+    commands = { #'UPDATE': ISYupdate, 
+                 #'WAKEUP' : evWakeUp,
                  'HONKHORN' : evHonkHorn,
                  'FLASHLIGHT' : evFlashLights,
                  'DOORS' : evControlDoors,

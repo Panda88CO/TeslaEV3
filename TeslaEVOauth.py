@@ -624,7 +624,6 @@ class teslaEVAccess(teslaAccess):
         try:
             logging.debug('teslaEV_GetCarState:')
             code, res = self.teslaEV_update_vehicle_status(EVid)
-
             return(self.carInfo[EVid]['state'])
         except Exception as e:
             logging.error(f'teslaEV_GetCarState Exception : {e}')

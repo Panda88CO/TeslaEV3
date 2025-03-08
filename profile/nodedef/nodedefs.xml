@@ -54,8 +54,8 @@
             <cmd id="DOF" />          
          </sends>
          <accepts>
-            <cmd id="UPDATE" /> 
-            <cmd id="WAKEUP" />
+            <!--<cmd id="UPDATE" /> 
+            <cmd id="WAKEUP" />-->
             <cmd id="HONKHORN" />
             <cmd id="FLASHLIGHT" />   
             <cmd id="DOORS" > 
