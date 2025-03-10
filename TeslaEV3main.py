@@ -229,7 +229,7 @@ class TeslaEVController(udi_interface.Node):
                 self.locationEn = str(self.customParameters['LOCATION_EN'])
                 if self.locationEn.upper() not in ['TRUE', 'FALSE']:
                     logging.error(f'Unsupported Location Setting {self.locationEn}')
-                    self.poly.Notices['location'] = 'Unknown distance Unit specified'
+                    self.poly.Notices['location'] = 'Unknown Location setting '
                 else:
                     self.TEVcloud.teslaEV_set_location_enabled(self.locationEn)
                     
@@ -250,13 +250,13 @@ class TeslaEVController(udi_interface.Node):
         tmp['id'] = str(EVid)
         init_w['assets'].append(tmp)
         init_w = {"assets":[{"id":EV}], "name":"Tesla"}
-        init_w = {"assets":[{"id":"5YJ3E1EA5RF721953"}], "name":"Tesla" }
+        #init_w = {"assets":[{"id":"5YJ3E1EA5RF721953"}], "name":"Tesla" }
         #init_w = {"name":"Tesla", "assets":[{"id":"test"}]}
         logging.debug(f'EVid {type(EVid)} {type(str(EVid))}')
         logging.debug(f'webhook_init {init_w}')        
         self.poly.webhookStart(init_w)
         time.sleep(2)
-        self.test()
+        #self.test()
 
 
     def webhook(self, data): 
@@ -497,9 +497,10 @@ class TeslaEVController(udi_interface.Node):
 
     def updateISYdrivers(self):
         try:
+            self.update_time()
             state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            logging.debug(f' state : {state}')
-            code, state = self.TEVcloud.teslaEV_update_connection_status(self.EVid)
+            #logging.debug(f' state : {state}')
+            #code, state = self.TEVcloud.teslaEV_update_connection_status(self.EVid)
             self.EV_setDriver('ST', self.state2ISY(state), 25)
             self.EV_setDriver('GV29', self.sync_state2ISY(self.TEVcloud.stream_synched), 25)
 
@@ -538,24 +539,24 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV12', self.TEVcloud.teslaEV_GetFrunkState(self.EVid), 25)
 
 
-            if self.TEVcloud.location_enabled():
-                location = self.TEVcloud.teslaEV_GetLocation(self.EVid)
-                logging.debug(f'teslaEV_GetLocation {location}')
-                if location['longitude']:
-                    logging.debug('GV17: {}'.format(round(location['longitude'], 3)))
-                    self.EV_setDriver('GV17', round(location['longitude'], 3), 56)
-                else:
-                    logging.debug(f'GV17: NONE')
-                    self.EV_setDriver('GV17', None, 25)
-                if location['latitude']:
-                    logging.debug('GV18: {}'.format(round(location['latitude'], 3)))
-                    self.EV_setDriver('GV18', round(location['latitude'], 3), 56)
-                else:
-                    logging.debug('GV18: NONE')
-                    self.EV_setDriver('GV18', None, 25)
+            #if self.TEVcloud.location_enabled():
+            location = self.TEVcloud.teslaEV_GetLocation(self.EVid)
+            logging.debug(f'teslaEV_GetLocation {location}')
+            if location['longitude']:
+                logging.debug('GV17: {}'.format(round(location['longitude'], 3)))
+                self.EV_setDriver('GV17', round(location['longitude'], 3), 56)
             else:
-                self.EV_setDriver('GV17', 98, 25)
-                self.EV_setDriver('GV18', 98, 25)
+                logging.debug(f'GV17: NONE')
+                self.EV_setDriver('GV17', None, 25)
+            if location['latitude']:
+                logging.debug('GV18: {}'.format(round(location['latitude'], 3)))
+                self.EV_setDriver('GV18', round(location['latitude'], 3), 56)
+            else:
+                logging.debug('GV18: NONE')
+                self.EV_setDriver('GV18', None, 25)
+            #else:
+            #    self.EV_setDriver('GV17', 98, 25)
+            #    self.EV_setDriver('GV18', 98, 25)
         except Exception as e:
             logging.error(f'updateISYdriver Status node failed: {e}')
 
@@ -565,7 +566,7 @@ class TeslaEVController(udi_interface.Node):
         #code, res = self.TEVcloud.teslaEV_UpdateCloudInfo(self.EVid)
         self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetCarState(self.EVid)), 25)
         self.update_all_drivers()
-        self.display_update()
+        #self.display_update()
         self.EV_setDriver('GV21', self.command_res2ISY(code), 25)
 
     def evWakeUp (self, command):

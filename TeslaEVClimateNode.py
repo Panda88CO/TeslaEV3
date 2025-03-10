@@ -86,7 +86,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
         try:
 
             logging.info(f'Climate setDriverTemp {self.EVid}')
-
+            self.update_time()
             self.setDriverTemp('ST', self.TEVcloud.teslaEV_GetCabinTemp(self.EVid))
             self.setDriverTemp('GV2', self.TEVcloud.teslaEV_GetOutdoorTemp(self.EVid))
             self.setDriverTemp('GV3', self.TEVcloud.teslaEV_GetLeftTemp(self.EVid))

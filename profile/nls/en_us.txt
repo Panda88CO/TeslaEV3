@@ -78,7 +78,7 @@ ST-nlsevstatus-GV16-NAME= Ideal Battery Distance
 ST-nlsevstatus-GV17-NAME= EV Longitude
 ST-nlsevstatus-GV18-NAME= EV Latitude
 
-ST-nlsevstatus-GV19-NAME= Time ONOFF last car update
+ST-nlsevstatus-GV19-NAME= Time of last car update
 ST-nlsevstatus-GV20-NAME= Time since last status update
 ST-nlsevstatus-GV21-NAME= Last Command Status
 CMD_RES-0=OK
