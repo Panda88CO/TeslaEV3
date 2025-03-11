@@ -812,16 +812,18 @@ class teslaEVAccess(teslaAccess):
             return(None)            
             
 
+    
     def teslaEV_charger_actual_current(self, EVid):
         try:
             #logging.debug(f'teslaEV_GetBatteryLevel for {EVid}')
-            if 'charger_actual_current' in self.carInfo[EVid]['charge_state']:
-                return(round(self.carInfo[EVid]['charge_state']['charger_actual_current'],1)) 
+            if self._stream_data_found(EVid, 'ACChargingPower'):
+                return(round(self.stream_data[EVid]['ACChargingPower']['doubleValue'],1))
             else:
                 return(None)
         except Exception as e:
             logging.debug(f'Exception teslaEV_charger_actual_current - {e}')
             return(None)              
+    
 
     def teslaEV_charge_amps(self, EVid):
         try:
@@ -938,7 +940,7 @@ class teslaEVAccess(teslaAccess):
             else:
                 return(None)
             #    return(self.carInfo[EVid]['charge_state']['charge_port_latch']) 
-        except ValueError as e:
+        except Exception as e:
             logging.debug(f'Exception teslaEV_ChargePortLatched - {e}')
             return(None)  
 
@@ -1552,7 +1554,7 @@ class teslaEVAccess(teslaAccess):
                 return(self.stream_data[EVid]['Version']['stringValue'])
             else:
                 return(None)
-        except ValueError as e:
+        except Exception as e:
             return(None)
     def teslaEV_GetCenterDisplay(self, EVid):
 
@@ -1783,7 +1785,7 @@ class teslaEVAccess(teslaAccess):
             temp['tmpsRr'] = self.stream_data[EVid]['TpmsPressureRr']['doubleValue']                       
             temp['tmpsRl'] = self.stream_data[EVid]['TpmsPressureRl']['doubleValue']
             return(temp)
-        except ValueError:
+        except Exception:
             temp['tmpsFr'] = None
             temp['tmpsFl'] = None
             temp['tmpsRr'] = None                       
