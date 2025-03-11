@@ -130,8 +130,7 @@ class teslaEVAccess(teslaAccess):
             return (cert)
     
 
-    def teslaEV_streaming_check_certificate_update(self, EV_vin, force_reset = False):
-        
+    def teslaEV_streaming_check_certificate_update(self, EV_vin, force_reset = False):        
         try: 
             logging.debug(f'teslaEV_update_streaming_certificate forse rest {force_reset}')
             cert = self._teslaEV_get_streaming_certificate()
@@ -353,6 +352,16 @@ class teslaEVAccess(teslaAccess):
                 logging.debug(f'item : {item}')
                 if 'key' in item:
                     self.stream_data[EVid][item['key']] = item['value']
+                    if item['key'] in ['SettingDistanceUnit']:
+                        if item['value']['distanceUnitValue'] == 'DistanceUnitMiles':
+                            self.teslaEV_SetDistUnit(1)
+                        else:
+                            self.teslaEV_SetDistUnit(0)
+                    if item['key'] in ['SettingTemperatureUnit']:
+                        if item['value']['temperatureUnitValue'] == 'TemperatureUnitFahrenheit':
+                            self.teslaEV_SetTempUnit(1)
+                        else:
+                            self.teslaEV_SetTempUnit(0)
 
             self.stream_data[EVid]['created_at'] = temp['stream']['createdAt']
             logging.debug(f'stream_data {self.stream_data}')
@@ -490,10 +499,6 @@ class teslaEVAccess(teslaAccess):
             payload = {'endpoints':'charge_state;climate_state;drive_state;vehicle_config;vehicle_state'}
         code, res = self._callApi('GET','/vehicles/'+str(EVid) +'/vehicle_data', payload  )
         logging.debug(f'vehicel data: {code} {res}')
-
-
-
-
         return(code, res)
 
     def _teslaEV_send_ev_command(self, EVid , command, params=None):
@@ -741,6 +746,12 @@ class teslaEVAccess(teslaAccess):
         logging.debug(f'teslaEV_SetRegion: {tRegion}')
         self.region = tRegion
 
+    
+    def _handle_data(self, data):
+        logging.debug(f'_handle_data {data}')
+
+
+    
     '''
     def teslaEV_GetTimeSinceLastCarUpdate(self, EVid):
         try:
