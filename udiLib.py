@@ -223,7 +223,7 @@ def chargeState2ISY(self, state):
             return(1)          
         elif stateL == 'starting':
             return(2)
-        elif stateL == 'charging':
+        elif stateL in ['charging',  'enable']:
             return(3)
         elif stateL == 'stopped':
             return(4)
