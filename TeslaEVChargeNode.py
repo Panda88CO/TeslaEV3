@@ -101,9 +101,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
 
             self.EV_setDriver('ST', self.TEVcloud.teslaEV_GetBatteryLevel(self.EVid) , 51)
 
-
             temp_current = self.TEVcloud.teslaEV_MaxChargeCurrent(self.EVid) 
-        
             self.EV_setDriver('GV5', temp_current, 1)
             self.EV_setDriver('GV6',self.chargeState2ISY(self.TEVcloud.teslaEV_ChargeState(self.EVid)), 25)
             self.EV_setDriver('GV7', self.bool2ISY(self.TEVcloud.teslaEV_ChargingRequested(self.EVid)),25)
