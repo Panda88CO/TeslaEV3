@@ -322,14 +322,14 @@ class TeslaEVController(udi_interface.Node):
             # should not happen but just in case or user has not given name to EV
             EVname = 'ev'+str(self.EVid)
             EVname = str(EVname)
-            nodeName = self.poly.getValidName(EVname)
-            self.node.rename(nodeName)
-            assigned_addresses.append(self.address)
-            self.createSubNodes()
-            while not (self.subnodesReady()):
-                logging.debug(f'Subnodes {self.subnodesReady()} ')
-                logging.debug('waiting for nodes to be created')
-                time.sleep(5)
+        nodeName = self.poly.getValidName(EVname)
+        self.node.rename(nodeName)
+        assigned_addresses.append(self.address)
+        self.createSubNodes()
+        while not (self.subnodesReady()):
+            logging.debug(f'Subnodes {self.subnodesReady()} ')
+            logging.debug('waiting for nodes to be created')
+            time.sleep(5)
 
         self.init_webhook(self.EVid)
 
@@ -491,8 +491,8 @@ class TeslaEVController(udi_interface.Node):
             logging.debug(f'charge updateISYdrivers {self.chargeNode.node_ready()}')                
             if self.chargeNode.node_ready():
                 self.chargeNode.updateISYdrivers()
-        except Exception:
-            logging.debug('All nodes may not be ready yet ')
+        except Exception as e:
+            logging.debug(f'All nodes may not be ready yet {e}')
 
 
     def updateISYdrivers(self):

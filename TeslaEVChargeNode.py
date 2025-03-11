@@ -35,6 +35,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
         self.poly.addNode(self, conn_status = None, rename = True)
         self.wait_for_node_done()
         self.node = self.poly.getNode(address)
+        self.nodeReady = True
         logging.info('_init_ Tesla Charge Node COMPLETE')
         
     def start(self):                
