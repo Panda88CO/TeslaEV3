@@ -385,7 +385,6 @@ class teslaEVAccess(teslaAccess):
             return(None)
 
     def _stream_return_data(self, data):
-
         logging.debug(f'_stream_return_data {data}')
 
 
