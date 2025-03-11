@@ -802,7 +802,7 @@ class teslaEVAccess(teslaAccess):
         try:
             #logging.debug(f'teslaEV_GetBatteryLevel for {EVid}')
             if self._stream_data_found(EVid, 'ChargeCurrentRequest'):
-                return(round(self.stream_data[EVid]['ChargeCurrentRequest']['doubleValue'],1))
+                return(round(self.stream_data[EVid]['ChargeCurrentRequest']['intValue'],1))
             else:
                 return(None)
             #    return(round(self.carInfo[EVid]['charge_state']['charge_current_request'],1)) 
