@@ -63,9 +63,6 @@ class TeslaEVController(udi_interface.Node):
         self.primary = primary
         self.address = address
         self.name = name
-        self.statusNodeReady = False
-        self.climateNodeReady = False
-        self.chargeNodeReady = False
         self.webhookTestTimeoutSeconds = 5
         self.n_queue = []
         self.poly.subscribe(self.poly.ADDNODEDONE, self.node_queue)
@@ -486,10 +483,13 @@ class TeslaEVController(udi_interface.Node):
 
     def update_all_drivers(self):
         try:
+            logging.debug('updateISYdrivers')
             self.updateISYdrivers()
-            if self.climateNodeReady:
+            logging.debug(f'climate updateISYdrivers {self.climateNode.node_ready()}')
+            if self.climateNode.node_ready():
                 self.climateNode.updateISYdrivers()
-            if self.chargeNodeReady:
+            logging.debug(f'charge updateISYdrivers {self.chargeNode.node_ready()}')                
+            if self.chargeNode.node_ready():
                 self.chargeNode.updateISYdrivers()
         except Exception:
             logging.debug('All nodes may not be ready yet ')
@@ -497,6 +497,7 @@ class TeslaEVController(udi_interface.Node):
 
     def updateISYdrivers(self):
         try:
+            logging.debug('Update main node')
             self.update_time()
             state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
             #logging.debug(f' state : {state}')

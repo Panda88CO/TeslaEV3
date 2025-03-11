@@ -46,8 +46,8 @@ class teslaEV_ClimateNode(udi_interface.Node):
     def stop(self):
         logging.debug('stop - Cleaning up')
     
-    def climateNodeReady (self):
-        return(self.nodeReady )
+    #def climateNodeReady (self):
+    #    return(self.nodeReady )
     
 
     def poll(self):
@@ -85,7 +85,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
     def updateISYdrivers(self):
         try:
 
-            logging.info(f'Climate setDriverTemp {self.EVid}')
+            logging.info(f'Climate updateISYdrivers {self.EVid}')
             self.update_time()
             self.setDriverTemp('ST', self.TEVcloud.teslaEV_GetCabinTemp(self.EVid))
             self.setDriverTemp('GV2', self.TEVcloud.teslaEV_GetOutdoorTemp(self.EVid))
@@ -147,6 +147,9 @@ class teslaEV_ClimateNode(udi_interface.Node):
         #super(teslaEV_ClimateNode, self).update_all_drivers(code)
         #super(teslaEV_ClimateNode, self).display_update()
         #self.EV_setDriver('GV21', self.command_res2ISY(code), 25)
+
+    def node_ready(self):
+        return(self.nodeReady)
 
     def evWindows (self, command):
         logging.info('evWindows- called')

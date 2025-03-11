@@ -61,7 +61,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
         #    logging.error('Charge Poll exception : {e}')
 
 
-    def chargeNodeReady (self):
+    def node_ready (self):
         return(self.nodeReady )
    
     def update_time(self):
