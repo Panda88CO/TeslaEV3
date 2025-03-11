@@ -384,6 +384,11 @@ class teslaEVAccess(teslaAccess):
         except ValueError:
             return(None)
 
+    def _stream_return_data(self, data):
+
+        logging.debug(f'_stream_return_data {data}')
+
+
     def teslaEV_stream_get_id(self, data):
         logging.debug(f'teslaEV_stream_get_id :{data}')
         try:
@@ -747,8 +752,6 @@ class teslaEVAccess(teslaAccess):
         self.region = tRegion
 
     
-    def _handle_data(self, data):
-        logging.debug(f'_handle_data {data}')
 
 
     
