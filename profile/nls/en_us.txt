@@ -72,6 +72,7 @@ CARSTATE-1=Online
 CARSTATE-2=Sleeping
 CARSTATE-4=API overload
 CARSTATE-5=API error
+CARSTATE-98=Re-Authenticate Needed
 CARSTATE-99=Unknown 
 
 ST-nlsevstatus-GV16-NAME= Ideal Battery Distance

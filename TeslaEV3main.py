@@ -416,7 +416,13 @@ class TeslaEVController(udi_interface.Node):
         try:
             logging.debug(f'long poll list - checking for token update required')
             self.TEVcloud.teslaEV_streaming_check_certificate_update(self.EVid) #We need to check if we need to update streaming server credentials
-
+            state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+            if state:
+                self.EV_setDriver('ST', self.state2ISY(state), 25)
+                self.poly.Notices['offline'].clear()
+            else:
+                self.poly.Notices['offline']='API connection Failure - please re-authenticate'
+                self.EV_setDriver('ST', 98, 25)
         except Exception:
             logging.info(f'Not all nodes ready:')
 
@@ -783,7 +789,7 @@ class TeslaEVController(udi_interface.Node):
 
 
     drivers = [
-            {'driver': 'ST', 'value': 99, 'uom': 25}, #car State            
+            {'driver': 'ST', 'value': 99, 'uom': 25},   #car State            
             {'driver': 'GV1', 'value': 99, 'uom': 25},  #center_display_state
             {'driver': 'GV2', 'value': 99, 'uom': 25},  # Homelink Nearby
             {'driver': 'GV0', 'value': 99, 'uom': 25},  # nbr homelink devices
@@ -817,7 +823,7 @@ class TeslaEVController(udi_interface.Node):
 
 
             {'driver': 'GV29', 'value': 99, 'uom': 25}, #Synchronized
-            {'driver': 'GV30', 'value': 0, 'uom': 25}, #Last Command status
+            {'driver': 'GV30', 'value': 0, 'uom': 25}, # Test isy API conection result
          
             ]
 
