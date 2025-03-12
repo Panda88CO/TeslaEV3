@@ -390,21 +390,29 @@ class teslaEVAccess(teslaAccess):
 
     def _stream_return_data(self, EVid, dataKey):
         try:
-            logging.debug(f'_stream_return_data {dataKey} {self.stream_data[EVid]}')
+            logging.debug(f'_stream_return_data {dataKey} {self.stream_data[EVid][dataKey]}')
             if dataKey in self.stream_data[EVid]:
                 if 'intValue' in self.stream_data[EVid][dataKey]:
+                    logging.debug('intValue {}'.format(int(self.stream_data[EVid][dataKey]['intValue'])))
                     return(int(self.stream_data[EVid][dataKey]['intValue']))
                 elif  'doubleValue' in self.stream_data[EVid][dataKey]:
+                    logging.debug('doubleValue {}'.format(round(self.stream_data[EVid][dataKey]['doubleValue'], 1)))
                     return(round(self.stream_data[EVid][dataKey]['doubleValue'], 1))
-
                 elif 'stringValue' in self.stream_data[EVid][dataKey]:
-                    return(str(self.stream_data[EVid][dataKey]))
-                elif 'booleanValue' in self.stream_data[EVid][dataKey]:
+                    logging.debug('stringValue {}'.format(int(self.stream_data[EVid][dataKey]['stringValue'])))
+                    return(str(self.stream_data[EVid][dataKey]['stringValue']))
+                elif 'booleanValue' in self.stream_data[EVid][dataKey]['booleanValue']:
+                    logging.debug('booleanValue {}'.format(int(self.stream_data[EVid][dataKey]['inbooleanValuetValue'])))
                     return(bool(self.stream_data[EVid][dataKey]))
                 elif 'invalid' in self.stream_data[EVid][dataKey]:
+                    logging.debug('invalid {}'.format(int(self.stream_data[EVid][dataKey]['invalid'])))
                     return (None)
                 else:
+                    logging.debug('ELSE {}'.format(int(self.stream_data[EVid][dataKey])))
                     return(self.stream_data[EVid][dataKey])
+            else:
+                return(None)
+                   
         except Exception as E:
             logging.debug(f'Exception _stream_return_data: {E}')
             return(None)   
