@@ -171,7 +171,7 @@ class teslaAccess(OAuth):
         logging.debug('authenticated : {} {}'.format(self._oauthTokens.get('expiry') != None, self._oauthTokens))
         try:
             if 'expiry' not in self._oauthTokens:            
-                self.getAccessToken()
+                accessToken = self.getAccessToken()
                 #time.sleep(2)
             #self.apiLock.release()
             return(self._oauthTokens.get('expiry') != None)
@@ -180,11 +180,7 @@ class teslaAccess(OAuth):
             self.poly.Notices['auth'] = 'Please initiate authentication'
             logging.debug(f'_callAPI oauth error: {err}')
             return (False)
-        except ValueError as err:
-            logging.warning('Access token is not yet available. Please authenticate.')
-            self.poly.Notices['auth'] = 'Please initiate authentication'
-            logging.debug(f'_callAPI oauth error: {err}')
-            return
+
         #return('expiry' in self._oauthTokens)
  
     def initializePortal(self, client_id, portal_secret):
@@ -315,7 +311,7 @@ class teslaAccess(OAuth):
                 return('error', response.text)
             else:
                 return ('unknown', response.text)
-        
+    '''    
     # Call your external service API
     def _callApiORG(self, method='GET', url=None, body=''):
         # When calling an API, get the access token (it will be refreshed if necessary)
@@ -372,4 +368,5 @@ class teslaAccess(OAuth):
         except requests.exceptions.HTTPError as error:
             logging.error(f"Call {method} {completeUrl} failed: {error}")
             #self.apiLock.release()
-            return None
+            return None'
+    '''

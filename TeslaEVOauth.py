@@ -289,6 +289,10 @@ class teslaEVAccess(teslaAccess):
                         'SettingTemperatureUnit' :{ 'interval_seconds': 600 },
                         'CenterDisplay': { 'interval_seconds': 60 },
                         'DefrostMode':{ 'interval_seconds': 60 },
+                        'SunroofInstalled':{ 'interval_seconds': 60 },     
+                        'WiperHeatEnabled':{ 'interval_seconds': 60 },    
+
+                      
                         #'Version' : { 'interval_seconds': 60, },
                         #'VehicleName': { 'interval_seconds': 60},
                         #'WindowState' : { 'interval_seconds': 60 },
@@ -384,8 +388,27 @@ class teslaEVAccess(teslaAccess):
         except ValueError:
             return(None)
 
-    def _stream_return_data(self, data):
-        logging.debug(f'_stream_return_data {data}')
+    def _stream_return_data(self, EVid, dataKey):
+        try:
+            logging.debug(f'_stream_return_data {dataKey}')
+            if dataKey in self.stream_data[EVid]:
+                if 'intValue' in self.stream_data[EVid][dataKey]:
+                    return(int(self.stream_data[EVid][dataKey]['intValue']))
+                elif  'doubleValue' in self.stream_data[EVid][dataKey]:
+                    return(round(self.stream_data[EVid][dataKey]['doubleValue'], 1))
+
+                elif 'stringValue' in self.stream_data[EVid][dataKey]:
+                    return(str(self.stream_data[EVid][dataKey]))
+                elif 'booleanValue' in self.stream_data[EVid][dataKey]:
+                    return(bool(self.stream_data[EVid][dataKey]))
+                elif 'invalid' in self.stream_data[EVid][dataKey]:
+                    return (None)
+                else:
+                    return(self.stream_data[EVid][dataKey])
+        except Exception as E:
+            logging.debug(f'Exception _stream_return_data: {E}')
+            return(None)   
+
 
 
     def teslaEV_stream_get_id(self, data):
@@ -787,72 +810,83 @@ class teslaEVAccess(teslaAccess):
             return(None)
 
 
-    def teslaEV_GetIdelBatteryRange(self, EVid):
+    '''
+    def teslaEV_GetIdealBatteryRange(self, EVid):
         try:
             if 'ideal_battery_range' in self.carInfo[EVid]['charge_state']:
                 return(round(self.carInfo[EVid]['charge_state']['ideal_battery_range'],2))
             else:
                 return(None)
         except Exception as e:
-            logging.debug(f'Exception teslaEV_GetIdelBatteryRange - {e}')
+            logging.debug(f'Exception teslaEV_GetIdealBatteryRange - {e}')
             return(None)
-
+    '''
 
 
     def teslaEV_charge_current_request_max(self, EVid):
-        try:
-            #logging.debug(f'teslaEV_GetBatteryLevel for {EVid}')
-            if self._stream_data_found(EVid, 'ChargeCurrentRequestMax'):
-                return(self.stream_data[EVid]['ChargeCurrentRequestMax']['intValue'])
-            else:
-                return(None)
-                #return( self.carInfo[EVid]['charge_state']['charge_current_request_max'])             
-        except Exception as e:
-            logging.debug(f'Exception teslaEV_charge_current_request_max - {e}')
-            return(None)            
+        return (self._stream_return_data(EVid,'ChargeCurrentRequestMax' ))
+        #try:
+        #    #logging.debug(f'teslaEV_charge_current_request_max for {EVid}')
+        #    if self._stream_data_found(EVid, 'ChargeCurrentRequestMax'):
+        #        #return(self.stream_data[EVid]['ChargeCurrentRequestMax']['intValue'])       
+        #    else:
+        #        return(None)
+        #        #return( self.carInfo[EVid]['charge_state']['charge_current_request_max'])             
+        #except Exception as e:
+        #    logging.debug(f'Exception teslaEV_charge_current_request_max - {e}')
+        #    return(None)            
 
     def teslaEV_charge_current_request(self, EVid):
-        try:
-            #logging.debug(f'teslaEV_GetBatteryLevel for {EVid}')
-            if self._stream_data_found(EVid, 'ChargeCurrentRequest'):
-                return(round(self.stream_data[EVid]['ChargeCurrentRequest']['intValue'],1))
-            else:
-                return(None)
-            #    return(round(self.carInfo[EVid]['charge_state']['charge_current_request'],1)) 
-
-        except Exception as e:
-            logging.debug(f'Exception teslaEV_charge_current_request - {e}')
-            return(None)            
+        return(self._stream_return_data(EVid,'ChargeCurrentRequest'))
+        #try:
+        #    #logging.debug(f'teslaEV_charge_current_request for {EVid}')
+        #    
+        #    #if self._stream_data_found(EVid, 'ChargeCurrentRequest'):
+        #    #    
+        #    #    #return(round(self.stream_data[EVid]['ChargeCurrentRequest']['intValue'],1))
+        #    #else:
+        #    #    return(None)
+        #except Exception as e:
+        #    logging.debug(f'Exception teslaEV_charge_current_request - {e}')
+        #    return(None)            
             
 
     
     def teslaEV_charger_actual_current(self, EVid):
+        return(self._stream_return_data(EVid,'ACChargingPower'))
+        '''
         try:
-            #logging.debug(f'teslaEV_GetBatteryLevel for {EVid}')
-            if self._stream_data_found(EVid, 'ACChargingPower'):
-                return(round(self.stream_data[EVid]['ACChargingPower']['doubleValue'],1))
-            else:
-                return(None)
+            
+            #if self._stream_data_found(EVid, 'ACChargingPower'):                
+            #    #return(round(self.stream_data[EVid]['ACChargingPower']['doubleValue'],1))
+            #else:
+            #    return(None)
         except Exception as e:
             logging.debug(f'Exception teslaEV_charger_actual_current - {e}')
             return(None)              
-    
+        '''
 
     def teslaEV_charge_amps(self, EVid):
+        return(self._stream_return_data(EVid,'ChargeAmps'))
+        '''
         try:
-            #logging.debug(f'teslaEV_GetBatteryLevel for {EVid}')
-            if self._stream_data_found(EVid, 'ChargeAmps'):
-                return(round(self.stream_data[EVid]['ChargeAmps']['doubleValue'],1))
-            else:
-                return(None)
+           
+            #if self._stream_data_found(EVid, 'ChargeAmps'):
+            #    return(round(self.stream_data[EVid]['ChargeAmps']['doubleValue'],1))
+            #else:
+            #    return(None)
             #    return(round(self.carInfo[EVid]['charge_state']['charge_amps'],1))     
         except Exception as e:
             logging.debug(f'Exception teslaEV_charge_amps - {e}')
             return(None)         
+        '''
 
+        
     def teslaEV_time_to_full_charge(self, EVid):
+        return(self._stream_return_data(EVid,'TimeToFullCharge'))
+        '''
         try:
-            #logging.debug(f'teslaEV_GetBatteryLevel for {EVid}')
+            #logging.debug(f' teslaEV_time_to_full_charge for {EVid}')
             if self._stream_data_found(EVid, 'TimeToFullCharge'):
                 return(self.stream_data[EVid]['TimeToFullCharge']['doubleValue'])
             else:
@@ -861,16 +895,16 @@ class teslaEVAccess(teslaAccess):
         except Exception as e:
             logging.debug(f'Exception teslaEV_time_to_full_charge - {e}')
             return(None)         
-        
+        '''
+
     def teslaEV_charge_energy_added(self, EVid):
         try:
             res = []
-            if self._stream_data_found(EVid, 'DCChargingEnergyIn'):
-                res.append( round(self.stream_data[EVid]['DCChargingEnergyIn']['doubleValue'],1))
-            if self._stream_data_found(EVid, 'ACChargingEnergyIn'):
-                res.append(round(self.stream_data[EVid]['ACChargingEnergyIn']['doubleValue'],1))
+
+            res.append(self._stream_return_data(EVid,'DCChargingEnergyIn'))
+            res.append(self._stream_return_data(EVid,'ACChargingEnergyIn'))
             res_l = [x for x in res if x is not None]
-            max_energy = max(res_l)
+            max_energy = min(res_l) # most likely DC will always be lower 
             if max_energy:
                 return(max_energy)
             else:
@@ -880,8 +914,10 @@ class teslaEVAccess(teslaAccess):
             logging.debug(f'Exception teslaEV_charge_energy_added - {e}')
             return(None)                        
 
-    '''
+        '''  #need to look at this
     def teslaEV_charge_miles_added_rated(self, EVid):
+        return(self._stream_return_data(EVid,''))
+        
         try:
             #logging.debug(f'teslaEV_GetBatteryLevel for {EVid}')
             if self._stream_data_found(EVid, 'TimeToFullCharge'):
@@ -892,12 +928,15 @@ class teslaEVAccess(teslaAccess):
         except Exception as e:
             logging.debug(f'Exception teslaEV_charge_miles_added_rated - {e}')
             return(None)                        
-    '''
+        '''
+    
 
     def teslaEV_charger_voltage(self, EVid):
+        self._stream_return_data(EVid,'ChargerVoltage')
+        '''
         try:
             #if self._stream_data_found(EVid, )
-            #logging.debug(f'teslaEV_GetBatteryLevel for {EVid}')
+            #logging.debug(f'teslaEV_charger_voltage for {EVid}')
             if self._stream_data_found(EVid,'ChargerVoltage'):
                 return(round(self.stream_data[EVid]['ChargerVoltage']['doubleValue'],0))
             else:
@@ -906,7 +945,24 @@ class teslaEVAccess(teslaAccess):
         except Exception as e:
             logging.debug(f'Exception teslaEV_charger_voltage - {e}')
             return(None)                  
+        '''
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+        
     def teslaEV_GetTimeSinceLastChargeUpdate(self, EVid):
         try:
             timeNow = int(time.time())
@@ -970,10 +1026,11 @@ class teslaEVAccess(teslaAccess):
             return(None)  
         
     def teslaEV_GetBatteryLevel(self, EVid):
-        try:
+        try: #use SOC value for available sueful battery level 
             #logging.debug(f'teslaEV_GetBatteryLevel for {EVid}')
-            if self._stream_data_found(EVid, 'BatteryLevel'):
-                return(round(self.stream_data[EVid]['BatteryLevel']['doubleValue'],2))
+            #if self._stream_data_found(EVid, 'BatteryLevel'):
+            if self._stream_data_found(EVid, 'Soc'):    
+                return(round(self.stream_data[EVid]['Soc']['doubleValue'],2))
             else:
                 return(None)
                 #return(round(self.carInfo[EVid]['charge_state']['battery_level'],1)) 
