@@ -390,7 +390,7 @@ class teslaEVAccess(teslaAccess):
 
     def _stream_return_data(self, EVid, dataKey):
         try:
-            logging.debug(f'_stream_return_data {dataKey}')
+            logging.debug(f'_stream_return_data {dataKey} {self.stream_data[EVid]}')
             if dataKey in self.stream_data[EVid]:
                 if 'intValue' in self.stream_data[EVid][dataKey]:
                     return(int(self.stream_data[EVid][dataKey]['intValue']))
