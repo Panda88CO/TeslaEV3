@@ -798,11 +798,24 @@ class TeslaEVController(udi_interface.Node):
             {'driver': 'GV11', 'value': 0, 'uom': 25}, #trunk
             {'driver': 'GV12', 'value': 0, 'uom': 25}, #frunk
 
+            #{'driver': 'GV13', 'value': 0, 'uom': 25}, #door
+            #{'driver': 'GV14', 'value': 0, 'uom': 25}, #door
+            #{'driver': 'GV15', 'value': 0, 'uom': 25}, #door
+            #{'driver': 'GV16', 'value': 0, 'uom': 25}, #door            
+
             {'driver': 'GV17', 'value': 99, 'uom': 56}, #longitude
             {'driver': 'GV18', 'value': 99, 'uom': 56}, #latitude
             {'driver': 'GV19', 'value': 0, 'uom': 151},  #Last combined update Hours
-
             {'driver': 'GV21', 'value': 99, 'uom': 25}, #Last Command status
+
+
+            #{'driver': 'GV23', 'value': 0, 'uom': 25}, # tire pressure
+            #{'driver': 'GV24', 'value': 0, 'uom': 25}, # tire pressure
+            #{'driver': 'GV25', 'value': 0, 'uom': 25}, # tire pressure
+            #{'driver': 'GV26', 'value': 0, 'uom': 25}, # tire pressure            
+
+
+
             {'driver': 'GV29', 'value': 99, 'uom': 25}, #Synchronized
             {'driver': 'GV30', 'value': 0, 'uom': 25}, #Last Command status
          
