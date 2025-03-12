@@ -132,7 +132,7 @@ class teslaEVAccess(teslaAccess):
 
     def teslaEV_streaming_check_certificate_update(self, EV_vin, force_reset = False):        
         try: 
-            logging.debug(f'teslaEV_update_streaming_certificate forse rest {force_reset}')
+            logging.debug(f'teslaEV_update_streaming_certificate force rest {force_reset}')
             cert = self._teslaEV_get_streaming_certificate()
             cert_ca = cert['ca']
             del cert['ca']
