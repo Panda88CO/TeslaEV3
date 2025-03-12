@@ -186,7 +186,7 @@
   </editor>
   
    <editor id="CARSTATE" > 
-     <range  uom="25" subset="0,1,2,3,4,5,99" nls="CARSTATE"  />  
+     <range  uom="25" subset="0,1,2,3,4,5,98, 99" nls="CARSTATE"  />  
   </editor>
 
    <editor id="LONGITUDE" > 
