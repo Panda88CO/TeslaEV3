@@ -392,7 +392,7 @@ class teslaEVAccess(teslaAccess):
         try:
             logging.debug(f'_stream_return_data {dataKey} {self.stream_data[EVid][dataKey]} ')
             for key in self.stream_data[EVid][dataKey]:
-                logging.debug(f'data {key} , val {self.stream_data[EVid][dataKey][key]}')
+                #logging.debug(f'data {key} , val {self.stream_data[EVid][dataKey][key]}')
                 #keys = self.stream_data[EVid][dataKey].keys()
                 #logging.debug(f'{keys} {type(keys)}')
                 #key = keys
