@@ -390,27 +390,33 @@ class teslaEVAccess(teslaAccess):
 
     def _stream_return_data(self, EVid, dataKey):
         try:
-            logging.debug(f'_stream_return_data {dataKey} {self.stream_data[EVid][dataKey]}')
-            key, val = self.stream_data[EVid][dataKey].items()
-            logging.debug(f'Items {key} {key}')
-            if  key in ['intValue',]:
-                logging.debug('intValue {}'.format(int(val['intValue'])))
-                return(int(val['intValue']))
-            elif  key in ['doubleValue', ]:
-                logging.debug('doubleValue {}'.format(round(val['doubleValue'], 1)))
-                return(round(val['doubleValue'], 1))
-            elif key in ['stringValue', ]:
-                logging.debug('stringValue {}'.format(str(val['stringValue'])))
-                return(str(val['stringValue']))
-            elif key in ['booleanValue', ]:
-                logging.debug('booleanValue {}'.format(bool(val['booleanValue'])))
-                return(bool(val['booleanValue']))
-            elif key in ['invalid', ]:
-                logging.debug('invalid {}'.format(bool(val['invalid'])))
-                return (None)
-            else:
-                logging.debug('ELSE {}'.format(int(val)))
-                return(val)
+            logging.debug(f'_stream_return_data {dataKey} {self.stream_data[EVid][dataKey]} ')
+            for key in self.stream_data[EVid][dataKey]:
+                logging.debug(f'data {key} , val {self.stream_data[EVid][dataKey][key]}')
+                #keys = self.stream_data[EVid][dataKey].keys()
+                #logging.debug(f'{keys} {type(keys)}')
+                #key = keys
+                #logging.debug(f'{key} {type(key)}')
+                val =  self.stream_data[EVid][dataKey][key] 
+                logging.debug(f'Items {key} {val}')
+                if  key in ['intValue',]:
+                    logging.debug('intValue {}'.format(int(val)))
+                    return(int(val))
+                elif  key in ['doubleValue', ]:
+                    logging.debug('doubleValue {}'.format(round(val, 1)))
+                    return(round(val, 1))
+                elif key in ['stringValue', ]:
+                    logging.debug('stringValue {}'.format(str(val)))
+                    return(str(val))
+                elif key in ['booleanValue', ]:
+                    logging.debug('booleanValue {}'.format(bool(val)))
+                    return(bool(val))
+                elif key in ['invalid', ]:
+                    logging.debug('invalid {}'.format(bool(val)))
+                    return (None)
+                else:
+                    logging.debug('ELSE {}'.format(self.stream_data[EVid][dataKey]))
+                    return(self.stream_data[EVid][dataKey])
         except Exception as E:
             logging.debug(f'Exception _stream_return_data: {dataKey}  {key} {val} {E}')
             return(None)   
