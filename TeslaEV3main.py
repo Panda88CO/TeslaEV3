@@ -819,10 +819,10 @@ class TeslaEVController(udi_interface.Node):
             {'driver': 'GV21', 'value': 99, 'uom': 25}, #Last Command status
 
 
-            #{'driver': 'GV23', 'value': 0, 'uom': 25}, # tire pressure
-            #{'driver': 'GV24', 'value': 0, 'uom': 25}, # tire pressure
-            #{'driver': 'GV25', 'value': 0, 'uom': 25}, # tire pressure
-            #{'driver': 'GV26', 'value': 0, 'uom': 25}, # tire pressure            
+            {'driver': 'GV23', 'value': 0, 'uom': 138}, # tire pressure
+            {'driver': 'GV24', 'value': 0, 'uom': 138}, # tire pressure
+            {'driver': 'GV25', 'value': 0, 'uom': 138}, # tire pressure
+            {'driver': 'GV26', 'value': 0, 'uom': 138}, # tire pressure            
 
 
 
