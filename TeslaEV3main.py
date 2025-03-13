@@ -545,7 +545,11 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV11', self.TEVcloud.teslaEV_GetTrunkState(self.EVid), 25)
             self.EV_setDriver('GV12', self.TEVcloud.teslaEV_GetFrunkState(self.EVid), 25)
 
-
+            tire_psi = self.TEVcloud.teslaEV_getTpmsPressure(self.EVid)
+            self.EV_setDriver('GV23', tire_psi['tmpsFr'], 138)
+            self.EV_setDriver('GV24', tire_psi['tmpsFl'], 138)
+            self.EV_setDriver('GV25', tire_psi['tmpsRr'], 138)
+            self.EV_setDriver('GV26', tire_psi['tmpsRl'], 138)
             #if self.TEVcloud.location_enabled():
             location = self.TEVcloud.teslaEV_GetLocation(self.EVid)
             logging.debug(f'teslaEV_GetLocation {location}')
@@ -896,7 +900,7 @@ if __name__ == "__main__":
         #TEV_cloud = teslaEVAccess(polyglot, 'energy_device_data energy_cmds open_id offline_access')
         #TEV_cloud = teslaEVAccess(polyglot, 'open_id vehicle_device_data vehicle_cmds  vehicle_charging_cmds offline_access')
         logging.debug(f'TEV_Cloud {TEV_cloud}')
-        TEV =TeslaEVController(polyglot, 'controller', 'controller', 'Tesla EV Name', TEV_cloud)
+        TEV =TeslaEVController(polyglot, 'controller', 'controller', 'Tesla EV Status', TEV_cloud)
         
         logging.debug('before subscribe')
         polyglot.subscribe(polyglot.STOP, TEV.stop)

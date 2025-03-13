@@ -213,4 +213,8 @@
      <range uom="151" min="1737400000" max="9999999999" prec="0" />
      <range uom="25" subset="0,99" nls="error" />
    </editor> 
+      <editor id="psi"> 
+     <range uom="138" min="0" max="20" prec="2" />
+     <range uom="25" subset="0,99" nls="error" />
+   </editor> 
 </editors> 

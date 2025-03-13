@@ -403,7 +403,7 @@ class teslaEVAccess(teslaAccess):
                     logging.debug('intValue {}'.format(int(val)))
                     return(int(val))
                 elif  key in ['doubleValue', ]:
-                    logging.debug('doubleValue {}'.format(round(val, 1)))
+                    logging.debug('doubleValue {}'.format(round(val, 2)))
                     return(round(val, 1))
                 elif key in ['stringValue', ]:
                     logging.debug('stringValue {}'.format(str(val)))

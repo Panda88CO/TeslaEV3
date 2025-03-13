@@ -88,6 +88,10 @@ CMD_RES-2=Offline
 CMD_RES-3=Error
 CMD_RES-4=Cmd Failed
 CMD_RES-99=Unknown
+ST-nlsevstatus-GV23-NAME= Tire Front Right
+ST-nlsevstatus-GV24-NAME= Tire Front Left
+ST-nlsevstatus-GV25-NAME= Tire Rear Right
+ST-nlsevstatus-GV26-NAME= Tire Rear Left
 
 CMD-nlsevstatus-UPDATE-NAME=Update EV Status
 CMD-nlsevstatus-WAKEUP-NAME=Wake Up
