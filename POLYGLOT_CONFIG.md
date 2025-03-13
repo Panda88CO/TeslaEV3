@@ -27,6 +27,7 @@ Update configuration parameters - most important is region
 Note, currently only NA is supported for commands.
 - set TEMP_UNIT (C/F) and DIST_UNIT (Miles/Km).
 - set LOCATION_EN (True/False)
+- VIN - the VIN of the EV used in the node
 
 Location is needed to get access to longitude and latitude needed to control windows (close) as well as Homelink. 
 Note, if Location is enabled - an Icon will show on App.
