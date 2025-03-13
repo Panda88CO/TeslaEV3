@@ -53,12 +53,6 @@ LongPoll = default 120min (7200sec) (12 call/day) - likely to wake the EV
     Polls the state of the car 
     Checks if tokens needs refresh
 
-
-Some considerations on poll interval (given the API constraint) -
-Polling too often will prevent the car from going to sleep (using more battery).
-Polling too slow so car goes to sleep will require a wakeup that is limited to 15 times per day.
-It may be better to let ISY control when to update data if one wants the least battery use. 
-
 ## Notes 
-If additional fields for control or display is desired contact author @ https://github.com/Panda88CO/udi-TeslaEV
-
+If additional fields for control or display is desired contact author @ https://github.com/Panda88CO/TeslaEV3
+POssible data can be found at https://developer.tesla.com/docs/fleet-api/fleet-telemetry/available-data
