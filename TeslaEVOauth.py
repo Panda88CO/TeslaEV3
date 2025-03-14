@@ -288,6 +288,7 @@ class teslaEVAccess(teslaAccess):
                         'TpmsPressureRr': { 'interval_seconds': 60,'minimum_delta': 0.1  },
                         'SettingDistanceUnit' :{ 'interval_seconds': 600 },
                         'SettingTemperatureUnit' :{ 'interval_seconds': 600 },
+                        'SettingTirePressureUnit' :{ 'interval_seconds': 600 },
                         'CenterDisplay': { 'interval_seconds': 60 },
                         'DefrostMode':{ 'interval_seconds': 60 },
                         'SunroofInstalled':{ 'interval_seconds': 60 },     

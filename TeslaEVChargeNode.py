@@ -105,12 +105,15 @@ class teslaEV_ChargeNode(udi_interface.Node):
             self.EV_setDriver('GV5', temp_current, 1)
             self.EV_setDriver('GV6',self.chargeState2ISY(self.TEVcloud.teslaEV_ChargeState(self.EVid)), 25)
             self.EV_setDriver('GV7', self.bool2ISY(self.TEVcloud.teslaEV_ChargingRequested(self.EVid)),25)
-            self.EV_setDriver('GV8',self.TEVcloud.teslaEV_ChargingRequested(self.EVid), 30)
+            self.EV_setDriver('GV8',self.TEVcloud.teslaEV_GetChargingPower(self.EVid), 30)
             self.EV_setDriver('GV9', self.TEVcloud.teslaEV_GetBatteryMaxCharge(self.EVid), 51)
             self.EV_setDriver('GV10',self.TEVcloud.teslaEV_charger_voltage(self.EVid), 72)
             self.EV_setDriver('GV11', self.TEVcloud.teslaEV_charge_current_request(self.EVid),1 )
             self.EV_setDriver('GV12', self.TEVcloud.teslaEV_charger_actual_current(self.EVid), 1)
-            self.EV_setDriver('GV14', round(self.TEVcloud.teslaEV_time_to_full_charge(self.EVid)*60,0), 44)
+            t_estimate = elf.TEVcloud.teslaEV_time_to_full_charge(self.EVid)
+            if t_estimate:
+                t_estimate = round(t_estimate*60, 1)
+            self.EV_setDriver('GV14', t_estimate, 44)
             self.EV_setDriver('GV15', self.TEVcloud.teslaEV_charge_energy_added(self.EVid), 33)
             #if self.TEVcloud.teslaEV_GetDistUnit() == 1:
             #    self.EV_setDriver('GV16', self.TEVcloud.teslaEV_charge_miles_added_rated(self.EVid), 116)
