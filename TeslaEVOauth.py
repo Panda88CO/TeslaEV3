@@ -1751,7 +1751,7 @@ class teslaEVAccess(teslaAccess):
             return(None)
 
 
-    def teslaEV_GetWindoStates(self, EVid):
+    def teslaEV_GetWindosStates(self, EVid):
         #logging.debug(f'teslaEV_GetWindoStates: for {EVid}')
         try:
             temp = {}

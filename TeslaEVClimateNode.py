@@ -98,7 +98,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             elif 'FrontLeft' not in seatHeat:
                 seatHeat['FrontLeft'] = None
             if 'seat_heater_left' in seatHeat:
-                seatHeat['FrontRight'] = seatHeat['seat_heater_rigth']
+                seatHeat['FrontRight'] = seatHeat['seat_heater_right']
             elif 'FrontRight' not in seatHeat:
                 seatHeat['FrontRight'] = None
             if 'seat_heater_left' in seatHeat:

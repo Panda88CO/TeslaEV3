@@ -19,7 +19,7 @@ from TeslaEVChargeNode import teslaEV_ChargeNode
 from TeslaEVOauth import teslaAccess
 
 
-VERSION = '0.0.3'
+VERSION = '0.0.4'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, wait_for_node_done,tempUnitAdjust, display2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -512,7 +512,7 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV29', self.sync_state2ISY(self.TEVcloud.stream_synched), 25)
 
             logging.info(f'updateISYdrivers - Status for {self.EVid}')
-            self.EV_setDriver('GV1',self.display2ISY(self.TEVcloud.teslaEV_GetCenterDisplay(self.EVid), 25))
+            self.EV_setDriver('GV1',self.display2ISY(self.TEVcloud.teslaEV_GetCenterDisplay(self.EVid)), 25)
             self.EV_setDriver('GV2', self.bool2ISY(self.TEVcloud.teslaEV_HomeLinkNearby(self.EVid)), 25)
             self.EV_setDriver('GV0', self.TEVcloud.teslaEV_nbrHomeLink(self.EVid), 25)
 
@@ -524,7 +524,7 @@ class TeslaEVController(udi_interface.Node):
 
             #self.EV_setDriver('GV5', self.online2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid)),25)
             
-            windows  = self.TEVcloud.teslaEV_GetWindoStates(self.EVid)
+            windows  = self.TEVcloud.teslaEV_GetWindowStates(self.EVid)
             if 'FrontLeft' not in windows:
                 windows['FrontLeft'] = None
             if 'FrontRight' not in windows:
