@@ -354,22 +354,23 @@ class teslaEVAccess(teslaAccess):
             EVid = temp['stream']['deviceId']
             if EVid not in self.stream_data:
                 self.stream_data[EVid] = {}
-            for item in temp['payload']['data']:
-                logging.debug(f'item : {item}')
-                if 'key' in item:
-                    self.stream_data[EVid][item['key']] = item['value']
-                    if item['key'] in ['SettingDistanceUnit']:
-                        if item['value']['distanceUnitValue'] == 'DistanceUnitMiles':
-                            self.teslaEV_SetDistUnit(1)
-                        else:
-                            self.teslaEV_SetDistUnit(0)
-                    if item['key'] in ['SettingTemperatureUnit']:
-                        if item['value']['temperatureUnitValue'] == 'TemperatureUnitFahrenheit':
-                            self.teslaEV_SetTempUnit(1)
-                        else:
-                            self.teslaEV_SetTempUnit(0)
+            if 'data' in temp['payload']:
+                for item in temp['payload']['data']:
+                    logging.debug(f'item : {item}')
+                    if 'key' in item:
+                        self.stream_data[EVid][item['key']] = item['value']
+                        if item['key'] in ['SettingDistanceUnit']:
+                            if item['value']['distanceUnitValue'] == 'DistanceUnitMiles':
+                                self.teslaEV_SetDistUnit(1)
+                            else:
+                                self.teslaEV_SetDistUnit(0)
+                        if item['key'] in ['SettingTemperatureUnit']:
+                            if item['value']['temperatureUnitValue'] == 'TemperatureUnitFahrenheit':
+                                self.teslaEV_SetTempUnit(1)
+                            else:
+                                self.teslaEV_SetTempUnit(0)
 
-            self.stream_data[EVid]['created_at'] = temp['stream']['createdAt']
+                self.stream_data[EVid]['created_at'] = temp['stream']['createdAt']
             logging.debug(f'stream_data {self.stream_data}')
 
         except Exception as e:
@@ -1020,16 +1021,15 @@ class teslaEVAccess(teslaAccess):
 
     def teslaEV_ChargePortLatched(self, EVid):
         #logging.debug(f'teslaEV_ChargePortOpen for {EVid}')
-        return(self._stream_return_data(EVid, 'ChargePortLatch'))
-        #try:
-        #     if self._stream_data_found(EVid, 'ChargePortLatch'):
-        #        return(self.stream_data[EVid]['ChargePortLatch']['ChargePortLatchValue'])
-        #    else:
-        #        return(None)
-        #    #    return(self.carInfo[EVid]['charge_state']['charge_port_latch']) 
-        #except Exception as e:
-        #    logging.debug(f'Exception teslaEV_ChargePortLatched - {e}')
-        #    return(None)  
+        #return(self._stream_return_data(EVid, 'ChargePortLatch'))
+        try:
+            if self._stream_data_found(EVid, 'ChargePortLatch'):
+                return(self.stream_data[EVid]['ChargePortLatch']['ChargePortLatchValue'])
+            else:
+                return(None)
+        except Exception as e:
+            logging.debug(f'Exception teslaEV_ChargePortLatched - {e}')
+            return(None)  
 
     def teslaEV_GetBatteryRange(self, EVid):
         return(self._stream_return_data(EVid, 'EstBatteryRange'))
@@ -1668,7 +1668,7 @@ class teslaEVAccess(teslaAccess):
 
         try:
             if self._stream_data_found(EVid, 'CenterDisplay'):
-                return(self.stream_data[EVid]['CenterDisplay']['DisplayStateValue'])
+                return(self.stream_data[EVid]['CenterDisplay']['displayStateValue'])
             else:
                 return(None)
                 #return(self.carInfo[EVid]['vehicle_state']['center_display_state'])
@@ -1753,7 +1753,7 @@ class teslaEVAccess(teslaAccess):
             return(None)
 
 
-    def teslaEV_GetWindosStates(self, EVid):
+    def teslaEV_GetWindowStates(self, EVid):
         #logging.debug(f'teslaEV_GetWindoStates: for {EVid}')
         try:
             temp = {}

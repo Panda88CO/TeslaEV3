@@ -235,13 +235,13 @@ def cond2ISY(self, condition):
     
 def latch2ISY(self, state):
     if state is not None:
-        if state.lower() in ['engaged', 'ChargePortLatchEngaged']:
+        if state in ['engaged', 'ChargePortLatchEngaged']:
             return(1)
-        elif state.lower() == ['blocking','ChargePortLatchBlocking']:
+        elif state() == ['blocking','ChargePortLatchBlocking']:
             return(2)
-        elif state.lower() == ['disengaged','ChargePortLatchDisengaged']:
+        elif state() == ['disengaged','ChargePortLatchDisengaged']:
             return(0)
-        elif state.lower() == ['ChargePortLatchSNA']:
+        elif state() == ['ChargePortLatchSNA']:
             return(4)
         else:
             return(99)
