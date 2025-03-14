@@ -22,7 +22,7 @@ from TeslaEVOauth import teslaAccess
 VERSION = '0.0.3'
 
 class TeslaEVController(udi_interface.Node):
-    from  udiLib import node_queue, wait_for_node_done,tempUnitAdjust,  setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
+    from  udiLib import node_queue, wait_for_node_done,tempUnitAdjust, display2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
 
     def __init__(self, polyglot, primary, address, name, ev_cloud_access):
         super(TeslaEVController, self).__init__(polyglot, primary, address, name)
@@ -512,7 +512,7 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV29', self.sync_state2ISY(self.TEVcloud.stream_synched), 25)
 
             logging.info(f'updateISYdrivers - Status for {self.EVid}')
-            self.EV_setDriver('GV1', self.TEVcloud.teslaEV_GetCenterDisplay(self.EVid), 25)
+            self.EV_setDriver('GV1',self.display2ISY(self.TEVcloud.teslaEV_GetCenterDisplay(self.EVid), 25))
             self.EV_setDriver('GV2', self.bool2ISY(self.TEVcloud.teslaEV_HomeLinkNearby(self.EVid)), 25)
             self.EV_setDriver('GV0', self.TEVcloud.teslaEV_nbrHomeLink(self.EVid), 25)
 
@@ -815,8 +815,7 @@ class TeslaEVController(udi_interface.Node):
 
             {'driver': 'GV17', 'value': 99, 'uom': 56}, #longitude
             {'driver': 'GV18', 'value': 99, 'uom': 56}, #latitude
-            {'driver': 'GV19', 'value': 0, 'uom': 151},  #Last combined update Hours
-            {'driver': 'GV21', 'value': 99, 'uom': 25}, #Last Command status
+
 
 
             {'driver': 'GV23', 'value': 0, 'uom': 138}, # tire pressure
@@ -825,7 +824,8 @@ class TeslaEVController(udi_interface.Node):
             {'driver': 'GV26', 'value': 0, 'uom': 138}, # tire pressure            
 
 
-
+            {'driver': 'GV19', 'value': 0, 'uom': 151},  #Last combined update Hours
+            {'driver': 'GV21', 'value': 99, 'uom': 25}, #Last Command status
             {'driver': 'GV29', 'value': 99, 'uom': 25}, #Synchronized
             {'driver': 'GV30', 'value': 0, 'uom': 25}, # Test isy API conection result
          

@@ -22,7 +22,6 @@
          <!-- <st id="GV16" editor="IDEADIST" /> !-->
          <st id="GV17" editor="LONGITUDE" />         
          <st id="GV18" editor="LATITUDE" />  
-         <st id="GV19" editor="unixtime" />         
          <!--<st id="GV20" editor="MINU" />    -->
 
          <st id="GV23" editor="psi" />  
@@ -30,7 +29,8 @@
          <st id="GV25" editor="psi" />  
          <st id="GV26" editor="psi" />  
 
-         <st id="GV21" editor="LASTCMD" />   
+         <st id="GV21" editor="LASTCMD" />  
+         <st id="GV19" editor="unixtime" />         
          <st id="GV29" editor="STREAMSYNC" />            
          <st id="GV30" editor="TESTCON" />   
       </sts>

@@ -148,7 +148,40 @@ def sync_state2ISY(self, state):
     else:
         return(None)
 
-sync_state2ISY
+#sync_state2ISY
+
+
+def display2ISY(self,state):
+    logging.debug(f'display2ISY : state {state}')
+    if state is not None:
+        if state == 'DisplayStateUnknown':
+            return(0)
+        elif state == 'DisplayStateOff':
+            return(1)
+        elif state == 'DisplayStateDim':
+            return(2) 
+        elif state == 'DisplayStateAccessory':
+            return(3)
+        elif state == 'DisplayStateOn':
+            return(4)
+        elif state == 'DisplayStateDriving':
+            return(5)
+        elif state == 'DisplayStateCharging':
+            return(6)
+        elif state == 'DisplayStateLock':
+            return(7)
+        elif state == 'DisplayStateSentry':
+            return(8)
+        elif state == 'DisplayStateDog':
+            return(9)
+        elif state == 'DisplayStateEntertainment':
+            return(10)
+                                                                          
+        else:          
+            logging.error('Unknown state passed {state}')
+            return(99)
+    else:
+        return(None)
 
 def code2ISY(self, state):
     logging.debug(f'code2ISY : state {state}')

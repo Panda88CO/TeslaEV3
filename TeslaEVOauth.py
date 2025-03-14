@@ -1836,8 +1836,8 @@ class teslaEVAccess(teslaAccess):
             if self._stream_data_found(EVid, 'DoorState'):
                 logging.debug('DoorsState : {}'.format(self.stream_data[EVid]['DoorState']))
                 if 'Doors' in self.stream_data[EVid]['DoorState']:
-                    if self.stream_data[EVid]['DoorState']['Doors'] in ['DriverFront', 'DriverRear', 'PassengerFront', 'PassengerRear', 'TrunkFront','TrunkFront',] :
-                        return(self.stream_data[EVid]['DoorState']['Doors'])
+                    if self.stream_data[EVid]['DoorState']['doorValue'] in ['DriverFront', 'DriverRear', 'PassengerFront', 'PassengerRear', 'TrunkFront','TrunkFront',] :
+                        return(self.stream_data[EVid]['DoorState']['doorValue'])
                     else:
                         return(None)
         except Exception as e:
@@ -1851,7 +1851,7 @@ class teslaEVAccess(teslaAccess):
             if self._stream_data_found(EVid, 'DoorState'):
                 logging.debug('DoorsState : {}'.format(self.stream_data[EVid]['DoorState']))
                 if 'Doors' in self.stream_data[EVid]['DoorState']:
-                    if self.stream_data[EVid]['DoorState']['Doors'] in ['TrunkRear']:
+                    if self.stream_data[EVid]['DoorState']['doorValue'] in ['TrunkRear']:
                         return(1)
                     else:
                         return(0)
@@ -1871,7 +1871,7 @@ class teslaEVAccess(teslaAccess):
             if self._stream_data_found(EVid, 'DoorState'):
                 logging.debug('DoorsState : {}'.format(self.stream_data[EVid]['DoorState']))
                 if 'Doors' in self.stream_data[EVid]['DoorState']:
-                    if self.stream_data[EVid]['DoorState']['Doors'] in ['TrunkFront']:
+                    if self.stream_data[EVid]['DoorState']['doorValue'] in ['TrunkFront']:
                         return(1)
                     else:
                         return(0)
