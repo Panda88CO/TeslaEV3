@@ -218,6 +218,7 @@ ST-nlsevcharge-GV3-NAME=Charger Port Latch
 CPLSTATE-0=Disengaged
 CPLSTATE-1=Engaged
 CPLSTATE-2=Blocking
+CPLSTATE-4=SNA?
 CPLSTATE-99=Unknown/Not Connected
 
 ST-nlsevcharge-BATLVL-NAME=Battery Level 

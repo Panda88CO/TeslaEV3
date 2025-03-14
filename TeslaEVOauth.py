@@ -250,7 +250,8 @@ class teslaEVAccess(teslaAccess):
                         'ChargePortDoorOpen' : { 'interval_seconds': 60 },
                         'ChargePortLatch' : { 'interval_seconds': 60 },
                         'BatteryLevel' : { 'interval_seconds': 60, 'minimum_delta': 1,'resend_interval_seconds' : 600 },
-                        'ChargeState': { 'interval_seconds': 60 },
+                        #'ChargeState': { 'interval_seconds': 60 },;
+                        'DetailedChargeState' : { 'interval_seconds': 60 },
                         'ChargeLimitSoc': { 'interval_seconds': 60, 'minimum_delta': 1, },
                         'InsideTemp': { 'interval_seconds': 60, 'minimum_delta': 1, },
                         'OutsideTemp': { 'interval_seconds': 60,'minimum_delta': 1,  },
@@ -1071,7 +1072,7 @@ class teslaEVAccess(teslaAccess):
         #    return(None)       
 
     def teslaEV_ChargeState(self, EVid):
-        return(self._stream_return_data(EVid, 'ChargeState'))
+        return(self._stream_return_data(EVid, 'DetailedChargeState'))
         #logging.debug(f'teslaEV_GetChargingState for {EVid}')
         #try:
         #    if self._stream_data_found(EVid, 'ChargeState'):
