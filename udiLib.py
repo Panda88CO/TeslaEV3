@@ -64,7 +64,7 @@ def round2ISY(self,nbr, res):
         return(None)
 
 def bool2ISY (self, data):
-    if data == None:
+    if data is None:
         return(99)
     elif data:
         return(1)
@@ -80,7 +80,7 @@ def state2Nbr(self, val):
         return(99)
 
 def isy_value(self, value):
-    if value == None:
+    if value is None:
         return (99)
     else:
         return(value)
@@ -220,7 +220,7 @@ def online2ISY(self, state):
         return(None)
 
 def openClose2ISY(self, state):
-    if state == None:
+    if state is None:
         return(99)
     elif state == 'closed':
         return(0)
@@ -286,7 +286,7 @@ def EV_setDriver(self, key, value, Unit=None):
     logging.debug(f'EV_setDriver : {key} {value} {Unit}')
     try:
         if value is None:
-            logging.debug('None value passed = seting 99, UOM 25')
+            #logging.debug('None value passed = seting 99, UOM 25')
             self.node.setDriver(key, 99, True, True, 25)
         else:
             if Unit:

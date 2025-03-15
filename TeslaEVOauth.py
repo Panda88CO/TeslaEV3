@@ -1029,6 +1029,7 @@ class teslaEVAccess(teslaAccess):
                 return(None)
         except Exception as e:
             logging.debug(f'Exception teslaEV_ChargePortLatched - {e}')
+            self.stream_data[EVid]['ChargePortLatch']['chargePortLatchValue'] = 'ChargePortLatchUnknown'
             return(None)  
 
     def teslaEV_GetBatteryRange(self, EVid):
