@@ -19,7 +19,7 @@ from TeslaEVChargeNode import teslaEV_ChargeNode
 from TeslaEVOauth import teslaAccess
 
 
-VERSION = '0.0.4'
+VERSION = '0.0.6'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, wait_for_node_done,tempUnitAdjust, display2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -569,7 +569,7 @@ class TeslaEVController(udi_interface.Node):
             #    self.EV_setDriver('GV17', 98, 25)
             #    self.EV_setDriver('GV18', 98, 25)
         except Exception as e:
-            logging.error(f'updateISYdriver Status node failed: {e}')
+            logging.error(f'updateISYdriver Status node failed: node may not be 100% ready {e}')
 
     def ISYupdate (self, command=None):
         logging.info(f'ISY-update status node  called')

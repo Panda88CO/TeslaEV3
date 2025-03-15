@@ -137,7 +137,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             
             self.EV_setDriver('GV14', self.bool2ISY(self.TEVcloud.teslaEV_SteeringWheelHeatOn(self.EVid)), 25) #need to be implemented        
         except Exception as e:
-            logging.error(f'updateISYdrivers climate node  failed: {e}')
+            logging.error(f'updateISYdrivers climate node  failed: Nodes may not be 100% ready {e}')
 
 
     #def ISYupdate (self, command):

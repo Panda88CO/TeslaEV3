@@ -121,7 +121,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
             #    self.EV_setDriver('GV16', self.TEVcloud.teslaEV_charge_miles_added_rated(self.EVid)*1.6 , 83 )
  
         except Exception as e:
-            logging.error(f'updateISYdrivers charge node failed: {e}')
+            logging.error(f'updateISYdrivers charge node failed: nodes may not be 100% ready {e}')
 
     #def ISYupdate (self, command):
     #    logging.info('ISY-update called')

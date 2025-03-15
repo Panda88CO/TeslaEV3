@@ -251,18 +251,17 @@ def latch2ISY(self, state):
 
 def chargeState2ISY(self, state):
     if state is not None:
-        stateL = state.lower()
-        if stateL in ['disconnected','ChargeStateDisconnected']:
+        if state in ['disconnected','ChargeStateDisconnected', 'DetailedChargeStateDisconnected']:
             return(0)
-        elif stateL in ['nopower','ChargeStateNoPower']:
+        elif state in ['nopower','ChargeStateNoPower', 'DetailedChargeStateNoPower']:
             return(1)          
-        elif stateL in ['starting','ChargeStateStarting']:
+        elif state in ['starting','ChargeStateStarting', 'DetailedChargeStateStarting']:
             return(2)
-        elif stateL in ['charging',  'enable', 'ChargeStateCharging']:
+        elif state in ['charging',  'enable', 'ChargeStateCharging', 'DetailedChargeStateCharging']:
             return(3)
-        elif stateL in ['stopped','ChargeStateStopped']:
+        elif state in ['stopped','ChargeStateStopped', 'DetailedChargeStateStopped']:
             return(4)
-        elif stateL in ['complete','ChargeStateComplete']:
+        elif state in ['complete','ChargeStateComplete', 'DetailedChargeStateComplete']:
             return(5)
         else:
             return(99) 

@@ -1073,17 +1073,17 @@ class teslaEVAccess(teslaAccess):
         #    return(None)       
 
     def teslaEV_ChargeState(self, EVid):
-        return(self._stream_return_data(EVid, 'DetailedChargeState'))
-        #logging.debug(f'teslaEV_GetChargingState for {EVid}')
-        #try:
-        #    if self._stream_data_found(EVid, 'ChargeState'):
-        #        return(self.stream_data[EVid]['ChargeState']['stringValue'])
-        #    else:
-        #        return(None)
+        #return(self._stream_return_data(EVid, 'DetailedChargeState'))
+        logging.debug(f'teslaEV_GetChargingState for {EVid}')
+        try:
+            if self._stream_data_found(EVid, 'DetailedChargeState'):
+                return(self.stream_data[EVid]['DetailedChargeState']['detailedChargeStateValue'])
+            else:
+                return(None)
         #        #return( self.carInfo[EVid]['charge_state']['charging_state'])  
-        #except Exception as e:
-        #    logging.debug(f'Exception teslaEV_ChargeState - {e}')
-        #    return(None)     
+        except Exception as e:
+            logging.debug(f'Exception teslaEV_ChargeState - {e}')
+            return(None)     
         
     def teslaEV_ChargingRequested(self, EVid):
         #logging.debug(f'teslaEV_ChargingRequested for {EVid}')
