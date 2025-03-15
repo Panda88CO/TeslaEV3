@@ -1024,7 +1024,7 @@ class teslaEVAccess(teslaAccess):
         #return(self._stream_return_data(EVid, 'ChargePortLatch'))
         try:
             if self._stream_data_found(EVid, 'ChargePortLatch'):
-                return(self.stream_data[EVid]['ChargePortLatch']['ChargePortLatchValue'])
+                return(self.stream_data[EVid]['ChargePortLatch']['chargePortLatchValue'])
             else:
                 return(None)
         except Exception as e:
