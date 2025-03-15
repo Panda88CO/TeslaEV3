@@ -868,7 +868,7 @@ class teslaEVAccess(teslaAccess):
 
     
     def teslaEV_charger_actual_current(self, EVid):
-        return(self._stream_return_data(EVid,'ACChargingPower'))
+        return(self._stream_return_data(EVid,'DCChargingPower'))
         '''
         try:
             
