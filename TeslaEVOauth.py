@@ -1008,22 +1008,23 @@ class teslaEVAccess(teslaAccess):
   
     def teslaEV_ChargePortOpen(self, EVid):
         #logging.debug(f'teslaEV_ChargePortOpen for {EVid}')
-        return(self._stream_return_data(EVid, 'ChargePortDoorOpen'))
-        ##try:
-        #    if 
-        #       return(self.stream_data[EVid]['ChargePortDoorOpen']['booleanValue'])
-        #    else:
-        #        return(None)
-        #    #    return(self.carInfo[EVid]['charge_state']['charge_port_door_open']) 
-        #except Exception as e:
-        #    logging.debug(f'Exception teslaEV_ChargePortOpen - {e}')
-        #    return(None)  
+        #return(self._stream_return_data(EVid, 'ChargePortDoorOpen'))
+        try:
+            if self._stream_data_found(EVid, 'ChargePortDoorOpen'):
+               return(self.stream_data[EVid]['ChargePortDoorOpen']['booleanValue'])
+            else:
+               return(None)
+        #     return(self.carInfo[EVid]['charge_state']['charge_port_door_open']) 
+        except Exception as e:
+            logging.debug(f'Exception teslaEV_ChargePortOpen - {e}')
+            return(None)  
 
     def teslaEV_ChargePortLatched(self, EVid):
         #logging.debug(f'teslaEV_ChargePortOpen for {EVid}')
         #return(self._stream_return_data(EVid, 'ChargePortLatch'))
         try:
             if self._stream_data_found(EVid, 'ChargePortLatch'):
+                
                 return(self.stream_data[EVid]['ChargePortLatch']['chargePortLatchValue'])
             else:
                 return(None)

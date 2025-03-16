@@ -116,7 +116,7 @@ def season2ISY(self, season):
         else:
             return (99)
     else:
-        return(None)   
+        return(99)   
 
 
 def state2ISY(self, state):
@@ -133,10 +133,10 @@ def state2ISY(self, state):
         elif state.lower() == 'error':
             return(5)
         else:          
-            logging.error('Unknown state passed {state}')
+            logging.error(f'Unknown state passed {state}')
             return(99)
     else:
-        return(None)
+        return(99)
     
 def sync_state2ISY(self, state):
     logging.debug(f'sync_state2ISY : state {state}')
@@ -181,7 +181,7 @@ def display2ISY(self,state):
             logging.error('Unknown state passed {state}')
             return(99)
     else:
-        return(None)
+        return(99)
 
 def code2ISY(self, state):
     logging.debug(f'code2ISY : state {state}')
@@ -198,7 +198,7 @@ def code2ISY(self, state):
             logging.error('Unknown state passed {state}')
             return(99)
     else:
-        return(None)
+        return(99)
     
 def command_res2ISY(self, result):
     if result is not None:
@@ -246,7 +246,7 @@ def latch2ISY(self, state):
         else:
             return(99)
     else:
-        return(None)
+        return(99)
 
 
 def chargeState2ISY(self, state):
@@ -266,7 +266,7 @@ def chargeState2ISY(self, state):
         else:
             return(99) 
     else:
-        return(None)
+        return(99)
 
 def period2ISY(self, period):
     logging.debug('period2ISY {period}')
@@ -280,7 +280,7 @@ def period2ISY(self, period):
         else:
             return (99) 
     else:
-        return(None)
+        return(99)
 
 def EV_setDriver(self, key, value, Unit=None):
     logging.debug(f'EV_setDriver : {key} {value} {Unit}')
