@@ -1007,7 +1007,7 @@ class teslaEVAccess(teslaAccess):
         #    return(None)  
   
     def teslaEV_ChargePortOpen(self, EVid):
-        logging.debug(f'teslaEV_ChargePortOpen for {EVid}')
+        logging.debug(f'teslaEV_ChargePortOpen for {EVid} {self.stream_data[EVid]}')
         #return(self._stream_return_data(EVid, 'ChargePortDoorOpen'))
         try:
             if self._stream_data_found(EVid, 'ChargePortDoorOpen'):
