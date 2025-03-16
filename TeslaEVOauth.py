@@ -400,26 +400,30 @@ class teslaEVAccess(teslaAccess):
                 #logging.debug(f'{keys} {type(keys)}')
                 #key = keys
                 #logging.debug(f'{key} {type(key)}')
-                val =  self.stream_data[EVid][dataKey][key] 
+                #val =  self.stream_data[EVid][dataKey][key] 
                 logging.debug(f'Items {key} {val}')
-                if  key in ['intValue',]:
-                    logging.debug('intValue {}'.format(int(val)))
-                    return(int(val))
-                elif  key in ['doubleValue', ]:
-                    logging.debug('doubleValue {}'.format(round(val, 2)))
-                    return(round(val, 1))
-                elif key in ['stringValue', ]:
-                    logging.debug('stringValue {}'.format(str(val)))
-                    return(str(val))
-                elif key in ['booleanValue', ]:
-                    logging.debug('booleanValue {}'.format(bool(val)))
-                    return(bool(val))
-                elif key in ['invalid', ]:
-                    logging.debug('invalid {}'.format(bool(val)))
-                    return (None)
+                if len(self.stream_data[EVid][dataKey]) == 1:
+                    val =  self.stream_data[EVid][dataKey][key] 
+                    if  key in ['intValue',]:
+                        logging.debug('intValue {}'.format(int(val)))
+                        return(int(val))
+                    elif  key in ['doubleValue', ]:
+                        logging.debug('doubleValue {}'.format(round(val, 2)))
+                        return(round(val, 1))
+                    elif key in ['stringValue', ]:
+                        logging.debug('stringValue {}'.format(str(val)))
+                        return(str(val))
+                    elif key in ['booleanValue', ]:
+                        logging.debug('booleanValue {}'.format(bool(val)))
+                        return(bool(val))
+                    elif key in ['invalid', ]:
+                        logging.debug('invalid {}'.format(bool(val)))
+                        return (None)
+                    else:
+                        logging.debug('ELSE {}'.format(self.stream_data[EVid][dataKey]))
+                        return(self.stream_data[EVid][dataKey])
                 else:
-                    logging.debug('ELSE {}'.format(self.stream_data[EVid][dataKey]))
-                    return(self.stream_data[EVid][dataKey])
+                    #NEEED MORE THINKING 
         except Exception as E:
             logging.debug(f'Exception _stream_return_data: {dataKey}  {key} {val} {E}')
             return(None)   
@@ -1020,12 +1024,16 @@ class teslaEVAccess(teslaAccess):
             return(None)  
 
     def teslaEV_ChargePortLatched(self, EVid):
-        logging.debug(f'teslaEV_ChargePortOpen for {EVid} {self.stream_data[EVid]}')
+        logging.debug(f'teslaEV_ChargePortLatched for {EVid} {self.stream_data[EVid]}')
         #return(self._stream_return_data(EVid, 'ChargePortLatch'))
         try:
             if self._stream_data_found(EVid, 'ChargePortLatch'):
+                if 'invalid' in  self.stream_data[EVid]['ChargePortLatch']:
+                    if self.stream_data[EVid]['ChargePortLatch']['invalid']:
+                        return(None)
+                else:
 
-                return(self.stream_data[EVid]['ChargePortLatch']['chargePortLatchValue'])
+                    return(self.stream_data[EVid]['ChargePortLatch']['chargePortLatchValue'])
             else:
                 return(None)
         except Exception as e:

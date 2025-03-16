@@ -51,3 +51,6 @@ stream_data {'5YJ3E1EA5RF721953':
  'ACChargingPower': {'doubleValue': 6.100000090897083}, 
  'created_at': 1741656229, 
  'ChargerVoltage': {'doubleValue': 202.785}}}
+
+
+'ChargePortLatch':{'invalid': True, 'chargePortLatchValue': 'ChargePortLatchUnknown'}, 253: {'invalid': True}, 
