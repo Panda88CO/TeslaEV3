@@ -393,7 +393,7 @@ class teslaEVAccess(teslaAccess):
 
     def _stream_return_data(self, EVid, dataKey):
         try:
-            logging.debug(f'_stream_return_data {dataKey} {self.stream_data[EVid][dataKey]} ')
+            logging.debug(f'_stream_return_data {dataKey} {self.stream_data[EVid]} ')
             invalid = False
             ret_val = None
             for key in self.stream_data[EVid][dataKey]:
@@ -1685,7 +1685,7 @@ class teslaEVAccess(teslaAccess):
         except Exception as e:
             return(None)
         
-        
+
     def teslaEV_GetCenterDisplay(self, EVid):
 
         #logging.debug(f'teslaEV_GetCenterDisplay: for {EVid}')

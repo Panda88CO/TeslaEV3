@@ -350,8 +350,6 @@ class TeslaEVController(udi_interface.Node):
             time.sleep(3)
 
                     
-
-
         logging.debug(f'Scanning db for extra nodes : {assigned_addresses}')
         for indx, node  in enumerate(self.nodes_in_db):
             #node = self.nodes_in_db[nde]
@@ -567,7 +565,7 @@ class TeslaEVController(udi_interface.Node):
             #    self.EV_setDriver('GV17', 98, 25)
             #    self.EV_setDriver('GV18', 98, 25)
         except Exception as e:
-            logging.error(f'updateISYdriver Status node failed: node may not be 100% ready {e}')
+            logging.error(f'updateISYdriver main node failed: node may not be 100% ready {e}')
 
     def ISYupdate (self, command=None):
         logging.info(f'ISY-update status node  called')
