@@ -403,8 +403,8 @@ class teslaEVAccess(teslaAccess):
                 #key = keys
                 #logging.debug(f'{key} {type(key)}')
                 #val =  self.stream_data[EVid][dataKey][key] 
-                logging.debug(f'Items {key} {val}')
                 val =  self.stream_data[EVid][dataKey][key] 
+                logging.debug(f'Items {key} {val}')
                 if  key in ['intValue',]:
                     logging.debug('intValue {}'.format(int(val)))
                     ret_val = int(val)
