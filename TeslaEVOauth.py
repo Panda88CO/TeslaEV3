@@ -380,6 +380,7 @@ class teslaEVAccess(teslaAccess):
    
     def _stream_data_found(self, EVid, key):
         try:
+            logging.debug(f'_stream_data_found {key} {key in self.stream_data[EVid]}')
             return(key in self.stream_data[EVid])
         except ValueError:
             return(False)
@@ -1884,7 +1885,7 @@ class teslaEVAccess(teslaAccess):
             if self._stream_data_found(EVid, 'DoorState'):
                 logging.debug('DoorsState : {}'.format(self.stream_data[EVid]['DoorState']))
                 if 'Doors' in self.stream_data[EVid]['DoorState']:
-                    if self.stream_data[EVid]['DoorState']['doorValue'] in ['TrunkRear']:
+                    if ['TrunkRear'] in self.stream_data[EVid]['DoorState']['doorValue']:
                         return(1)
                     else:
                         return(0)
@@ -1904,7 +1905,7 @@ class teslaEVAccess(teslaAccess):
             if self._stream_data_found(EVid, 'DoorState'):
                 logging.debug('DoorsState : {}'.format(self.stream_data[EVid]['DoorState']))
                 if 'Doors' in self.stream_data[EVid]['DoorState']:
-                    if self.stream_data[EVid]['DoorState']['doorValue'] in ['TrunkFront']:
+                    if ['TrunkFront'] in self.stream_data[EVid]['DoorState']['doorValue'] :
                         return(1)
                     else:
                         return(0)
