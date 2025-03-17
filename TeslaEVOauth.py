@@ -1019,7 +1019,11 @@ class teslaEVAccess(teslaAccess):
         #return(self._stream_return_data(EVid, 'ChargePortDoorOpen'))
         try:
             if self._stream_data_found(EVid, 'ChargePortDoorOpen'):
-               return(self.stream_data[EVid]['ChargePortDoorOpen']['booleanValue'])
+                if 'invalid' in  self.stream_data[EVid]['ChargePortDoorOpen']:
+                    if self.stream_data[EVid]['ChargePortDoorOpen']['invalid']:
+                        return(None)
+                else:
+                    return(self.stream_data[EVid]['ChargePortDoorOpen']['booleanValue'])
             else:
                return(None)
         #     return(self.carInfo[EVid]['charge_state']['charge_port_door_open']) 
@@ -1091,7 +1095,11 @@ class teslaEVAccess(teslaAccess):
         logging.debug(f'teslaEV_GetChargingState for {EVid}')
         try:
             if self._stream_data_found(EVid, 'DetailedChargeState'):
-                return(self.stream_data[EVid]['DetailedChargeState']['detailedChargeStateValue'])
+                if 'invalid' in  self.stream_data[EVid]['DetailedChargeState']:
+                    if self.stream_data[EVid]['DetailedChargeState']['invalid']:
+                        return(None)
+                else:
+                    return(self.stream_data[EVid]['DetailedChargeState']['detailedChargeStateValue'])
             else:
                 return(None)
         #        #return( self.carInfo[EVid]['charge_state']['charging_state'])  
@@ -1676,13 +1684,19 @@ class teslaEVAccess(teslaAccess):
                 return(None)
         except Exception as e:
             return(None)
+        
+        
     def teslaEV_GetCenterDisplay(self, EVid):
 
         #logging.debug(f'teslaEV_GetCenterDisplay: for {EVid}')
 
         try:
             if self._stream_data_found(EVid, 'CenterDisplay'):
-                return(self.stream_data[EVid]['CenterDisplay']['displayStateValue'])
+                if 'invalid' in  self.stream_data[EVid]['CenterDisplay']:
+                    if self.stream_data[EVid]['CenterDisplay']['invalid']:
+                        return(None)
+                else:
+                    return(self.stream_data[EVid]['CenterDisplay']['displayStateValue'])
             else:
                 return(None)
                 #return(self.carInfo[EVid]['vehicle_state']['center_display_state'])
