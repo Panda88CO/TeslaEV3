@@ -1690,7 +1690,7 @@ class teslaEVAccess(teslaAccess):
             logging.debug(f' Exception teslaEV_GetCenterDisplay - {e}')
             return(None)
 
-    def teslaEV_GetStatusTimestamp(self, EVid):
+    def teslaEV_GetTimestamp(self, EVid):
         try:
             if self.stream_data[EVid]:
                 return(self._stream_last_data(EVid))

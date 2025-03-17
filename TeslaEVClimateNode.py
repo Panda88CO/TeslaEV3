@@ -71,7 +71,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
 
     def update_time(self):
         try:
-            temp = self.TEVcloud.teslaEV_GetClimateTimestamp(self.EVid)
+            temp = self.TEVcloud.teslaEV_GetTimestamp(self.EVid)
             self.EV_setDriver('GV19', temp, 151)
         except ValueError:
             self.EV_setDriver('GV19', None, 25)

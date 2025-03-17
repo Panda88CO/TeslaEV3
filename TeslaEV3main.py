@@ -19,7 +19,7 @@ from TeslaEVChargeNode import teslaEV_ChargeNode
 from TeslaEVOauth import teslaAccess
 
 
-VERSION = '0.0.9'
+VERSION = '0.0.10'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, wait_for_node_done,tempUnitAdjust, display2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -83,12 +83,11 @@ class TeslaEVController(udi_interface.Node):
         self.poly.addNode(self, conn_status = None, rename = False)
         #self.poly.addNode(self)
         self.wait_for_node_done()
-        #self.status_nodes = {}
+       
         self.node = self.poly.getNode(self.address)
         self.EVid = None
-        self.status_node = None
-        #self.EV_setDriver('ST', 1, 25)
-        self.t_last = time.time()
+        self.data_flowing = False
+        #self.t_last = time.time()
         logging.info('Controller init DONE')
 
     def check_config(self):
@@ -144,7 +143,6 @@ class TeslaEVController(udi_interface.Node):
             #    stream_cert['ca'] = data['ca']
             #    self.TEVcloud.stream_cert  = stream_cert
             logging.debug(f'Custom Data portal: {self.portalID} {self.portalSecret}')
-
         self.TEVcloud.customNsHandler(key, data)
         
     #def customDataHandler(self, Data):
@@ -266,6 +264,7 @@ class TeslaEVController(udi_interface.Node):
                 if  eventInfo['event'] == 'webhook-test':
                     self.activate()
             else:
+                self.data_flowing = True
                 self.TEVcloud.teslaEV_stream_process_data(data)
                 vehicleID = self.TEVcloud.teslaEV_stream_get_id(data)
                 self.update_all_drivers()
@@ -346,8 +345,6 @@ class TeslaEVController(udi_interface.Node):
             self.poly.Notices['NOTONLINE']=f'{EVname} appears offline - cannot continue with EV being online'
             #self.stop()
             #sys.exit()
-            
-  
         sync_status = False
         while not self.TEVcloud.teslaEV_streaming_synched(self.EVid):
             time.sleep(3)
@@ -454,7 +451,7 @@ class TeslaEVController(udi_interface.Node):
     def update_time(self):
         logging.debug('update_time')
         try:
-            temp = self.TEVcloud.teslaEV_GetStatusTimestamp(self.EVid)
+            temp = self.TEVcloud.teslaEV_GetTimestamp(self.EVid)
             self.EV_setDriver('GV19', temp , 151)
         except ValueError:
             self.EV_setDriver('GV19', None, 25)
@@ -489,14 +486,15 @@ class TeslaEVController(udi_interface.Node):
 
     def update_all_drivers(self):
         try:
-            logging.debug('updateISYdrivers')
-            self.updateISYdrivers()
-            logging.debug(f'climate updateISYdrivers {self.climateNode.node_ready()}')
-            if self.climateNode.node_ready():
-                self.climateNode.updateISYdrivers()
-            logging.debug(f'charge updateISYdrivers {self.chargeNode.node_ready()}')                
-            if self.chargeNode.node_ready():
-                self.chargeNode.updateISYdrivers()
+            if self.data_flowing:
+                logging.debug('updateISYdrivers')
+                self.updateISYdrivers()
+                logging.debug(f'climate updateISYdrivers {self.climateNode.node_ready()}')
+                if self.climateNode.node_ready():
+                    self.climateNode.updateISYdrivers()
+                logging.debug(f'charge updateISYdrivers {self.chargeNode.node_ready()}')                
+                if self.chargeNode.node_ready():
+                    self.chargeNode.updateISYdrivers()
         except Exception as e:
             logging.debug(f'All nodes may not be ready yet {e}')
 
