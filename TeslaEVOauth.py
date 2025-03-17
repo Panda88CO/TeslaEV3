@@ -412,7 +412,7 @@ class teslaEVAccess(teslaAccess):
                         ret_val = int(val)
                     elif  key in ['doubleValue', ]:
                         logging.debug('doubleValue {}'.format(round(val, 2)))
-                        ret_val = round(val, 1)
+                        ret_val = round(val, 2)
                     elif key in ['stringValue', ]:
                         logging.debug('stringValue {}'.format(str(val)))
                         ret_val = str(val)
@@ -1885,7 +1885,11 @@ class teslaEVAccess(teslaAccess):
             if self._stream_data_found(EVid, 'DoorState'):
                 logging.debug('DoorsState : {}'.format(self.stream_data[EVid]['DoorState']))
                 if 'doorValue' in self.stream_data[EVid]['DoorState']:
-                    if ['TrunkRear'] in self.stream_data[EVid]['DoorState']['doorValue']:
+                    found = False
+                    for door in self.stream_data[EVid]['DoorState']['doorValue']:
+                        if door in ['TrunkRear']:
+                            found = True
+                    if found:
                         return(1)
                     else:
                         return(0)
@@ -1905,10 +1909,15 @@ class teslaEVAccess(teslaAccess):
             if self._stream_data_found(EVid, 'DoorState'):
                 logging.debug('DoorsState : {}'.format(self.stream_data[EVid]['DoorState']))
                 if 'doorValue' in self.stream_data[EVid]['DoorState']:
-                    if ['TrunkFront'] in self.stream_data[EVid]['DoorState']['doorValue'] :
+                    found = False
+                    for door in self.stream_data[EVid]['DoorState']['doorValue']:
+                        if door in ['TrunkFront']:
+                            found = True
+                    if found:
                         return(1)
                     else:
                         return(0)
+
                 else:
                     return(None)
             else:
