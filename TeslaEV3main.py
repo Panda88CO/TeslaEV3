@@ -581,9 +581,10 @@ class TeslaEVController(udi_interface.Node):
         code, res = self.TEVcloud._teslaEV_wake_ev(self.EVid)
         logging.debug(f'Wake result {code} - {res}')
         if code in ['ok']:               
-            code, res = self.TEVcloud.teslaEV_UpdateCloudInfoAwake(self.EVid)
+            #code, res = self.TEVcloud.teslaEV_UpdateCloudInfoAwake(self.EVid)
+            time.sleep(2)
             self.update_all_drivers()
-            self.display_update()
+            #self.display_update()
         self.EV_setDriver('GV21', self.command_res2ISY(code), 25)
         self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetCarState(self.EVid)),25)
 
