@@ -9,7 +9,7 @@ The node subscribes to data from the EV.  Data will be updated automatically whe
 ## Installation
 Requires PG3x
 OBS!!!!!! 
-To use the node server one must install an electronic key on the car
+To use the node server, one must install an electronic key on the car
 On your mobile device open  https://tesla.com/_ak/my.isy.io. It should open the tesla app where you can approve the key-install - Older EVs may not support the virtual key.
 Note, currently only supports NA EVs
  
