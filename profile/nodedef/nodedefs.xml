@@ -46,6 +46,7 @@
             <cmd id="FLASHLIGHT" />   
             <cmd id="SENTRYMODE" />   
                <p id="" editor="SENMODE" /> 
+            </cmd >
             <cmd id="DOORS" > 
                <p id="" editor="LOCKUNLOCK" init="GV3" /> 
             </cmd>
