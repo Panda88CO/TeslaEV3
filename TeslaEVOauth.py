@@ -2036,7 +2036,6 @@ class teslaEVAccess(teslaAccess):
         logging.debug(f'teslaEV_SentryMode for {EVid} {ctrl}')
 
         try:
-
             code, state = self.teslaEV_update_connection_status(EVid) 
             if state in ['asleep', 'offline']:             
                 code, state = self._teslaEV_wake_ev(EVid)

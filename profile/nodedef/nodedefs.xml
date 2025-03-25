@@ -10,7 +10,7 @@
          <st id="GV0" editor="NUMBER" />
          <st id="GV3" editor="LOCKUNLOCK" />
          <st id="GV4" editor="ODOMETER" />
-         <st id="GV5" editor="SENTSTATE" />
+         <st id="GV5" editor="SENTRYSTATE" />
          <st id="GV6" editor="WINDOW" />
          <st id="GV7" editor="WINDOW" />
          <st id="GV8" editor="WINDOW" />
@@ -45,18 +45,18 @@
             <cmd id="HONKHORN" />
             <cmd id="FLASHLIGHT" />   
             <cmd id="SENTRYMODE" />   
-            
+               <p id="" editor="SENTRYMODE" /> 
             <cmd id="DOORS" > 
                <p id="" editor="LOCKUNLOCK" init="GV3" /> 
             </cmd>
             <cmd id="SUNROOF" > 
-               <p id="" editor="SUNROOFCTRL" init="0" /> 
+               <p id="" editor="SUNROOFCTRL"  /> 
             </cmd >
             <cmd id="TRUNK" /> 
             <cmd id="FRUNK" /> 
             <cmd id="HOMELINK" /> 
             <cmd id="PLAYSOUND" > 
-               <p id="" editor="SOUNDS" init="0" /> 
+               <p id="" editor="SOUNDS" /> 
             </cmd >
             <cmd id="TESTCON"/>
          </accepts>
