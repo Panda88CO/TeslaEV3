@@ -19,10 +19,10 @@ from TeslaEVChargeNode import teslaEV_ChargeNode
 from TeslaEVOauth import teslaAccess
 
 
-VERSION = '0.0.13'
+VERSION = '0.0.14'
 
 class TeslaEVController(udi_interface.Node):
-    from  udiLib import node_queue, wait_for_node_done,tempUnitAdjust, display2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
+    from  udiLib import node_queue, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
 
     def __init__(self, polyglot, primary, address, name, ev_cloud_access):
         super(TeslaEVController, self).__init__(polyglot, primary, address, name)
@@ -301,13 +301,18 @@ class TeslaEVController(udi_interface.Node):
         if code in ['ok']:
             self.vehicleList = self.TEVcloud.teslaEV_get_vehicle_list()
             logging.debug(f'vehicleList: {code} - {self.vehicleList}')
-
+        else:
+            self.poly.Notices['REG']=f"Cannot get data from EV - make sure it is authenticated"
+            #self.EV_setDriver('GV0', 0, 25)   
+            sys.exit()
 
         if len(self.vehicleList) > 1 and self.EVid is None:
             self.poly.Notices['VIN']=f"Please enter one of the following VINs in configuration: {self.vehicleList}"
             self.poly.Notices['VIN2']="Then restart"
             #self.EV_setDriver('GV0', 0, 25)   
             sys.exit()
+        elif len(self.vehicleList) == 0:
+            self.poly.Notices['VIN2']="Then restart"
 
         if self.EVid is None:
             self.EVid = str(self.vehicleList[0])
@@ -518,7 +523,7 @@ class TeslaEVController(udi_interface.Node):
             else:
                 self.EV_setDriver('GV4', int(self.TEVcloud.teslaEV_GetOdometer(self.EVid)*1.6), 83)
 
-            #self.EV_setDriver('GV5', self.online2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid)),25)
+            self.EV_setDriver('GV5', self.sentry2ISY(self.TEVcloud.teslaEV_GetSentryState(self.EVid)),25)
             
             windows  = self.TEVcloud.teslaEV_GetWindowStates(self.EVid)
             if 'FrontLeft' not in windows:
@@ -658,6 +663,18 @@ class TeslaEVController(udi_interface.Node):
                 self.EV_setDriver('GV21', self.code2ISY(code),25)
         self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetCarState(self.EVid)),25)
 
+    def evSentryMode (self, command):
+        logging.info(f'evSentryMode called')
+        #self.TEVcloud.teslaEV_Wake(self.EVid)
+        ctrl = int(float(command.get('value')))
+     
+        code, res = self.TEVcloud.teslaEV_SentryMode(self.EVid, ctrl)
+        #if code in ['ok']:
+        #    self.EV_setDriver('GV5', self.command_res2ISY(res),25)
+        #else:
+        #    self.EV_setDriver('GV21', self.code2ISY(code),25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetCarState(self.EVid)),25)
+
 
     # needs update
     def evControlSunroof (self, command):
@@ -779,6 +796,7 @@ class TeslaEVController(udi_interface.Node):
                  #'WAKEUP' : evWakeUp,
                  'HONKHORN' : evHonkHorn,
                  'FLASHLIGHT' : evFlashLights,
+                 'SENTRYMODE' : evSentryMode,
                  'DOORS' : evControlDoors,
                  'SUNROOF' : evControlSunroof,
                  'TRUNK' : evOpenTrunk,
@@ -796,7 +814,8 @@ class TeslaEVController(udi_interface.Node):
             {'driver': 'GV0', 'value': 99, 'uom': 25},  # nbr homelink devices
             {'driver': 'GV3', 'value': 99, 'uom': 25},  #locked
             {'driver': 'GV4', 'value': 0, 'uom': 116},  #odometer
-
+  
+            {'driver': 'GV5', 'value': 0, 'uom': 25},  # Sentury Mode
             {'driver': 'GV6', 'value': 99, 'uom': 25},  #fd_window
             {'driver': 'GV7', 'value': 99, 'uom': 25},  #fp_window
             {'driver': 'GV8', 'value': 99, 'uom': 25},  #rd_window

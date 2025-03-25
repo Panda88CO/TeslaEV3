@@ -293,6 +293,7 @@ class teslaEVAccess(teslaAccess):
                         'DefrostMode':{ 'interval_seconds': 60 },
                         'SunroofInstalled':{ 'interval_seconds': 60 },     
                         'WiperHeatEnabled':{ 'interval_seconds': 60 },    
+                        'SentryMode':{ 'interval_seconds': 60 },    
 
                       
                         #'Version' : { 'interval_seconds': 60, },
@@ -1834,6 +1835,18 @@ class teslaEVAccess(teslaAccess):
             return(None)
         
 
+    def teslaEV_GetSentryState(self, EVid):
+        try:
+            #logging.debug(f'teslaEV_GetOdometer: for {EVid}')
+            if self._stream_return_data(EVid, 'SentryMode'):
+                return(self.stream_data[EVid]['SentryMode']['SentryModeStateValue'])
+            else:
+                return(None)
+                #return(round(self.carInfo[EVid]['vehicle_state']['odometer'], 2))
+
+        except Exception as e:
+            logging.debug(f' Exception teslaEV_GetOdometer - {e}')
+            return(None)
     #def teslaEV_GetSunRoofPercent(self, EVid):
     #    try:
     #        #logging.debug(f'teslaEV_GetSunRoofState: for {EVid}')
@@ -2019,6 +2032,29 @@ class teslaEVAccess(teslaAccess):
             logging.debug(f'Exception teslaEV_PlaySound for vehicle id {EVid}: {e}')
             return('error', e)
 
+    def teslaEV_SentryMode(self, EVid, ctrl):
+        logging.debug(f'teslaEV_SentryMode for {EVid} {ctrl}')
+
+        try:
+
+            code, state = self.teslaEV_update_connection_status(EVid) 
+            if state in ['asleep', 'offline']:             
+                code, state = self._teslaEV_wake_ev(EVid)
+            if state in ['online']:
+                payload = {'on' : ctrl == 1}        
+                code, res = self._teslaEV_send_ev_command(EVid, '/set_sentry_mode', payload ) 
+                logging.debug(f'teslaEV_SentryMode {res}')
+                #temp = r.json()
+                if code in  ['ok']:
+                    return(code, res['response']['result'])
+                else:
+                    return(code, res)
+            else:
+                return('error', 'error')
+    
+        except Exception as e:
+            logging.debug(f'Exception teslaEV_PlaySound for vehicle id {EVid}: {e}')
+            return('error', e)
 
 
     def teslaEV_Doors(self, EVid, ctrl):

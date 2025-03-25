@@ -49,7 +49,7 @@ BOOLSTATE-98=Not Enabled
 BOOLSTATE-99=Unknown
 ST-nlsevstatus-GV3-NAME=EV Door State
 ST-nlsevstatus-GV4-NAME=Odometer 
-ST-nlsevstatus-GV5-NAME=EV Online
+ST-nlsevstatus-GV5-NAME=Sentry Mode
 ST-nlsevstatus-GV6-NAME=Front Driver Window
 ST-nlsevstatus-GV7-NAME=Front Passenger Window
 ST-nlsevstatus-GV8-NAME=Rear Driver Window 
@@ -57,7 +57,14 @@ ST-nlsevstatus-GV9-NAME=Rear Passenger Window
 WINDOW-0=Closed
 WINDOW-1=Open
 WINDOW-99=Unknown
-
+SENTSTATE-0= 
+SENTSTATE-1=Off
+SENTSTATE-2=Ideal 
+SENTSTATE-3=Armed 
+SENTSTATE-4=Aware 
+SENTSTATE-5=Panic 
+SENTSTATE-6=Quite 
+SENTSTATE-99=Unknown 
 ST-nlsevstatus-GV10-NAME=Sunroof Percent Open
 
 ST-nlsevstatus-GV11-NAME=Trunk State

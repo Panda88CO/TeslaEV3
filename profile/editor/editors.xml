@@ -217,4 +217,9 @@
      <range uom="138" min="0" max="20" prec="2" />
      <range uom="25" subset="0,99" nls="error" />
    </editor> 
+   <editor id="SENTSTATE" > 
+     <range  uom="25" subset="1,2,3,4,5,6,99" nls="SENTSTATE"  />  
+   </editor>
+
+
 </editors> 

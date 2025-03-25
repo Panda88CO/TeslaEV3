@@ -10,7 +10,7 @@
          <st id="GV0" editor="NUMBER" />
          <st id="GV3" editor="LOCKUNLOCK" />
          <st id="GV4" editor="ODOMETER" />
-         <!--<st id="GV5" editor="BOOLSTATE" />-->
+         <st id="GV5" editor="SENTSTATE" />
          <st id="GV6" editor="WINDOW" />
          <st id="GV7" editor="WINDOW" />
          <st id="GV8" editor="WINDOW" />
@@ -44,6 +44,8 @@
             <cmd id="WAKEUP" />-->
             <cmd id="HONKHORN" />
             <cmd id="FLASHLIGHT" />   
+            <cmd id="SENTRYMODE" />   
+            
             <cmd id="DOORS" > 
                <p id="" editor="LOCKUNLOCK" init="GV3" /> 
             </cmd>

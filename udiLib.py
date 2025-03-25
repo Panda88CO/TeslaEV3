@@ -248,6 +248,25 @@ def latch2ISY(self, state):
     else:
         return(99)
 
+def sentry2ISY(self, state):
+    if state is not None:
+        if state in ['SentryModeStateOff']:
+            return(1)
+        elif state() == ['SentryModeStateIdle']:
+            return(2)
+        elif state() == ['SentryModeStateArmed']:
+            return(0)
+        elif state() == ['SentryModeStateAware']:
+            return(4)
+        elif state() == ['SentryModeStatePanic']:
+            return(5)
+        elif state() == ['SentryModeStateQuiet']:
+            return(6)      
+        else:
+            return(99)
+    else:
+        return(99)
+
 
 def chargeState2ISY(self, state):
     if state is not None:
