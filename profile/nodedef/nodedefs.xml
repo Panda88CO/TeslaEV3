@@ -45,7 +45,7 @@
             <cmd id="HONKHORN" />
             <cmd id="FLASHLIGHT" />   
             <cmd id="SENTRYMODE" />   
-               <p id="" editor="SENTRYMODE" /> 
+               <p id="" editor="SENMODE" /> 
             <cmd id="DOORS" > 
                <p id="" editor="LOCKUNLOCK" init="GV3" /> 
             </cmd>
