@@ -1838,7 +1838,6 @@ class teslaEVAccess(teslaAccess):
     def teslaEV_GetSentryState(self, EVid):
         try:
             #logging.debug(f'teslaEV_GetOdometer: for {EVid}')
-            if self._stream_data_found(EVid, 'SentryMode'):
             if self._stream_return_data(EVid, 'SentryMode'):
                 return(self.stream_data[EVid]['SentryMode']['sentryModeStateValue'])
             else:
