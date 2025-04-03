@@ -19,7 +19,7 @@ from TeslaEVChargeNode import teslaEV_ChargeNode
 from TeslaEVOauth import teslaAccess
 
 
-VERSION = '0.0.19'
+VERSION = '0.0.20'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -392,12 +392,19 @@ class TeslaEVController(udi_interface.Node):
         logging.debug(f'systemPoll - {pollList}')
         if self.TEVcloud:
             if self.TEVcloud.authenticated():
-                #self.TEVcloud.teslaEV_get_vehicles()
+                state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+                if state:
+                    self.EV_setDriver('ST', self.state2ISY(state), 25)
+                    self.poly.Notices['offline'].clear()
+                else:
+                    self.poly.Notices['offline']='API connection Failure - please re-authenticate'
+                    self.EV_setDriver('ST', 98, 25)
+                    #self.TEVcloud.teslaEV_get_vehicles()
                 if 'longPoll' in pollList: 
                     self.longPoll()
                     if 'shortPoll' in pollList: #send short polls heart beat as shortpoll is not executed
                         self.heartbeat()
-                elif 'shortPoll' in pollList:
+                if 'shortPoll' in pollList:
                     self.shortPoll()
             else:
                 logging.info('Waiting for system/nodes to initialize')
@@ -405,6 +412,7 @@ class TeslaEVController(udi_interface.Node):
     def shortPoll(self):
         logging.info('Tesla EV Controller shortPoll(HeartBeat)')
         self.heartbeat()
+        
         #try:
         #    logging.debug(f'short poll list - heart beat')
         #except Exception:
@@ -416,13 +424,13 @@ class TeslaEVController(udi_interface.Node):
         try:
             logging.debug(f'long poll list - checking for token update required')
             self.TEVcloud.teslaEV_streaming_check_certificate_update(self.EVid) #We need to check if we need to update streaming server credentials
-            state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            if state:
-                self.EV_setDriver('ST', self.state2ISY(state), 25)
-                self.poly.Notices['offline'].clear()
-            else:
-                self.poly.Notices['offline']='API connection Failure - please re-authenticate'
-                self.EV_setDriver('ST', 98, 25)
+            #state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+            #if state:
+            #    self.EV_setDriver('ST', self.state2ISY(state), 25)
+            #    self.poly.Notices['offline'].clear()
+            #else:
+            #    self.poly.Notices['offline']='API connection Failure - please re-authenticate'
+            #    self.EV_setDriver('ST', 98, 25)
         except Exception:
             logging.info(f'Not all nodes ready:')
 
@@ -506,10 +514,10 @@ class TeslaEVController(udi_interface.Node):
         try:
             logging.debug('Update main node')
             self.update_time()
-            state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+            #state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
             #logging.debug(f' state : {state}')
             #code, state = self.TEVcloud.teslaEV_update_connection_status(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(state), 25)
+            #self.EV_setDriver('ST', self.state2ISY(state), 25)
             self.EV_setDriver('GV29', self.sync_state2ISY(self.TEVcloud.stream_synched), 25)
 
             logging.info(f'updateISYdrivers - Status for {self.EVid}')
@@ -574,7 +582,7 @@ class TeslaEVController(udi_interface.Node):
 
     def ISYupdate (self, command=None):
         logging.info(f'ISY-update status node  called')
-        code, state = self.TEVcloud.teslaEV_update_connection_status(self.EVid)
+        #code, state = self.TEVcloud.teslaEV_update_connection_status(self.EVid)
         #code, res = self.TEVcloud.teslaEV_UpdateCloudInfo(self.EVid)
         self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetCarState(self.EVid)), 25)
         self.update_all_drivers()

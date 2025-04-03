@@ -47,8 +47,9 @@ If permissions needs to be updated or changed, log into tesla.com and manage you
 
 The ShortPoll and LongPoll settings are used to mitigate the rate limits set by Tesla.
 
-ShortPoll = default 1 min
+ShortPoll = default 5 min
     sends heartbeat to ISY
+    Polls the state of the car (online, offline, asleep etc)
 
 LongPoll = default 120min (7200sec) 
     Polls the state of the car (online, offline, asleep etc)
