@@ -213,6 +213,10 @@ class teslaAccess(OAuth):
                 self.token_info = response.json()
                 self.token_info['expiry'] =  int(time.time()) + self.token_info['expires_in']
                 self.portal_connected = True
+            else:
+                logging.error(f'ERROR refreshing portal token {response}')
+                return(None)
+            
         if 'access_token' in self.token_info:
             return ( self.token_info['access_token'])
         else:
