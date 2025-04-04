@@ -591,7 +591,7 @@ class teslaEVAccess(teslaAccess):
                     if code == 'ok':
                         self.carInfo[EVid] = self.process_EV_data(res)
                         #self.extract_gui_info(EVid)
-                        return(code, self.teslaEV_GetCarState(EVid))
+                        return(self.teslaEV_GetCarState(EVid))
                     else:
                         return(code, state)            
             elif code == 'overload':
@@ -613,7 +613,7 @@ class teslaEVAccess(teslaAccess):
                     code, res = self._teslaEV_get_ev_data(EVid)
                     if code == 'ok':
                         self.carInfo[EVid] = self.process_EV_data(res)
-                        return(code, self.teslaEV_GetCarState(EVid))
+                        return(self.teslaEV_GetCarState(EVid))
                     else:
                         return(code, state)
                 elif code == 'overload':
@@ -687,7 +687,7 @@ class teslaEVAccess(teslaAccess):
         try:
             logging.debug('teslaEV_GetCarState:')
             code, res = self.teslaEV_update_vehicle_status(EVid)
-            return(self.carInfo[EVid]['state'])
+            return(code, self.carInfo[EVid]['state'])
         except Exception as e:
             logging.error(f'teslaEV_GetCarState Exception : {e}')
             return(None)
