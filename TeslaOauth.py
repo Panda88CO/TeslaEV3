@@ -206,7 +206,7 @@ class teslaAccess(OAuth):
                 'client_id': client_id ,
                 'client_secret' : portal_secret,            
             }
-            logging.debug(f'Before post header = {headers}, body = {body}')
+            #logging.debug(f'Before post header = {headers}, body = {body}')
             response = requests.post('https://my.isy.io/o2/token', headers=headers, data=body)
 
             if response.status_code == 200:
@@ -276,7 +276,7 @@ class teslaAccess(OAuth):
                 #payload = json.dumps(body)
                 payload = body
 
-        logging.debug(f' call info url={completeUrl}, header {headers}, body ={payload}')
+        #logging.debug(f' call info url={completeUrl}, header {headers}, body ={payload}')
 
         try:
             if method == 'GET':
