@@ -297,13 +297,12 @@ class teslaEVAccess(teslaAccess):
                         'SunroofInstalled':{ 'interval_seconds': 60 },     
                         'WiperHeatEnabled':{ 'interval_seconds': 60 },    
                         'SentryMode':{ 'interval_seconds': 60 },    
-  
-  
-                        #PowershareHoursLeft = 206;
-                        #PowershareInstantaneousPowerKW = 207;
-                        #PowershareStatus = 208;
-                        #PowershareStopReason = 209;
-                        #PowershareType = 210;
+                        #'PowershareHoursLeft':{ 'interval_seconds': 60 },     
+                        #'PowershareInstantaneousPowerKW':{ 'interval_seconds': 60 },     
+                        #'PowershareStatus':{ 'interval_seconds': 60 },     
+                        #'PowershareStopReason':{ 'interval_seconds': 60 },     
+                        #'PowershareType':{ 'interval_seconds': 60 },     
+
                       
                         #'Version' : { 'interval_seconds': 60, },
                         #'VehicleName': { 'interval_seconds': 60},
