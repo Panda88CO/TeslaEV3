@@ -242,17 +242,17 @@ class teslaEVAccess(teslaAccess):
                         'EstBatteryRange' : { 'interval_seconds': 60, 'minimum_delta': 1, 'resend_interval_seconds' : 600 },                    
                         'ChargeCurrentRequest' : { 'interval_seconds': 60 },
                         'ChargeCurrentRequestMax': { 'interval_seconds': 60 },                        
-                        'ChargeAmps' : { 'interval_seconds': 60, 'minimum_delta': 0.5, },
+                        'ChargeAmps' : { 'interval_seconds': 10, 'minimum_delta': 0.5, },
                         'TimeToFullCharge' : { 'interval_seconds': 60, 'minimum_delta': 1,  },
                         'Soc' : { 'interval_seconds': 60, 'minimum_delta': 1 },
-                        'ChargerVoltage' : { 'interval_seconds': 60, 'minimum_delta': 1, },                    
+                        'ChargerVoltage' : { 'interval_seconds': 10, 'minimum_delta': 2, },                    
                         'FastChargerPresent' : { 'interval_seconds': 60 },
                         'ChargePortDoorOpen' : { 'interval_seconds': 60 },
                         'ChargePortLatch' : { 'interval_seconds': 60 },
                         'BatteryLevel' : { 'interval_seconds': 60, 'minimum_delta': 1,'resend_interval_seconds' : 600 },
                         #'ChargeState': { 'interval_seconds': 60 },;
                         'DetailedChargeState' : { 'interval_seconds': 60 },
-                        'ChargeLimitSoc': { 'interval_seconds': 60, 'minimum_delta': 1, },
+                        'ChargeLimitSoc': { 'interval_seconds': 20, 'minimum_delta': 1, },
                         'InsideTemp': { 'interval_seconds': 60, 'minimum_delta': 1, },
                         'OutsideTemp': { 'interval_seconds': 60,'minimum_delta': 1,  },
                         'SeatHeaterLeft' : { 'interval_seconds': 60 },
@@ -272,15 +272,18 @@ class teslaEVAccess(teslaAccess):
                         'Odometer': { 'interval_seconds': 60,'minimum_delta': 1},
                         'DoorState' : { 'interval_seconds': 60 },
                         'Location' : { 'interval_seconds': 60 },
-                        'DCChargingEnergyIn': { 'interval_seconds': 60, 'minimum_delta': 1 },
-                        'DCChargingPower' : { 'interval_seconds': 60, 'minimum_delta': 1 },
-                        'ACChargingEnergyIn': { 'interval_seconds': 60,'minimum_delta': 0.25 },
-                        'ACChargingPower' : { 'interval_seconds': 60 ,'minimum_delta': 0.25},
+                        'DCChargingEnergyIn': { 'interval_seconds': 10, 'minimum_delta': 5 },
+                        'DCChargingPower' : { 'interval_seconds': 10, 'minimum_delta': 5 },
+                        'ACChargingEnergyIn': { 'interval_seconds': 10,'minimum_delta': 5 },
+                        'ACChargingPower' : { 'interval_seconds': 10 ,'minimum_delta': 5},
                         'Locked' : { 'interval_seconds': 60 },
                         'FdWindow': { 'interval_seconds': 60 },
                         'FpWindow' : { 'interval_seconds': 60 },
                         'RdWindow': { 'interval_seconds': 60 },
                         'RpWindow' : { 'interval_seconds': 60,  },
+
+
+
 
                         'TpmsPressureFl' : { 'interval_seconds': 60,'minimum_delta': 0.1 },
                         'TpmsPressureFr' : { 'interval_seconds': 60,'minimum_delta': 0.1  },
@@ -294,7 +297,13 @@ class teslaEVAccess(teslaAccess):
                         'SunroofInstalled':{ 'interval_seconds': 60 },     
                         'WiperHeatEnabled':{ 'interval_seconds': 60 },    
                         'SentryMode':{ 'interval_seconds': 60 },    
-
+  
+  
+                        #PowershareHoursLeft = 206;
+                        #PowershareInstantaneousPowerKW = 207;
+                        #PowershareStatus = 208;
+                        #PowershareStopReason = 209;
+                        #PowershareType = 210;
                       
                         #'Version' : { 'interval_seconds': 60, },
                         #'VehicleName': { 'interval_seconds': 60},
