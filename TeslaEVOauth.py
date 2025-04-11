@@ -89,7 +89,7 @@ class teslaEVAccess(teslaAccess):
         self.next_chaging_call = temp
         self.next_device_data_call = temp
         self.stream_data = {}
-        self.wall_connector = 0
+        self.wall_connector = 1
         time.sleep(1)
 
 
