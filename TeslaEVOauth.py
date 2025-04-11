@@ -706,7 +706,6 @@ class teslaEVAccess(teslaAccess):
         return(self.carInfo[EVid]['state'])
 
     def teslaEV_update_vehicle_status(self, EVid) -> dict:
-        self.products= {}
         EVs = {}
         logging.debug(f'teslaEV_get_vehicle_info ')
         try:
