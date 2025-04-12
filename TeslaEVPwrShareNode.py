@@ -85,37 +85,12 @@ class teslaEV_PwrShareNode(udi_interface.Node):
 
             logging.info(f'ChargeNode updateISYdrivers {self.EVid}')
             self.update_time()
-            #if self.TEVcloud.teslaEV_GetCarState(self.EVid) in ['online']:                
-            self.EV_setDriver('GV1', self.bool2ISY(self.TEVcloud.teslaEV_FastChargerPresent(self.EVid)), 25)
-            self.EV_setDriver('GV2', self.bool2ISY(self.TEVcloud.teslaEV_ChargePortOpen(self.EVid)),25)
-            self.EV_setDriver('GV3', self.latch2ISY(self.TEVcloud.teslaEV_ChargePortLatched(self.EVid)),25)
-
-            temp_range = self.TEVcloud.teslaEV_GetBatteryRange(self.EVid)
-            if temp_range is None:
-                self.EV_setDriver('GV4', temp_range, 25)
-            else:
-                if self.TEVcloud.teslaEV_GetDistUnit() == 1:
-                    self.EV_setDriver('GV4', round(float(temp_range),1), 116)
-                else:
-                    self.EV_setDriver('GV4', round(float(temp_range*1.6),1), 83)
-
-            self.EV_setDriver('ST', self.TEVcloud.teslaEV_GetBatteryLevel(self.EVid) , 51)
-
-            temp_current = self.TEVcloud.teslaEV_MaxChargeCurrent(self.EVid) 
-            self.EV_setDriver('GV5', temp_current, 1)
-            self.EV_setDriver('GV6',self.chargeState2ISY(self.TEVcloud.teslaEV_ChargeState(self.EVid)), 25)
-            self.EV_setDriver('GV7', self.bool2ISY(self.TEVcloud.teslaEV_ChargingRequested(self.EVid)),25)
-            self.EV_setDriver('GV8',self.TEVcloud.teslaEV_GetChargingPower(self.EVid), 30)
-            self.EV_setDriver('GV9', self.TEVcloud.teslaEV_GetBatteryMaxCharge(self.EVid), 51)
-            self.EV_setDriver('GV10',self.TEVcloud.teslaEV_charger_voltage(self.EVid), 72)
-            self.EV_setDriver('GV11', self.TEVcloud.teslaEV_charge_current_request(self.EVid),1 )
-            self.EV_setDriver('GV12', self.TEVcloud.teslaEV_charger_actual_current(self.EVid), 1)
-            t_estimate = self.TEVcloud.teslaEV_time_to_full_charge(self.EVid)
-            if t_estimate:
-                t_estimate = round(t_estimate*60, 1)
-            self.EV_setDriver('GV14', t_estimate, 44)
-            self.EV_setDriver('GV15', self.TEVcloud.teslaEV_charge_energy_added(self.EVid), 33)
-            #if self.TEVcloud.teslaEV_GetDistUnit() == 1:
+            #if self.TEVcloud.teslaEV_GetCarState(self.EVid) in ['online']:    
+            self.EV_setDriver('ST', self.TEVcloud.teslaEV_PowershareHoursLeft(self.EVid) , 20)
+            self.EV_setDriver('GV1', self.TEVcloudteslaEV_PowershareInstantaneousPowerKW(self.EVid), 33)
+            self.EV_setDriver('GV2',self.TEVcloud.teslaEV_PowershareStatus(self.EVid),25)
+            self.EV_setDriver('GV3', self.TEVcloud.teslaEV_PowershareStopReason(self.EVid),25)
+            self.EV_setDriver('GV4', self.TEVcloud.teslaEV_PowershareType(self.EVid), 25)            #if self.TEVcloud.teslaEV_GetDistUnit() == 1:
             #    self.EV_setDriver('GV16', self.TEVcloud.teslaEV_charge_miles_added_rated(self.EVid), 116)
             #else:
             #    self.EV_setDriver('GV16', self.TEVcloud.teslaEV_charge_miles_added_rated(self.EVid)*1.6 , 83 )
@@ -131,92 +106,13 @@ class teslaEV_PwrShareNode(udi_interface.Node):
     #    self.update_time()
     #    self.EV_setDriver('GV21', self.command_res2ISY(code), 25)
      
-    '''
-    def evChargePort (self, command):
-        logging.info('evChargePort called')
-        chargePort = int(float(command.get('value')))
-        if chargePort == 1:
-            code, res =  self.TEVcloud.teslaEV_ChargePort(self.EVid, 'open')
-        elif chargePort == 0:
-            code, res = self.TEVcloud.teslaEV_ChargePort(self.EVid, 'close')
-        else:
-            logging.debug(f'Wrong parameter passed to evChargePort : {chargePort}')
-            code = 'error'
-            res = f'Wrong parameter passed to evChargePort : {chargePort}'
-
-        if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
-            self.EV_setDriver('GV2', chargePort, 25)  
-        else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)      
-            self.EV_setDriver('GV2', None, 25)  
-
-
-    def evChargeControl (self, command):
-        logging.info('evChargeControl called')
-        chargeCtrl = int(float(command.get('value')))
-
-        if chargeCtrl == 1:
-            code, res =  self.TEVcloud.teslaEV_Charging(self.EVid, 'start')
-            if code in ['ok']:
-                self.EV_setDriver('GV6', 3, 25)
-                self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
-            else:
-                logging.info('Not able to send command - EV is not online')
-                self.EV_setDriver('GV21', self.code2ISY(code), 25)      
-                self.EV_setDriver('GV6', None, 25)                       
-        elif chargeCtrl == 0:
-            code, res =  self.TEVcloud.teslaEV_Charging(self.EVid, 'stop')
-            if code in ['ok']:
-                self.EV_setDriver('GV6', 4, 25)
-                self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
-            else:
-                logging.info('Not able to send command - EV is not online')
-                self.EV_setDriver('GV21', self.code2ISY(code), 25)      
-                self.EV_setDriver('GV6', None, 25)              
-        else:
-            logging.debug(f'Wrong parameter passed to evChargeControl : {chargeCtrl}')
-            self.EV_setDriver('GV6', None, 25)
-
-
-
-    def evSetBatteryChargeLimit (self, command):
-        logging.info('evSetBatteryChargeLimit called')
-        batLimitPercent = int(float(command.get('value')))
-        code, res =  self.TEVcloud.teslaEV_SetChargeLimit(self.EVid, batLimitPercent)
-        if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
-            self.EV_setDriver('GV9', batLimitPercent, 51) 
-        else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)      
-            self.EV_setDriver('GV9', None, 25)              
-
-
-
-    def evSetCurrentChargeLimit (self, command):
-        logging.info('evSetCurrentChargeLimit called')
-        
-        ampLimit = int(float(command.get('value')))
-
-        code, res = self.TEVcloud.teslaEV_SetChargeLimitAmps(self.EVid, ampLimit)
-        if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
-            self.EV_setDriver('CHARGEAMPS', ampLimit, 1)
-        else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)      
-            self.EV_setDriver('CHARGEAMPS', None, 25)              
-    '''
 
     id = 'pwrshare'
 
     commands = {  }
 
     drivers = [
-
-            {'driver': 'ST', 'value': 0, 'uom': 20},  #bhours left-
+            {'driver': 'ST', 'value': 99, 'uom': 25},  #bhours left-
             {'driver': 'GV1', 'value': 99, 'uom': 25},  #InstantaneousPowerKW
             {'driver': 'GV2', 'value': 99, 'uom': 25},  #Status
             {'driver': 'GV3', 'value': 99, 'uom': 25},  #charge_port_latch

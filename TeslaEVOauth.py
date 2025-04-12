@@ -858,7 +858,7 @@ class teslaEVAccess(teslaAccess):
     
 
     def teslaEV_PowershareInstantaneousPowerKW(self, EVid):
-        return (self._stream_return_data(EVid,'PowershareInstantaneousPowerKW' ))   
+        return (round(self._stream_return_data(EVid,'PowershareInstantaneousPowerKW'),2))   
 
     def teslaEV_PowershareStatus(self, EVid):
         logging.debug(f'teslaEV_PowershareStatus for {EVid} {self.stream_data[EVid]}')
