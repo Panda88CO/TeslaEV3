@@ -268,3 +268,36 @@ CHARGECTRL-0=Stop
 CHARGECTRL-1=Start 
 CMD-nlsevcharge-BATPERCENT-NAME=Set Battery Charge Target
 CMD-nlsevcharge-CHARGEAMPS-NAME=Set Max Charge Current
+
+ND-pwrshare-NAME=EV power share
+ND-pwrshare-ICON=TElectricity
+
+ST-nlspwrshre-ST-NAME=Hours Remaining
+ST-nlspwrshre-GV2-NAME=Instant Power
+ST-nlspwrshre-GV2-NAME=Powershare Status
+ST-nlspwrshre-GV3-NAME=Powershare Stop Reason
+ST-nlspwrshre-GV4-NAME=Powershare Operation Mode
+PSSTATUS-0=Unknown
+PSSTATUS-1=Inactive
+PSSTATUS-2=Handshaking
+PSSTATUS-3=Init 
+PSSTATUS-4=Enabled 
+PSSTATUS-5=ReconnectingSoon 
+PSSTATUS-6=Stopped
+PSSTATUS-99=Unknown
+PSSTOP-0=Unknown
+PSSTOP-1=None
+PSSTOP-2=SOCTooLow 
+PSSTOP-3=Retry
+PSSTOP-4=Fault
+PSSTOP-5=User
+PSSTOP-6=Reconnecting
+PSSTOP-7=Authentication
+PSSTOP-99=Unknown
+PSTYPE-0=Unknown
+PSTYPE-1=None
+PSTYPE-2=Load 
+PSTYPE-3=Home
+PSTYPE-99=Unknown
+
+

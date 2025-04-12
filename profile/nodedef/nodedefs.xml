@@ -172,5 +172,22 @@
       </cmds>
    </nodeDef> 
 
-  
+     <nodeDef id="pwrshare" nls="nlspwrshre">
+      <editors />
+      <sts>
+         <st id="ST" editor="HOURS" /> <!--hours left-->
+         <st id="GV1" editor="KW" /> <!--InstantaneousPowerKW-->
+         <st id="GV2" editor="PSSTATUS" /><!--Status-->
+         <st id="GV3" editor="PSSTOP" /><!--Stop Reason-->
+         <st id="GV4" editor="PSTYPE" /><!--PowerShare Type-->
+         <st id="GV19" editor="unixtime" />
+      </sts>
+
+      <cmds>
+         <sends>
+         </sends>
+         <accepts>
+         </accepts>
+      </cmds>
+   </nodeDef> 
 </nodeDefs> 

@@ -16,10 +16,11 @@ from TeslaEVOauth import teslaEVAccess
 #from TeslaEVStatusNode import teslaEV_StatusNode
 from TeslaEVClimateNode import teslaEV_ClimateNode
 from TeslaEVChargeNode import teslaEV_ChargeNode
+from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVOauth import teslaAccess
 
 
-VERSION = '0.0.22'
+VERSION = '0.0.24'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -445,6 +446,13 @@ class TeslaEVController(udi_interface.Node):
         #if not self.poly.getNode(nodeAdr):
         logging.info(f'Creating ChargingNode: {nodeAdr} - {self.address} {nodeAdr} {nodeName} {self.EVid}')
         self.chargeNode = teslaEV_ChargeNode(self.poly, self.address, nodeAdr, nodeName, self.EVid, self.TEVcloud )
+
+        if self.TEVcloud.wall_connector != 0 
+        nodeAdr = 'pwrshare'+str(self.EVid)[-8:]
+        nodeName = self.poly.getValidName('Powershare Info')
+        nodeAdr = self.poly.getValidAddress(nodeAdr)
+        logging.info(f'Creating pwrshare: {nodeAdr} - {self.address} {nodeAdr} {nodeName} {self.EVid}')
+        self.chargeNode = teslaEV_PwrShareNode(self.poly, self.address, nodeAdr, nodeName, self.EVid, self.TEVcloud )
 
 
     def subnodesReady(self):
