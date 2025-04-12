@@ -36,7 +36,7 @@ class teslaEV_PwrShareNode(udi_interface.Node):
         logging.info('_init_ Tesla Charge Node COMPLETE')
         
     def start(self):                
-        logging.info(f'Start Tesla EV charge Node: {self.EVid}')  
+        logging.info(f'Start Tesla EV power share Node: {self.EVid}')  
         self.nodeReady = True
 
     def stop(self):
