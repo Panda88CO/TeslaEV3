@@ -24,9 +24,6 @@ class teslaEV_PwrShareNode(udi_interface.Node):
         self.address = address 
         self.name = name
         self.nodeReady = False
-
-
-
         self.n_queue = []
         self.poly.subscribe(self.poly.ADDNODEDONE, self.node_queue)
         self.poly.subscribe(self.poly.START, self.start, address)
@@ -40,27 +37,13 @@ class teslaEV_PwrShareNode(udi_interface.Node):
         
     def start(self):                
         logging.info(f'Start Tesla EV charge Node: {self.EVid}')  
-        #self.EV_setDriver('ST', 1)
         self.nodeReady = True
-        #self.updateISYdrivers()
-        #self.update_time()
-
-        
 
     def stop(self):
         logging.debug('stop - Cleaning up')
     
     def poll(self):
         pass 
-        #logging.debug(f'Charge node {self.EVid}')
-        #try:
-        #    if self.TEVcloud.carState != 'Offline':
-        #        self.updateISYdrivers()
-        #    else:
-        #        logging.info('Car appears off-line/sleeping - not updating data')
-        #except Exception as e:
-        #    logging.error('Charge Poll exception : {e}')
-
 
     def node_ready (self):
         return(self.nodeReady )
@@ -71,30 +54,19 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             self.EV_setDriver('GV19', temp, 151)   
         except ValueError:
             self.EV_setDriver('GV19', None, 25)                                                 
-        '''
-        try:
-            temp = round(float(self.TEVcloud.teslaEV_GetTimeSinceLastStatusUpdate(self.EVid)/60), 0)
-            self.EV_setDriver('GV20', temp, 44)
-        except ValueError:
-            self.EV_setDriver('GV20', None, 25)          
-        '''
+
 
 
     def updateISYdrivers(self):
         try:
-
-            logging.info(f'ChargeNode updateISYdrivers {self.EVid}')
+            logging.info(f'Powershare updateISYdrivers {self.EVid}')
             self.update_time()
             #if self.TEVcloud.teslaEV_GetCarState(self.EVid) in ['online']:    
             self.EV_setDriver('ST', self.TEVcloud.teslaEV_PowershareHoursLeft(self.EVid) , 20)
             self.EV_setDriver('GV1', self.TEVcloudteslaEV_PowershareInstantaneousPowerKW(self.EVid), 33)
             self.EV_setDriver('GV2',self.TEVcloud.teslaEV_PowershareStatus(self.EVid),25)
             self.EV_setDriver('GV3', self.TEVcloud.teslaEV_PowershareStopReason(self.EVid),25)
-            self.EV_setDriver('GV4', self.TEVcloud.teslaEV_PowershareType(self.EVid), 25)            #if self.TEVcloud.teslaEV_GetDistUnit() == 1:
-            #    self.EV_setDriver('GV16', self.TEVcloud.teslaEV_charge_miles_added_rated(self.EVid), 116)
-            #else:
-            #    self.EV_setDriver('GV16', self.TEVcloud.teslaEV_charge_miles_added_rated(self.EVid)*1.6 , 83 )
- 
+            self.EV_setDriver('GV4', self.TEVcloud.teslaEV_PowershareType(self.EVid), 25) 
         except Exception as e:
             logging.error(f'updateISYdrivers charge node failed: nodes may not be 100% ready {e}')
 
