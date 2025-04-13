@@ -535,10 +535,11 @@ class teslaEVAccess(teslaAccess):
             if 'response' in temp:
                 for indx in range(0,len(temp['response'])):
                     site = temp['response'][indx]
+                    logging.debug(f'site: {site}')
                     if 'energy_site_id' in site:
                         if 'wall_connectors' in site['components']:
                             self.wall_connector = len(site['components']['wall_connectors'])
-                
+            logging.debug(f'NBr wall coinnectors: {self.wall_connector}')
             return(self.wall_connector)
         except Exception as e:
             logging.error('tesla_get_energy_products Exception : {}'.format(e))

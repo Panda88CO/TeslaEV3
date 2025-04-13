@@ -300,6 +300,7 @@ class TeslaEVController(udi_interface.Node):
 
         assigned_addresses =['controller']
         self.nbr_wall_cons = self.TEVcloud.tesla_get_energy_products()
+        logging.debug(f'Nbr Wall Cons main {self.nbr_wall_cons}')
         code, vehicles = self.TEVcloud.teslaEV_get_vehicles()
         if code in ['ok']:
             self.vehicleList = self.TEVcloud.teslaEV_get_vehicle_list()
@@ -448,7 +449,7 @@ class TeslaEVController(udi_interface.Node):
         #if not self.poly.getNode(nodeAdr):
         logging.info(f'Creating ChargingNode: {nodeAdr} - {self.address} {nodeAdr} {nodeName} {self.EVid}')
         self.chargeNode = teslaEV_ChargeNode(self.poly, self.address, nodeAdr, nodeName, self.EVid, self.TEVcloud )
-
+        logging.debug(f'Nbr Wall COns create: {self.nbr_wall_cons}')
         if self.nbr_wall_cons != 0: 
             nodeAdr = 'pwrshare'+str(self.EVid)[-8:]
             nodeName = self.poly.getValidName('Powershare Info')
