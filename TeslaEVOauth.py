@@ -526,9 +526,9 @@ class teslaEVAccess(teslaAccess):
             logging.error(f'teslaEV_get_vehicles Exception : {e}')
 
 
-    def tesla_get_products(self) -> dict:
-        power_walls= {}
-        logging.debug('tesla_get_products ')
+    def tesla_get_energy_products(self) -> dict:
+        #power_walls= {}
+        logging.debug('tesla_get_energy_products ')
         try:
             temp = self._callApi('GET','/products' )
             logging.debug('products: {} '.format(temp))
@@ -539,9 +539,9 @@ class teslaEVAccess(teslaAccess):
                         if 'wall_connectors' in site['components']:
                             self.wall_connector = len(site['components']['wall_connectors'])
                 
-            return(power_walls)
+            return(self.wall_connector)
         except Exception as e:
-            logging.error('tesla_get_products Exception : {}'.format(e))
+            logging.error('tesla_get_energy_products Exception : {}'.format(e))
 
    
     def _teslaEV_wake_ev(self, EVid):

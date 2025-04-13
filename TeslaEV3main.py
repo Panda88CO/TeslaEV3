@@ -89,6 +89,7 @@ class TeslaEVController(udi_interface.Node):
         self.EVid = None
         self.data_flowing = False
         #self.t_last = time.time()
+        self.nbr_wall_cons = 0
         logging.info('Controller init DONE')
 
     def check_config(self):
@@ -298,6 +299,7 @@ class TeslaEVController(udi_interface.Node):
             time.sleep(5)
 
         assigned_addresses =['controller']
+        self.nbr_wall_cons = self.TEVcloud.tesla_get_energy_products()
         code, vehicles = self.TEVcloud.teslaEV_get_vehicles()
         if code in ['ok']:
             self.vehicleList = self.TEVcloud.teslaEV_get_vehicle_list()
@@ -447,15 +449,13 @@ class TeslaEVController(udi_interface.Node):
         logging.info(f'Creating ChargingNode: {nodeAdr} - {self.address} {nodeAdr} {nodeName} {self.EVid}')
         self.chargeNode = teslaEV_ChargeNode(self.poly, self.address, nodeAdr, nodeName, self.EVid, self.TEVcloud )
 
-        if self.TEVcloud.wall_connector != 0: 
+        if self.nbr_wall_cons != 0: 
             nodeAdr = 'pwrshare'+str(self.EVid)[-8:]
             nodeName = self.poly.getValidName('Powershare Info')
             nodeAdr = self.poly.getValidAddress(nodeAdr)
             logging.info(f'Creating pwrshare: {nodeAdr} - {self.address} {nodeAdr} {nodeName} {self.EVid}')
             self.chargeNode = teslaEV_PwrShareNode(self.poly, self.address, nodeAdr, nodeName, self.EVid, self.TEVcloud )
 
-
-        
 
     def subnodesReady(self):
         return(self.climateNode.nodeReady and self.chargeNode.nodeReady )
