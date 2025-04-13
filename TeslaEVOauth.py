@@ -530,7 +530,7 @@ class teslaEVAccess(teslaAccess):
         #power_walls= {}
         logging.debug('tesla_get_energy_products ')
         try:
-            temp = self._callApi('GET','/products' )
+            code, temp = self._callApi('GET','/products' )
             logging.debug('products: {} '.format(temp))
             if 'response' in temp:
                 for indx in range(0,len(temp['response'])):
