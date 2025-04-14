@@ -63,8 +63,8 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             self.update_time()
             #if self.TEVcloud.teslaEV_GetCarState(self.EVid) in ['online']:    
             self.EV_setDriver('ST', self.TEVcloud.teslaEV_PowershareHoursLeft(self.EVid) , 20)
-            self.EV_setDriver('GV1', self.TEVcloudteslaEV_PowershareInstantaneousPowerKW(self.EVid), 33)
-            self.EV_setDriver('GV2',self.TEVcloud.teslaEV_PowershareStatus(self.EVid),25)
+            self.EV_setDriver('GV1', self.TEVcloud.teslaEV_PowershareInstantaneousPowerKW(self.EVid), 33)
+            self.EV_setDriver('GV2', self.TEVcloud.teslaEV_PowershareStatus(self.EVid),25)
             self.EV_setDriver('GV3', self.TEVcloud.teslaEV_PowershareStopReason(self.EVid),25)
             self.EV_setDriver('GV4', self.TEVcloud.teslaEV_PowershareType(self.EVid), 25) 
         except Exception as e:
