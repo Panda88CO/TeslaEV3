@@ -28,17 +28,13 @@
       <range  uom="25" subset="0,1,99" nls="UNKNOWN"/>
   </editor>
   
-
-
   <editor id="NUMBER" > 
      <range  uom="25" subset="0,1,2,3,98,99" nls="NUMBER"/>
   </editor>
   
-
   <editor id="BOOLSTATE" > 
      <range  uom="25" subset="0,1,98,99" nls="BOOLSTATE"/>
   </editor> 
-
 
   <editor id="ODOMETER" > 
       <range  uom="83" min="0" max="999999" prec="1" />
@@ -128,24 +124,23 @@
      <range  uom="25" subset="0-3" nls="STEERINGW"  />  
   </editor>
 
-
-  <editor id="PRESENT" > 
+   <editor id="PRESENT" > 
      <range  uom="25" subset="0,1,99" nls="PRESENT"  />  
-  </editor>
+   </editor>
 
-  <editor id="AMPS" > 
+   <editor id="AMPS" > 
      <range  uom="1" min="0" max="300" prec="1" />
      <range  uom="25" subset="0,1,99" nls="UNKNOWN"  />
-  </editor>
+   </editor>
 
-  <editor id="AMPSINP" > 
+   <editor id="AMPSINP" > 
      <range  uom="1" min="0" max="300" prec="1" />
-  </editor>
+   </editor>
 
-    <editor id="VOLT" > 
+   <editor id="VOLT" > 
      <range  uom="72" min="0" max="800" prec="1" />
      <range  uom="25" subset="0,1,99" nls="UNKNOWN" />
-  </editor>
+   </editor>
 
   <editor id="CHGSTATE" > 
      <range  uom="25" subset="0,1,2,3,4,5,99" nls="CHGSTATE"/>  
@@ -192,7 +187,7 @@
    <editor id="LONGITUDE" > 
       <range  uom="56" min="-180" max="180" prec="3" />
       <range  uom="25" subset="98,99" nls="UNKNOWN"  />  
-  </editor>
+   </editor>
 
    <editor id="LATITUDE" > 
      <range  uom="56" min="-90" max="90" prec="3" />

@@ -20,7 +20,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVOauth import teslaAccess
 
 
-VERSION = '0.0.27'
+VERSION = '0.0.28'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -267,8 +267,10 @@ class TeslaEVController(udi_interface.Node):
                     self.activate()
             else:
                 self.data_flowing = True
-                self.TEVcloud.teslaEV_stream_process_data(data)
-                vehicleID = self.TEVcloud.teslaEV_stream_get_id(data)
+                evID = self.TEVcloud.teslaEV_stream_get_id(data)
+                logging.debug(f'EVid in data = {evID}')
+                #if evID in self.EVid:
+                self.TEVcloud.teslaEV_stream_process_data(data)                
                 self.update_all_drivers()
         except Exception as e:
             logging.error(f'Exception webhook {e}')
