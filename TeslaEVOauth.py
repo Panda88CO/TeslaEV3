@@ -859,7 +859,7 @@ class teslaEVAccess(teslaAccess):
     
 
     def teslaEV_PowershareInstantaneousPowerKW(self, EVid):
-        return (round(self._stream_return_data(EVid,'PowershareInstantaneousPowerKW'),2))   
+        return (self._stream_return_data(EVid,'PowershareInstantaneousPowerKW'))   
 
     def teslaEV_PowershareStatus(self, EVid):
         logging.debug(f'teslaEV_PowershareStatus for {EVid} {self.stream_data[EVid]}')
@@ -870,7 +870,7 @@ class teslaEVAccess(teslaAccess):
                     if self.stream_data[EVid]['PowershareStatus']['invalid']:
                         return(None)
                 else:
-                    return(self.stream_data[EVid]['PowershareStatus']['powershareState'])
+                    return(self.stream_data[EVid]['PowershareStatus']['powershareStateValue'])
             else:
                return(None)
         #     return(self.carInfo[EVid]['charge_state']['charge_port_door_open']) 
@@ -887,7 +887,7 @@ class teslaEVAccess(teslaAccess):
                     if self.stream_data[EVid]['PowershareStopReason']['invalid']:
                         return(None)
                 else:
-                    return(self.stream_data[EVid]['PowershareStopReason']['powershareStopReasonStatus'])
+                    return(self.stream_data[EVid]['PowershareStopReason']['powershareStopReasonValue'])
             else:
                return(None)
         #     return(self.carInfo[EVid]['charge_state']['charge_port_door_open']) 
@@ -905,7 +905,7 @@ class teslaEVAccess(teslaAccess):
                     if self.stream_data[EVid]['PowershareType']['invalid']:
                         return(None)
                 else:
-                    return(self.stream_data[EVid]['PowershareType']['powershareTypeStatus '])
+                    return(self.stream_data[EVid]['PowershareType']['powershareTypeValue'])
             else:
                return(None)
         #     return(self.carInfo[EVid]['charge_state']['charge_port_door_open']) 

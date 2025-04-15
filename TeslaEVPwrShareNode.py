@@ -34,6 +34,8 @@ class teslaEV_PwrShareNode(udi_interface.Node):
         self.node = self.poly.getNode(address)
         self.nodeReady = True
         logging.info('_init_ Tesla Charge Node COMPLETE')
+        logging.debug(f'drivers ; {self.drivers}')
+
         
     def start(self):                
         logging.info(f'Start Tesla EV power share Node: {self.EVid}')  
@@ -81,10 +83,10 @@ class teslaEV_PwrShareNode(udi_interface.Node):
 
     id = 'pwrshare'
 
-    commands = {  }
+    #commands = {}
 
     drivers = [
-            {'driver': 'ST', 'value': 99, 'uom': 25},  #bhours left-
+            {'driver': 'ST', 'value': 99, 'uom': 25},  #hours left-
             {'driver': 'GV1', 'value': 99, 'uom': 25},  #InstantaneousPowerKW
             {'driver': 'GV2', 'value': 99, 'uom': 25},  #Status
             {'driver': 'GV3', 'value': 99, 'uom': 25},  #charge_port_latch

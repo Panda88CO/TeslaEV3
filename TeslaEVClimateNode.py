@@ -35,6 +35,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
         self.node = self.poly.getNode(address)
         self.nodeReady = True
         logging.info('_init_ Tesla ClimateNode Status Node COMPLETE')
+        logging.debug(f'drivers ; {self.drivers}')
 
     def start(self):                
         logging.debug('Start TeslaEV Climate Node')  
@@ -383,14 +384,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
                  'CABINTEMP' : evSetCabinTemp,
                  'DEFROST' : evDefrostMax,   
                  'SEAT'  :evSetSeatHeat,   
-                 #'SEAT0' :evSetSeat0Heat,
-                 #'SEAT1' :evSetSeat1Heat,
-                 #'SEAT2' :evSetSeat2Heat,
-                 #'SEAT4' :evSetSeat4Heat,
-                 #'SEAT5' :evSetSeat5Heat,
-
                  'STEERINGW' : evSteeringWheelHeat,   
-
                 }
 
     drivers = [
