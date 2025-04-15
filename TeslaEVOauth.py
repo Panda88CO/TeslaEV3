@@ -283,9 +283,6 @@ class teslaEVAccess(teslaAccess):
                         'RdWindow': { 'interval_seconds': 60 },
                         'RpWindow' : { 'interval_seconds': 60,  },
 
-
-
-
                         'TpmsPressureFl' : { 'interval_seconds': 60,'minimum_delta': 0.1 },
                         'TpmsPressureFr' : { 'interval_seconds': 60,'minimum_delta': 0.1  },
                         'TpmsPressureRl' : { 'interval_seconds': 60,'minimum_delta': 0.1  },
@@ -1921,10 +1918,10 @@ class teslaEVAccess(teslaAccess):
     def teslaEV_getTpmsPressure(self, EVid):
         try:
             temp = {}
-            temp['tmpsFr'] = self._stream_return_data(EVid, 'TpmsPressureFr')
-            temp['tmpsFl'] = self._stream_return_data(EVid, 'TpmsPressureFl')
-            temp['tmpsRr'] = self._stream_return_data(EVid, 'TpmsPressureRr')                       
-            temp['tmpsRl'] = self._stream_return_data(EVid, 'TpmsPressureRl')
+            temp['tmpsFr'] = round(self._stream_return_data(EVid, 'TpmsPressureFr'),2)
+            temp['tmpsFl'] = round(self._stream_return_data(EVid, 'TpmsPressureFl'),2)
+            temp['tmpsRr'] = round(self._stream_return_data(EVid, 'TpmsPressureRr'),2)                       
+            temp['tmpsRl'] = round(self._stream_return_data(EVid, 'TpmsPressureRl'),2)
             return(temp)
         except Exception:
             temp['tmpsFr'] = None
