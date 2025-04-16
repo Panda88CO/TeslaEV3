@@ -75,14 +75,14 @@ class TeslaEVController(udi_interface.Node):
             'PowershareStopReasonStatusReconnecting':6,
             'PowershareStopReasonStatusAuthentication':7,
             None:99}
-        }
+        
         self.ps_type = {
             'PowershareTypeStatusUnknown':0,
             'PowershareTypeStatusNone':1,
             'PowershareTypeStatusLoad':2,
             'PowershareTypeStatusHome':3,
             'None':99}
-        }
+        
         self.primary = primary
         self.address = address
         self.name = name
