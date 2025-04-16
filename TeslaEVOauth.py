@@ -224,11 +224,16 @@ class teslaEVAccess(teslaAccess):
 
 
     def teslaEV_streaming_delete_config(self, EVid):
-        logging.debug(f'teslaEV_streaming_delete_config {EVid}')
-        code, res  = self._callApi('DELETE','/vehicles/'+str(EVid) +'/fleet_telemetry_config')
-        if code == 'ok':
-            return(code, res)                         
+        try:
+            logging.debug(f'teslaEV_streaming_delete_config {EVid}')
 
+            code, res  = self._callApi('DELETE','/vehicles/'+str(EVid) +'/fleet_telemetry_config')
+            if code == 'ok':
+                return(code, res)                         
+        except Exception:
+            return (None, None)
+        
+        
     def teslaEV_streaming_create_config(self, vin_list, Cert_CA):
         logging.debug(f'teslaEV_create_config {vin_list}')
         #vinstr_list = []
@@ -865,15 +870,15 @@ class teslaEVAccess(teslaAccess):
             if self._stream_data_found(EVid, 'PowershareStatus'):
                 if 'invalid' in  self.stream_data[EVid]['PowershareStatus']:
                     if self.stream_data[EVid]['PowershareStatus']['invalid']:
-                        return(None)
+                        return('None')
                 else:
                     return(self.stream_data[EVid]['PowershareStatus']['powershareStateValue'])
             else:
-               return(None)
+               return('None')
         #     return(self.carInfo[EVid]['charge_state']['charge_port_door_open']) 
         except Exception as e:
             logging.debug(f'Exception teslaEV_PowershareStatus - {e}')
-            return(None)  
+            return('None')  
 
     def teslaEV_PowershareStopReason(self, EVid):
         logging.debug(f'PowershareStopReason for {EVid} {self.stream_data[EVid]}')
@@ -882,15 +887,15 @@ class teslaEVAccess(teslaAccess):
             if self._stream_data_found(EVid, 'PowershareStopReason'):
                 if 'invalid' in  self.stream_data[EVid]['PowershareStopReason']:
                     if self.stream_data[EVid]['PowershareStopReason']['invalid']:
-                        return(None)
+                        return('None')
                 else:
                     return(self.stream_data[EVid]['PowershareStopReason']['powershareStopReasonValue'])
             else:
-               return(None)
+               return('None')
         #     return(self.carInfo[EVid]['charge_state']['charge_port_door_open']) 
         except Exception as e:
             logging.debug(f'Exception teslaEV_PowershareStatus - {e}')
-            return(None)  
+            return('None')  
 
 
 
@@ -901,15 +906,15 @@ class teslaEVAccess(teslaAccess):
             if self._stream_data_found(EVid, 'PowershareType'):
                 if 'invalid' in  self.stream_data[EVid]['PowershareType']:
                     if self.stream_data[EVid]['PowershareType']['invalid']:
-                        return(None)
+                        return('None')
                 else:
                     return(self.stream_data[EVid]['PowershareType']['powershareTypeValue'])
             else:
-               return(None)
+               return('None')
         #     return(self.carInfo[EVid]['charge_state']['charge_port_door_open']) 
         except Exception as e:
             logging.debug(f'Exception teslaEV_PowershareStatus - {e}')
-            return(None)  
+            return('None')  
 
 
 

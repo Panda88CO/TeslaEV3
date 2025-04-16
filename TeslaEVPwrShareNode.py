@@ -42,7 +42,7 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             {'PowershareStateEnabled':4},
             {'PowershareStateEnabledReconnectingSoon':5},
             {'PowershareStateStopped':6},
-            {None,99},
+            {'None',99},
         }
         self.ps_stop_reason=   { 
             {'PowershareStopReasonStatusUnknown':0},
@@ -53,14 +53,14 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             {'PowershareStopReasonStatusUser':5},
             {'PowershareStopReasonStatusReconnecting':6},
             {'PowershareStopReasonStatusAuthentication':7},
-            {None,99}
+            {'None',99}
         }
         self.ps_type = {
             {'PowershareTypeStatusUnknown':0},
             {'PowershareTypeStatusNone':1},
             {'PowershareTypeStatusLoad':2},
             {'PowershareTypeStatusHome':3},
-            {None:99}
+            {'None':99}
         }
         logging.info('_init_ Tesla Charge Node COMPLETE')
         logging.debug(f'drivers ; {self.drivers}')
