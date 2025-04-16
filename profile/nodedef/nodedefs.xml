@@ -65,7 +65,7 @@
    </nodeDef> 
    </nodeDef> 
 
-     <nodeDef id="pwrshare" nls="nlspwrshre">
+     <nodeDef id="pwrshare" nls="nlspwrshare">
       <editors />
       <sts>
          <st id="ST" editor="HOURS" /> <!--hours left-->

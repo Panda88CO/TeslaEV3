@@ -33,6 +33,35 @@ class teslaEV_PwrShareNode(udi_interface.Node):
         self.wait_for_node_done()
         self.node = self.poly.getNode(address)
         self.nodeReady = True
+
+        self.ps_state={
+            {'PowershareStateUnknown':0},
+            {'PowershareStateInactive':1},
+            {'PowershareStateHandshaking':2},
+            {'PowershareStateInit':3},
+            {'PowershareStateEnabled':4},
+            {'PowershareStateEnabledReconnectingSoon':5},
+            {'PowershareStateStopped':6},
+            {None,99},
+        }
+        self.ps_stop_reason=   { 
+            {'PowershareStopReasonStatusUnknown':0},
+            {'PowershareStopReasonStatusNone':1},
+            {'PowershareStopReasonStatusSOCTooLow':2},
+            {'PowershareStopReasonStatusRetry':3},
+            {'PowershareStopReasonStatusFault': 4},
+            {'PowershareStopReasonStatusUser':5},
+            {'PowershareStopReasonStatusReconnecting':6},
+            {'PowershareStopReasonStatusAuthentication':7},
+            {None,99}
+        }
+        self.ps_type = {
+            {'PowershareTypeStatusUnknown':0},
+            {'PowershareTypeStatusNone':1},
+            {'PowershareTypeStatusLoad':2},
+            {'PowershareTypeStatusHome':3},
+            {None:99}
+        }
         logging.info('_init_ Tesla Charge Node COMPLETE')
         logging.debug(f'drivers ; {self.drivers}')
 
@@ -66,9 +95,9 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             #if self.TEVcloud.teslaEV_GetCarState(self.EVid) in ['online']:    
             self.EV_setDriver('ST', self.TEVcloud.teslaEV_PowershareHoursLeft(self.EVid) , 20)
             self.EV_setDriver('GV1', self.TEVcloud.teslaEV_PowershareInstantaneousPowerKW(self.EVid), 33)
-            self.EV_setDriver('GV2', self.TEVcloud.teslaEV_PowershareStatus(self.EVid),25)
-            self.EV_setDriver('GV3', self.TEVcloud.teslaEV_PowershareStopReason(self.EVid),25)
-            self.EV_setDriver('GV4', self.TEVcloud.teslaEV_PowershareType(self.EVid), 25) 
+            self.EV_setDriver('GV2', self.ps_state[self.TEVcloud.teslaEV_PowershareStatus(self.EVid)],25)
+            self.EV_setDriver('GV3', self.ps_stop_reason[self.TEVcloud.teslaEV_PowershareStopReason(self.EVid)],25)
+            self.EV_setDriver('GV4', self.ps_type[self.TEVcloud.teslaEV_PowershareType(self.EVid)], 25) 
         except Exception as e:
             logging.error(f'updateISYdrivers charge node failed: nodes may not be 100% ready {e}')
 

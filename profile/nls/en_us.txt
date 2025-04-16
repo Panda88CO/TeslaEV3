@@ -271,11 +271,11 @@ CMD-nlsevcharge-CHARGEAMPS-NAME=Set Max Charge Current
 
 ND-pwrshare-NAME=EV power share
 ND-pwrshare-ICON=TElectricity
-ST-nlspwrshre-ST-NAME=Hours Remaining
-ST-nlspwrshre-GV2-NAME=Instant Power
-ST-nlspwrshre-GV2-NAME=Powershare Status
-ST-nlspwrshre-GV3-NAME=Powershare Stop Reason
-ST-nlspwrshre-GV4-NAME=Powershare Operation Mode
+ST-nlspwrshare-ST-NAME=Hours Remaining
+ST-nlspwrshare-GV1-NAME=Instant Power
+ST-nlspwrshare-GV2-NAME=Powershare Status
+ST-nlspwrshare-GV3-NAME=Powershare Stop Reason
+ST-nlspwrshare-GV4-NAME=Powershare Operation Mode
 PSSTATUS-0=Unknown
 PSSTATUS-1=Inactive
 PSSTATUS-2=Handshaking

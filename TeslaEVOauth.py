@@ -893,6 +893,7 @@ class teslaEVAccess(teslaAccess):
             return(None)  
 
 
+
     def teslaEV_PowershareType(self, EVid):
         logging.debug(f'PowershareType for {EVid} {self.stream_data[EVid]}')
         #return(self._stream_return_data(EVid, 'ChargePortDoorOpen'))

@@ -20,7 +20,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVOauth import teslaAccess
 
 
-VERSION = '0.0.31'
+VERSION = '0.0.32'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -447,7 +447,7 @@ class TeslaEVController(udi_interface.Node):
         #if not self.poly.getNode(nodeAdr):
         logging.info(f'Creating ChargingNode: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.EVid}')
         self.chargeNode = teslaEV_ChargeNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.TEVcloud )
-        logging.debug(f'Nbr Wall COns create: {self.nbr_wall_cons}')
+        logging.debug(f'Nbr Wall Cons create: {self.nbr_wall_cons}')
         if self.nbr_wall_cons != 0: 
             nodeAdr = 'pwrshare'+str(self.EVid)[-8:]
             nodeName = self.poly.getValidName('Powershare Info')
