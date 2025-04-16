@@ -35,32 +35,33 @@ class teslaEV_PwrShareNode(udi_interface.Node):
         self.nodeReady = True
 
         self.ps_state={
-            {'PowershareStateUnknown':0},
-            {'PowershareStateInactive':1},
-            {'PowershareStateHandshaking':2},
-            {'PowershareStateInit':3},
-            {'PowershareStateEnabled':4},
-            {'PowershareStateEnabledReconnectingSoon':5},
-            {'PowershareStateStopped':6},
-            {'None':99},
+            'PowershareStateUnknown':0,
+            'PowershareStateInactive':1,
+            'PowershareStateHandshaking':2,
+            'PowershareStateInit':3,
+            'PowershareStateEnabled':4,
+            'PowershareStateEnabledReconnectingSoon':5,
+            'PowershareStateStopped':6,
+            None:99,
         }
-        self.ps_stop_reason= {{'PowershareStopReasonStatusUnknown':0},
-            {'PowershareStopReasonStatusNone':1},
-            {'PowershareStopReasonStatusSOCTooLow':2},
-            {'PowershareStopReasonStatusRetry':3},
-            {'PowershareStopReasonStatusFault': 4},
-            {'PowershareStopReasonStatusUser':5},
-            {'PowershareStopReasonStatusReconnecting':6},
-            {'PowershareStopReasonStatusAuthentication':7},
-            {'None':99}
-        }
+        self.ps_stop_reason= {
+            'PowershareStopReasonStatusUnknown':0,
+            'PowershareStopReasonStatusNone':1,
+            'PowershareStopReasonStatusSOCTooLow':2,
+            'PowershareStopReasonStatusRetry':3,
+            'PowershareStopReasonStatusFault': 4,
+            'PowershareStopReasonStatusUser':5,
+            'PowershareStopReasonStatusReconnecting':6,
+            'PowershareStopReasonStatusAuthentication':7,
+            None:99}
+        
         self.ps_type = {
-            {'PowershareTypeStatusUnknown':0},
-            {'PowershareTypeStatusNone':1},
-            {'PowershareTypeStatusLoad':2},
-            {'PowershareTypeStatusHome':3},
-            {'None':99}
-        }
+            'PowershareTypeStatusUnknown':0,
+            'PowershareTypeStatusNone':1,
+            'PowershareTypeStatusLoad':2,
+            'PowershareTypeStatusHome':3,
+            None:99}
+    
         logging.info('_init_ Tesla Charge Node COMPLETE')
         logging.debug(f'drivers ; {self.drivers}')
 
