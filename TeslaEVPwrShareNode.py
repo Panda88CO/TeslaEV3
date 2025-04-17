@@ -90,7 +90,7 @@ class teslaEV_PwrShareNode(udi_interface.Node):
 
     def updateISYdrivers(self):
         try:
-            logging.info(f'Powershare updateISYdrivers {self.EVid}')
+            logging.info(f'Powershare updateISYdrivers {self.EVid} {self.drivers}')
             self.update_time()
             #if self.TEVcloud.teslaEV_GetCarState(self.EVid) in ['online']:    
             self.EV_setDriver('ST', self.TEVcloud.teslaEV_PowershareHoursLeft(self.EVid) , 20)

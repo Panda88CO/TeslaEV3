@@ -83,7 +83,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
     def updateISYdrivers(self):
         try:
 
-            logging.info(f'ChargeNode updateISYdrivers {self.EVid}')
+            logging.info(f'ChargeNode updateISYdrivers {self.EVid} {self.drivers}')
             self.update_time()
             #if self.TEVcloud.teslaEV_GetCarState(self.EVid) in ['online']:                
             self.EV_setDriver('GV1', self.bool2ISY(self.TEVcloud.teslaEV_FastChargerPresent(self.EVid)), 25)

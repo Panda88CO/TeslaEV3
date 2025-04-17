@@ -180,7 +180,6 @@ ST-nlsevclimate-GV14-NAME=Steering Wheel Heat
 ONOFF-0=Off
 ONOFF-1=On
 ONOFF-99=Unknown
-
 ST-nlsevclimate-GV19-NAME= Time of car last update
 ST-nlsevclimate-GV20-NAME= Time since climate last update
 ST-nlsevclimate-GV21-NAME= Last Command Status
@@ -190,7 +189,6 @@ CMD-nlsevclimate-WINDOWS-NAME=Windows control
 WINDOWCTRL-0=Close
 WINDOWCTRL-1=Vent
 CMD-nlsevclimate-AUTOCON-NAME=Precondition Control
-
 CMD-nlsevclimate-CABINTEMP-NAME=Cabin Temperature
 CMDP-driver-NAME=Driver side Temp
 CMDP-passenger-NAME=Passenger side Temp
@@ -255,7 +253,6 @@ ST-nlsevcharge-GV13-NAME=Charge amps
 ST-nlsevcharge-GV14-NAME=Time to full charge
 ST-nlsevcharge-GV15-NAME=Charge energy added
 ST-nlsevcharge-GV16-NAME=Charge miles added rated
-
 ST-nlsevcharge-GV19-NAME= Time of car last update
 ST-nlsevcharge-GV20-NAME= Time since charge last update
 ST-nlsevcharge-GV21-NAME= Last Command Status
