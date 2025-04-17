@@ -365,6 +365,7 @@ class TeslaEVController(udi_interface.Node):
             if node['primaryNode'] not in assigned_addresses:
                 logging.debug('Removing node : {} {}'.format(node['name'], node))
                 self.poly.delNode(node['address'])
+        
         self.update_all_drivers()
         self.initialized = True
 
@@ -511,7 +512,7 @@ class TeslaEVController(udi_interface.Node):
                 if self.chargeNode.node_ready():
                     self.chargeNode.updateISYdrivers()
                     
-                if self.TEVcloud.wall_connector != 0: 
+                if self.TEVcloud.wall_connector != 99: 
                     logging.debug(f'power share updateISYdrivers {self.power_share_node.node_ready()}')   
                     if self.power_share_node.node_ready():
                         self.power_share_node.updateISYdrivers()
