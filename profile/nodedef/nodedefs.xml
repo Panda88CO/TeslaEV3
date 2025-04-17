@@ -63,7 +63,7 @@
          </accepts>
       </cmds>
    </nodeDef> 
-   </nodeDef> 
+
 
      <nodeDef id="pwrshare" nls="nlspwrshare">
       <editors />
@@ -190,5 +190,5 @@
 
          </accepts>
       </cmds>
-
+   </nodeDef> 
 </nodeDefs> 
