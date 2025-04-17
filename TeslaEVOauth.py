@@ -1924,10 +1924,10 @@ class teslaEVAccess(teslaAccess):
     def teslaEV_getTpmsPressure(self, EVid):
         try:
             temp = {}
-            temp['tmpsFr'] = round(self._stream_return_data(EVid, 'TpmsPressureFr'),2)
-            temp['tmpsFl'] = round(self._stream_return_data(EVid, 'TpmsPressureFl'),2)
-            temp['tmpsRr'] = round(self._stream_return_data(EVid, 'TpmsPressureRr'),2)                       
-            temp['tmpsRl'] = round(self._stream_return_data(EVid, 'TpmsPressureRl'),2)
+            temp['tmpsFr'] = round(14.5*self._stream_return_data(EVid, 'TpmsPressureFr'),2)
+            temp['tmpsFl'] = round(14.5*self._stream_return_data(EVid, 'TpmsPressureFl'),2)
+            temp['tmpsRr'] = round(14.5*self._stream_return_data(EVid, 'TpmsPressureRr'),2)                       
+            temp['tmpsRl'] = round(14.5*self._stream_return_data(EVid, 'TpmsPressureRl'),2)
             return(temp)
         except Exception:
             temp['tmpsFr'] = None
