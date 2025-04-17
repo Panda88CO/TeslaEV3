@@ -455,7 +455,7 @@ class TeslaEVController(udi_interface.Node):
         logging.info(f'Creating ChargingNode: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.EVid}')
         self.chargeNode = teslaEV_ChargeNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.TEVcloud )
         logging.debug(f'Nbr Wall Cons create: {self.nbr_wall_cons}')
-        if self.nbr_wall_cons == 0: 
+        if self.nbr_wall_cons != 0: 
             nodeAdr = 'pwrshare'+str(self.EVid)[-8:]
             nodeName = self.poly.getValidName('Powershare Info')
             nodeAdr = self.poly.getValidAddress(nodeAdr)
@@ -518,7 +518,7 @@ class TeslaEVController(udi_interface.Node):
                 if self.chargeNode.node_ready():
                     self.chargeNode.updateISYdrivers()
                     
-                if self.TEVcloud.wall_connector != 99: 
+                if self.TEVcloud.wall_connector != 0: 
                     logging.debug(f'power share updateISYdrivers {self.power_share_node.node_ready()}')   
                     if self.power_share_node.node_ready():
                         self.power_share_node.updateISYdrivers()
