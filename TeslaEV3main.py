@@ -332,13 +332,16 @@ class TeslaEVController(udi_interface.Node):
         nodeName = self.poly.getValidName(EVname)
         self.node.rename(nodeName)
         assigned_addresses.append(self.address)
+        self.init_webhook(self.EVid)
+        time.sleep(1)
         self.createSubNodes()
+
         while not (self.subnodesReady()):
             logging.debug(f'Subnodes {self.subnodesReady()} ')
             logging.debug('waiting for nodes to be created')
             time.sleep(5)
         logging.debug(f'climate drivers1 {self.climateNode.drivers}')
-        self.init_webhook(self.EVid)
+        time.sleep(1)
         logging.debug(f'climate drivers2 {self.climateNode.drivers}')
 
         # force creation of new config - assume this will enable retransmit of all data 
