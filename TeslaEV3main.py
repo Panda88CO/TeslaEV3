@@ -337,8 +337,9 @@ class TeslaEVController(udi_interface.Node):
             logging.debug(f'Subnodes {self.subnodesReady()} ')
             logging.debug('waiting for nodes to be created')
             time.sleep(5)
-
+        logging.debug(f'climate drivers1 {self.climateNode.drivers}')
         self.init_webhook(self.EVid)
+        logging.debug(f'climate drivers2 {self.climateNode.drivers}')
 
         # force creation of new config - assume this will enable retransmit of all data 
         if not self.TEVcloud.teslaEV_streaming_check_certificate_update(self.EVid, True ): #We need to update streaming server credentials
@@ -346,6 +347,8 @@ class TeslaEVController(udi_interface.Node):
             self.poly.Notices['SYNC']=f'{EVname} ERROR failed to connect to streaming server - EV may be too old'
             #self.stop()
             sys.exit()
+        logging.debug(f'climate drivers3 {self.climateNode.drivers}')
+
             
         code, state = self.TEVcloud._teslaEV_wake_ev(self.EVid)
         logging.debug(f'Wake EV {code} {state}')
@@ -353,10 +356,13 @@ class TeslaEVController(udi_interface.Node):
             self.poly.Notices['NOTONLINE']=f'{EVname} appears offline - cannot continue with EV being online'
             #self.stop()
             #sys.exit()
-        sync_status = False
+        #sync_status = False
+        logging.debug(f'climate drivers4 {self.climateNode.drivers}')
+       
         while not self.TEVcloud.teslaEV_streaming_synched(self.EVid):
             time.sleep(3)
 
+        logging.debug(f'climate drivers5 {self.climateNode.drivers}')
                     
         logging.debug(f'Scanning db for extra nodes : {assigned_addresses}')
         for indx, node  in enumerate(self.nodes_in_db):
@@ -433,7 +439,6 @@ class TeslaEVController(udi_interface.Node):
             logging.info(f'Not all nodes ready:')
 
 
-
     def createSubNodes(self):
         logging.debug(f'Creating sub nodes for {self.EVid}')
         nodeAdr = 'climate'+str(self.EVid)[-9:]
@@ -450,12 +455,13 @@ class TeslaEVController(udi_interface.Node):
         logging.info(f'Creating ChargingNode: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.EVid}')
         self.chargeNode = teslaEV_ChargeNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.TEVcloud )
         logging.debug(f'Nbr Wall Cons create: {self.nbr_wall_cons}')
-        if self.nbr_wall_cons != 0: 
+        if self.nbr_wall_cons == 0: 
             nodeAdr = 'pwrshare'+str(self.EVid)[-8:]
             nodeName = self.poly.getValidName('Powershare Info')
             nodeAdr = self.poly.getValidAddress(nodeAdr)
             logging.info(f'Creating pwrshare: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.EVid}')
             self.power_share_node = teslaEV_PwrShareNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.TEVcloud )
+        logging.debug(f'climate drivers0 {self.climateNode.drivers}')
 
 
     def subnodesReady(self):
