@@ -91,7 +91,7 @@ class TeslaEVController(udi_interface.Node):
 
     def check_config(self):
         self.nodes_in_db = self.poly.getNodesFromDb()
-        self.config_done= True
+        #self.config_done= True
 
 
     def configDoneHandler(self):
@@ -282,7 +282,7 @@ class TeslaEVController(udi_interface.Node):
 
         #self.poly.setCustomParamsDoc()
 
-        while not self.customParam_done or not self.customNsDone and not self.config_done and not self.portalReady:
+        while not self.customParam_done or not self.customNsDone or not self.config_done or not self.portalReady:
         #while not self.config_done and not self.portalReady :
             logging.info('Waiting for node to initialize')
             logging.debug(' 1 2 3: {} {} {}'.format(self.customParam_done, self.TEVcloud.customNsDone(), self.config_done))
