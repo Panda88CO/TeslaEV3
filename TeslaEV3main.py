@@ -143,6 +143,7 @@ class TeslaEVController(udi_interface.Node):
             #    self.TEVcloud.stream_cert  = stream_cert
             logging.debug(f'Custom Data portal: {self.portalID} {self.portalSecret}')
         self.TEVcloud.customNsHandler(key, data)
+        self.customNsDone = True
         
     #def customDataHandler(self, Data):
     #    logging.debug('customDataHandler')
@@ -281,8 +282,8 @@ class TeslaEVController(udi_interface.Node):
 
         #self.poly.setCustomParamsDoc()
 
-        #while not self.customParam_done or not self.customNsDone and not self.config_done:
-        while not self.config_done and not self.portalReady:
+        while not self.customParam_done or not self.customNsDone and not self.config_done and not self.portalReady:
+        #while not self.config_done and not self.portalReady :
             logging.info('Waiting for node to initialize')
             logging.debug(' 1 2 3: {} {} {}'.format(self.customParam_done, self.TEVcloud.customNsDone(), self.config_done))
             time.sleep(1)
