@@ -59,7 +59,7 @@ class teslaAccess(OAuth):
         self.region = ''
         #self.handleCustomParamsDone = False
         #self.customerDataHandlerDone = False
-        self.customNsHandlerDone = True
+        self.customNsHandlerDone = False
         self.oauthHandlerCalled = False
         self.customDataHandlerDone = False
         self.authendication_done = False

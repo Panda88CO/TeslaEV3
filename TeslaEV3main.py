@@ -125,6 +125,7 @@ class TeslaEVController(udi_interface.Node):
         #stream_cert = {}
         logging.debug(f'customNSHandler : key:{key}  data:{data}')
         if key == 'nsdata':
+
             if 'portalID' in data:
                 self.portalID = data['portalID']
                 #self.customNsDone = True
@@ -133,7 +134,7 @@ class TeslaEVController(udi_interface.Node):
                 #self.customNsDone = True
             if self.TEVcloud.initializePortal(self.portalID, self.portalSecret):
                 self.portalReady = True
-
+  
             #if 'issuedAt' in data:
             #    stream_cert = {}
             #    stream_cert['issuedAt'] = data['issuedAt']
@@ -142,8 +143,9 @@ class TeslaEVController(udi_interface.Node):
             #    stream_cert['ca'] = data['ca']
             #    self.TEVcloud.stream_cert  = stream_cert
             logging.debug(f'Custom Data portal: {self.portalID} {self.portalSecret}')
+
         self.TEVcloud.customNsHandler(key, data)
-        self.customNsDone = True
+            
         
     #def customDataHandler(self, Data):
     #    logging.debug('customDataHandler')
@@ -282,10 +284,9 @@ class TeslaEVController(udi_interface.Node):
 
         #self.poly.setCustomParamsDoc()
 
-        while not self.customParam_done or not self.customNsDone or not self.config_done or not self.portalReady:
+        while not self.customParam_done or not self.customNsDone or not self.customNsDone or not self.portalReady:
         #while not self.config_done and not self.portalReady :
-            logging.info('Waiting for node to initialize')
-            logging.debug(' 1 2 3: {} {} {}'.format(self.customParam_done, self.TEVcloud.customNsDone(), self.config_done))
+            logging.info(f'Waiting for node to initialize {self.customParam_done} {self.customNsDone} {self.customNsDone} {self.portalReady}')
             time.sleep(1)
 
         logging.debug(f'Portal Credentials: {self.portalID} {self.portalSecret}')
