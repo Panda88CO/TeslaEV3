@@ -20,7 +20,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVOauth import teslaAccess
 
 
-VERSION = '0.0.40'
+VERSION = '0.0.41'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -131,9 +131,8 @@ class TeslaEVController(udi_interface.Node):
 
             if 'PortalSecret' in data:
                 self.portalSecret = data['PortalSecret']
-
-            if self.TEVcloud.initializePortal(self.portalID, self.portalSecret):
-                self.portalReady = True
+            self.portalReady = True
+                
   
             #if 'issuedAt' in data:
             #    stream_cert = {}
@@ -289,7 +288,7 @@ class TeslaEVController(udi_interface.Node):
             logging.info(f'Waiting for node to initialize {self.customParam_done} {self.customNsDone} {self.config_done} {self.portalReady}')
             #logging.debug(f' 1 2 3: {} {} {} {}'.format(self.customParam_done, , self.config_done))
             time.sleep(1)
-
+        self.TEVcloud.initializePortal(self.portalID, self.portalSecret)
         logging.debug(f'Portal Credentials: {self.portalID} {self.portalSecret}')
         #self.TEVcloud.initializePortal(self.portalID, self.portalSecret)
         while not self.TEVcloud.portal_ready():
