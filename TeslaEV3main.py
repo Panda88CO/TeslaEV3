@@ -20,7 +20,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVOauth import teslaAccess
 
 
-VERSION = '0.0.41'
+VERSION = '0.0.40'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -128,10 +128,10 @@ class TeslaEVController(udi_interface.Node):
 
             if 'portalID' in data:
                 self.portalID = data['portalID']
-                #self.customNsDone = True
+
             if 'PortalSecret' in data:
                 self.portalSecret = data['PortalSecret']
-                #self.customNsDone = True
+
             if self.TEVcloud.initializePortal(self.portalID, self.portalSecret):
                 self.portalReady = True
   
@@ -145,7 +145,7 @@ class TeslaEVController(udi_interface.Node):
             logging.debug(f'Custom Data portal: {self.portalID} {self.portalSecret}')
 
         self.TEVcloud.customNsHandler(key, data)
-            
+        self.customNsDone = True    
         
     #def customDataHandler(self, Data):
     #    logging.debug('customDataHandler')
@@ -284,9 +284,10 @@ class TeslaEVController(udi_interface.Node):
 
         #self.poly.setCustomParamsDoc()
 
-        while not self.customParam_done or not self.customNsDone or not self.customNsDone or not self.portalReady:
+        while not self.customParam_done or not self.customNsDone or not self.config_done or not self.portalReady:
         #while not self.config_done and not self.portalReady :
-            logging.info(f'Waiting for node to initialize {self.customParam_done} {self.customNsDone} {self.customNsDone} {self.portalReady}')
+            logging.info(f'Waiting for node to initialize {self.customParam_done} {self.customNsDone} {self.config_done} {self.portalReady}')
+            #logging.debug(f' 1 2 3: {} {} {} {}'.format(self.customParam_done, , self.config_done))
             time.sleep(1)
 
         logging.debug(f'Portal Credentials: {self.portalID} {self.portalSecret}')
