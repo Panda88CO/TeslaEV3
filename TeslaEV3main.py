@@ -298,7 +298,8 @@ class TeslaEVController(udi_interface.Node):
             self.poly.Notices['auth'] = 'Please initiate authentication'
             time.sleep(5)
 
-        assigned_addresses =['controller']
+        assigned_addresses =[self.id]
+        self.node_addresses = [self.id]
         self.nbr_wall_cons = self.TEVcloud.tesla_get_energy_products()
         logging.debug(f'Nbr Wall Cons main {self.nbr_wall_cons}')
         code, vehicles = self.TEVcloud.teslaEV_get_vehicles()
@@ -321,10 +322,11 @@ class TeslaEVController(udi_interface.Node):
         if self.EVid is None:
             self.EVid = str(self.vehicleList[0])
             self.customParameters['VIN'] = self.EVid
-
+        
         EVname = self.TEVcloud.teslaEV_GetName(self.EVid)
 
-        logging.debug(f'EVname {EVname}')        
+        logging.debug(f'EVname {EVname}') 
+        self.init_webhook(self.EVid)       
         #self.EV_setDriver('GV0', self.bool2ISY(self.EVid is not None), 25)            
         if EVname == None or EVname == '':
             # should not happen but just in case or user has not given name to EV
@@ -333,7 +335,7 @@ class TeslaEVController(udi_interface.Node):
         nodeName = self.poly.getValidName(EVname)
         self.node.rename(nodeName)
         assigned_addresses.append(self.address)
-        self.init_webhook(self.EVid)
+        
         time.sleep(1)
         self.createSubNodes()
 
@@ -342,8 +344,7 @@ class TeslaEVController(udi_interface.Node):
             logging.debug('waiting for nodes to be created')
             time.sleep(5)
         logging.debug(f'climate drivers1 {self.climateNode.drivers}')
-        time.sleep(1)
-        logging.debug(f'climate drivers2 {self.climateNode.drivers}')
+
 
         # force creation of new config - assume this will enable retransmit of all data 
         if not self.TEVcloud.teslaEV_streaming_check_certificate_update(self.EVid, True ): #We need to update streaming server credentials
@@ -368,14 +369,17 @@ class TeslaEVController(udi_interface.Node):
 
         logging.debug(f'climate drivers5 {self.climateNode.drivers}')
                     
-        logging.debug(f'Scanning db for extra nodes : {assigned_addresses}')
+        logging.debug(f'Scanning db for extra nodes : {assigned_addresses} - {self.node_addresses}')
+
         for indx, node  in enumerate(self.nodes_in_db):
             #node = self.nodes_in_db[nde]
             logging.debug(f'Scanning db for node : {node}')
             if node['primaryNode'] not in assigned_addresses:
                 logging.debug('Removing node : {} {}'.format(node['name'], node))
                 self.poly.delNode(node['address'])
-        
+            if node['address'] not in self.node_addresses:
+                logging.debug('Removing node : {} {}'.format(node['name'], node))
+                self.poly.delNode(node['address'])
         self.update_all_drivers()
         self.initialized = True
 
@@ -451,10 +455,11 @@ class TeslaEVController(udi_interface.Node):
         #if not self.poly.getNode(nodeAdr):
         logging.info(f'Creating ClimateNode: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.EVid}')
         self.climateNode = teslaEV_ClimateNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.TEVcloud )
-
+        self.node_addresses.append(nodeAdr)
         nodeAdr = 'charge'+str(self.EVid)[-10:]
         nodeName = self.poly.getValidName('Charging Info')
         nodeAdr = self.poly.getValidAddress(nodeAdr)
+        self.node_addresses.append(nodeAdr)
         #if not self.poly.getNode(nodeAdr):
         logging.info(f'Creating ChargingNode: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.EVid}')
         self.chargeNode = teslaEV_ChargeNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.TEVcloud )
@@ -465,6 +470,7 @@ class TeslaEVController(udi_interface.Node):
             nodeAdr = self.poly.getValidAddress(nodeAdr)
             logging.info(f'Creating pwrshare: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.EVid}')
             self.power_share_node = teslaEV_PwrShareNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.TEVcloud )
+            self.node_addresses.append(nodeAdr)
         logging.debug(f'climate drivers0 {self.climateNode.drivers}')
 
 
