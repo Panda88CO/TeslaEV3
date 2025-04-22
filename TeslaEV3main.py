@@ -319,7 +319,7 @@ class TeslaEVController(udi_interface.Node):
         elif len(self.vehicleList) == 0:
             self.poly.Notices['VIN2']="Then restart"
 
-        if self.EVid is None:
+        if self.EVid is None or self.EVid == '':
             self.EVid = str(self.vehicleList[0])
             self.customParameters['VIN'] = self.EVid
         

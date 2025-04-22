@@ -758,7 +758,7 @@ class teslaEVAccess(teslaAccess):
     def teslaEV_GetName(self, EVid):
 
         try:
-            logging.debug(f'teslaEV_GetName {self.carInfo[EVid]}')
+            logging.debug(f'teslaEV_GetName {EVid} - {self.carInfo[EVid]}')
             return(self.carInfo[EVid]['display_name'])
 
         except Exception as e:
