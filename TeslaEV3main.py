@@ -322,7 +322,7 @@ class TeslaEVController(udi_interface.Node):
         if self.EVid is None or self.EVid == '':
             self.EVid = str(self.vehicleList[0])
             self.customParameters['VIN'] = self.EVid
-        
+        logging.debug(f'EVid {self.EVid}')
         EVname = self.TEVcloud.teslaEV_GetName(self.EVid)
 
         logging.debug(f'EVname {EVname}') 
