@@ -21,7 +21,7 @@ On your mobile device open  https://tesla.com/_ak/my.isy.io. It should open the 
 Note, currently only supports NA EVs
  
 Additionally, one must open external access on the eISY/Polisy.
-got to https://my.isy.io/index.htm and log in 
+Go to https://my.isy.io/index.htm and log in 
 Select PG3->Remote Connections on the eISY/Polisy
 Make sure that Remote Connection is ACTIVE
 To validate if the connection works, there is a TEST button/command on the main page on the node (result shown in the last field in the main page).
