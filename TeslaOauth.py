@@ -125,7 +125,9 @@ class teslaAccess(OAuth):
         return(self.customDataHandlerDone )
 
 
-
+    def append_scope(self, scope_str):
+        logging.debug(f'Appending {scope_str} to scope {self.scope}')
+        self.scope = self.scope+' '+str(scope_str)
                 
     def cloud_set_region(self, region):
         #self.customParameters.load(userParams)

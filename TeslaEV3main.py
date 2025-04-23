@@ -20,7 +20,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVOauth import teslaAccess
 
 
-VERSION = '0.0.42'
+VERSION = '0.0.43'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -227,6 +227,8 @@ class TeslaEVController(udi_interface.Node):
                     self.poly.Notices['location'] = 'Unknown Location setting '
                 else:
                     self.TEVcloud.teslaEV_set_location_enabled(self.locationEn)
+                    if self.locationEn.upper() == 'TRUE':
+                        self.TEVcloud.append_scope('vehicle_location')
                     
         else:
             logging.warning('No LOCATION')
@@ -234,6 +236,20 @@ class TeslaEVController(udi_interface.Node):
         self.customParam_done = True
 
         logging.debug('customParamsHandler finish ')
+        
+        if 'REGION' in userParams:
+            if self.customParameters['REGION'] != 'Input region NA, EU, CN':
+                region = str(self.customParameters['REGION'])
+                if region.upper() not in ['NA', 'EU', 'CN']:
+                    logging.error(f'Unsupported region {region}')
+                    self.poly.Notices['REGION'] = 'Unknown Region specified (NA = North America + Asia (-China), EU = Europe. middle East, Africa, CN = China)'
+                else:
+                    self.TEVcloud.cloud_set_region(region)
+        else:
+            logging.warning('No region found')
+            self.customParameters['REGION'] = 'Input region NA, EU, CN'
+            region = None
+            self.poly.Notices['region'] = 'Region not specified (NA = Nort America + Asia (-China), EU = Europe. middle East, Africa, CN = China)'
 
 
     def init_webhook(self, EVid):
