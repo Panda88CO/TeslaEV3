@@ -20,7 +20,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVOauth import teslaAccess
 
 
-VERSION = '0.0.43'
+VERSION = '0.0.44'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -261,8 +261,6 @@ class TeslaEVController(udi_interface.Node):
         tmp['id'] = str(EVid)
         init_w['assets'].append(tmp)
         init_w = {"assets":[{"id":EV}], "name":"Tesla"}
-        #init_w = {"assets":[{"id":"5YJ3E1EA5RF721953"}], "name":"Tesla" }
-        #init_w = {"name":"Tesla", "assets":[{"id":"test"}]}
         logging.debug(f'EVid {type(EVid)} {type(str(EVid))}')
         logging.debug(f'webhook_init {init_w}')        
         self.poly.webhookStart(init_w)
@@ -683,7 +681,7 @@ class TeslaEVController(udi_interface.Node):
  
         doorCtrl = int(float(command.get('value')))
         if doorCtrl == 1:
-            cmd = 'unlock'
+            cmd = 'lock'
             #code, red =  self.TEVcloud.teslaEV_Doors(self.EVid, 'unlock')
             #self.EV_setDriver('GV3', doorCtrl )
         elif doorCtrl == 0:
