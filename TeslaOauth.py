@@ -138,7 +138,7 @@ class teslaAccess(OAuth):
         oauthSettingsUpdate['token_parameters'] = {}
         # Example for a boolean field
 
-        logging.debug(f'region {self.region}')
+        logging.debug(f'region {self.region} {self.scope}')
         oauthSettingsUpdate['scope'] = self.scope 
         oauthSettingsUpdate['auth_endpoint'] = 'https://auth.tesla.com/oauth2/v3/authorize'
         oauthSettingsUpdate['token_endpoint'] = 'https://auth.tesla.com/oauth2/v3/token'
