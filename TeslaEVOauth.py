@@ -16,6 +16,7 @@ import requests
 import time
 from datetime import timedelta, datetime
 from TeslaOauth import teslaAccess
+from TeslaPWOauth import teslaPWAccess
 #from udi_interface import logging, Custom
 #from oauth import OAuth
 try:
@@ -90,6 +91,7 @@ class teslaEVAccess(teslaAccess):
         self.next_device_data_call = temp
         self.stream_data = {}
         self.wall_connector = 0
+        self.teslaPW_cloud = None
         time.sleep(1)
 
 
@@ -504,7 +506,7 @@ class teslaEVAccess(teslaAccess):
                 for indx, site in enumerate(temp['response']):
                     if 'vin' in site:
                         EVs[str(site['vin'])] = site
-                        # self.ev_list.append(site['id'])
+                        # self.ev_list.append(site['id']) 
                         self.ev_list.append(site['vin']) # vin needed to send commands
                         self.carInfo[site['vin']] = site
                         # initialize start time 
@@ -535,14 +537,16 @@ class teslaEVAccess(teslaAccess):
             code, temp = self._callApi('GET','/products' )
             logging.debug('products: {} '.format(temp))
             if 'response' in temp:
-                for indx in range(0,len(temp['response'])):
-                    site = temp['response'][indx]
+                for indx, site  in enumerate(temp['response']):
+                    #site = temp['response'][indx]
                     logging.debug(f'site: {site}')
                     if 'energy_site_id' in site:
                         if 'wall_connectors' in site['components']:
-                            self.wall_connector = len(site['components']['wall_connectors'])
-            logging.debug(f'NBr wall coinnectors: {self.wall_connector}')
-            return(self.wall_connector)
+                            self.nbr_wall_conn = len(site['components']['wall_connectors'])
+                    site_id = site['energy_site_id']
+            logging.debug(f'NBr wall coinnectors: {self.nbr_wall_conn}')
+            self.teslaPW_cloud = teslaPWAccess(self.poly, '') # scope can be empty as already connected
+            return(site_id, self.nbr_wall_conn)
         except Exception as e:
             logging.error('tesla_get_energy_products Exception : {}'.format(e))
 
@@ -2123,3 +2127,25 @@ class teslaEVAccess(teslaAccess):
        
             return('error', e)
 
+#############################
+#    TeslaPW call through
+#############################
+        
+    def tesla_set_storm_mode(self, site_id, mode) -> None:
+        #logging.debug('tesla_set_storm_mode : {}'.format(mode))
+        self.teslaPW_cloud.tesla_set_storm_mode(site_id, mode)
+
+    def update_date_time(self, site_id) -> None:
+        self.teslaPW_cloud.update_date_time(site_id)
+
+    def tesla_get_today_history(self, site_id, type) -> None:
+        #logging.debug('tesla_get_today_history : {}'.format(type))
+        self.teslaPW_cloud.tesla_get_today_history(site_id, type)
+
+    def tesla_get_yesterday_history(self, site_id, type) -> None:
+        #logging.debug('tesla_get_yesterday_history : {}'.format(type))
+        self.teslaPW_cloud.tesla_get_yesterday_history(site_id, type)
+
+    def tesla_get_2day_history(self, site_id, type) -> None:
+        #logging.debug('tesla_get_2day_history : {}'.format(type))
+        self.teslaPW_cloud.tesla_get_2day_history(site_id, type)

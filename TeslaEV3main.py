@@ -314,7 +314,7 @@ class TeslaEVController(udi_interface.Node):
 
         assigned_addresses =[self.id]
         self.node_addresses = [self.id]
-        self.nbr_wall_cons = self.TEVcloud.tesla_get_energy_products()
+        self.PW_site, self.nbr_wall_conn = self.TEVcloud.tesla_get_energy_products()
         logging.debug(f'Nbr Wall Cons main {self.nbr_wall_cons}')
         code, vehicles = self.TEVcloud.teslaEV_get_vehicles()
         if code in ['ok']:
