@@ -15,6 +15,8 @@ FOR PERSONAL USE - not commercial
 
 ## Installation
 Requires PG3x
+The vehicle must not be a pre-2021 Model S or Model X.
+Vehicles must be running firmware version 2024.26 or later
 OBS!!!!!! 
 To use the node server, one must install an electronic key on the car
 On your mobile device open  https://tesla.com/_ak/my.isy.io. It should open the tesla app where you can approve the key-install - Older EVs may not support the virtual key.
