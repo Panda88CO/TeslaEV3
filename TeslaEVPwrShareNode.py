@@ -104,13 +104,8 @@ class teslaEV_PwrShareNode(udi_interface.Node):
     def setOperatingMode(self, command):
         try:
             logging.debug('setOperatingMode: {}'.format(command))
-            opMode = {  0:'backup',
-                        1: 'self_consumption', 
-                        2: 'autonomous', 
-                        3: 'site_ctrl'}
-
             value = int(command.get('value'))
-            self.TEVcloud.tesla_set_operation(self.PWid, opMode[value])
+            self.TEVcloud.tesla_set_operation(self.PWid, self.operationMode[value])
             self.EV_setDriver('GV22', value)
         excption KeyError:
             self.EV_setDriver('GV22', 99)
@@ -165,7 +160,7 @@ class teslaEV_PwrShareNode(udi_interface.Node):
                 self.PW_setDriver('GV5', self.operationMode[self.TEVcloud.teslaExtractOperationMode(self.PWid)])
             except keyError:
                 self.PW_setDriver('GV5', None)
-                
+
             self.PW_setDriver('GV6', self.TPW.getTPW_gridStatus(self.PWid))
             self.PW_setDriver('GV7', self.TPW.getTPW_gridServiceActive(self.PWid))
 
