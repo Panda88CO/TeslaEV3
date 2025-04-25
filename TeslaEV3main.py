@@ -84,7 +84,6 @@ class TeslaEVController(udi_interface.Node):
         self.node = self.poly.getNode(self.address)
         self.EVid = None
         self.data_flowing = False
-        #self.t_last = time.time()
         self.nbr_wall_cons = 0
         logging.info('Controller init DONE')
         logging.debug(f'drivers ; {self.drivers}')
@@ -314,7 +313,7 @@ class TeslaEVController(udi_interface.Node):
 
         assigned_addresses =[self.id]
         self.node_addresses = [self.id]
-        self.PW_site, self.nbr_wall_conn = self.TEVcloud.tesla_get_energy_products()
+        self.PW_siteid, self.nbr_wall_conn = self.TEVcloud.tesla_get_energy_products()
         logging.debug(f'Nbr Wall Cons main {self.nbr_wall_cons}')
         code, vehicles = self.TEVcloud.teslaEV_get_vehicles()
         if code in ['ok']:
@@ -482,8 +481,8 @@ class TeslaEVController(udi_interface.Node):
             nodeAdr = 'pwrshare'+str(self.EVid)[-8:]
             nodeName = self.poly.getValidName('Powershare Info')
             nodeAdr = self.poly.getValidAddress(nodeAdr)
-            logging.info(f'Creating pwrshare: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.EVid}')
-            self.power_share_node = teslaEV_PwrShareNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.TEVcloud )
+            logging.info(f'Creating pwrshare: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.PW_siteid}')
+            self.power_share_node = teslaEV_PwrShareNode(self.poly, self.primary, nodeAdr, nodeName,  self.PW_siteid, self.TEVcloud )
             self.node_addresses.append(nodeAdr)
         logging.debug(f'climate drivers0 {self.climateNode.drivers}')
 
