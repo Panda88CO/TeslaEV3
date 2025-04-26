@@ -356,7 +356,6 @@ class TeslaEVController(udi_interface.Node):
             logging.debug(f'Subnodes {self.subnodesReady()} ')
             logging.debug('waiting for nodes to be created')
             time.sleep(5)
-        logging.debug(f'climate drivers1 {self.climateNode.drivers}')
 
 
         # force creation of new config - assume this will enable retransmit of all data 
@@ -365,7 +364,6 @@ class TeslaEVController(udi_interface.Node):
             self.poly.Notices['SYNC']=f'{EVname} ERROR failed to connect to streaming server - EV may be too old'
             #self.stop()
             sys.exit()
-        logging.debug(f'climate drivers3 {self.climateNode.drivers}')
 
             
         code, state = self.TEVcloud._teslaEV_wake_ev(self.EVid)
@@ -375,12 +373,10 @@ class TeslaEVController(udi_interface.Node):
             #self.stop()
             #sys.exit()
         #sync_status = False
-        logging.debug(f'climate drivers4 {self.climateNode.drivers}')
        
         while not self.TEVcloud.teslaEV_streaming_synched(self.EVid):
             time.sleep(3)
 
-        logging.debug(f'climate drivers5 {self.climateNode.drivers}')
                     
         logging.debug(f'Scanning db for extra nodes : {assigned_addresses} - {self.node_addresses}')
 
@@ -437,6 +433,8 @@ class TeslaEVController(udi_interface.Node):
                         self.heartbeat()
                 if 'shortPoll' in pollList:
                     self.shortPoll()
+                    if self.nbr_wall_conn != 0:
+                        self.power_share_node.poll()
             else:
                 logging.info('Waiting for system/nodes to initialize')
 

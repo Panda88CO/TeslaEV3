@@ -107,7 +107,7 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             value = int(command.get('value'))
             self.TEVcloud.tesla_set_operation(self.PWid, self.operationMode[value])
             self.EV_setDriver('GV22', value)
-        excption KeyError:
+        except KeyError:
             self.EV_setDriver('GV22', 99)
     
     def setBackupPercent(self, command):
@@ -158,19 +158,19 @@ class teslaEV_PwrShareNode(udi_interface.Node):
 
             try:
                 self.PW_setDriver('GV5', self.operationMode[self.TEVcloud.teslaExtractOperationMode(self.PWid)])
-            except keyError:
+            except KeyError:
                 self.PW_setDriver('GV5', None)
 
-            self.PW_setDriver('GV6', self.TPW.getTPW_gridStatus(self.PWid))
-            self.PW_setDriver('GV7', self.TPW.getTPW_gridServiceActive(self.PWid))
+            self.PW_setDriver('GV6', self.TEVcloud.tesla_grid_staus(self.PWid))
+            self.PW_setDriver('GV7', self.TEVcloud.tesla_live_grid_service_active(self.PWid))
 
-            self.PW_setDriver('GV8', self. self.TPW.getTPW_daysConsumption(self.PWid), 33)
-            self.PW_setDriver('GV9', self.TPW.getTPW_daysSolar(self.PWid), 33)
-            self.PW_setDriver('GV10', self.TPW.getTPW_daysBattery_export(self.PWid), 33)       
-            self.PW_setDriver('GV11', self.TPW.getTPW_daysBattery_import(self.PWid), 33)
-            self.PW_setDriver('GV12', self.TPW.getTPW_daysGrid_export(self.PWid), 33) 
-            self.PW_setDriver('GV13', self.TPW.getTPW_daysGrid_import(self.PWid), 33)
-            self.PW_setDriver('GV14', self.TPW.getTPW_daysGrid_export(self.PWid)- self.TPW.getTPW_daysGrid_import(self.site_id), 33)
+            self.PW_setDriver('GV8', self.TEVcloud.getTPW_daysConsumption(self.PWid), 33)
+            self.PW_setDriver('GV9', self.TEVcloud.getTPW_daysSolar(self.PWid), 33)
+            self.PW_setDriver('GV10', self.TEVcloud.getTPW_daysBattery_export(self.PWid), 33)       
+            self.PW_setDriver('GV11', self.TEVcloud.getTPW_daysBattery_import(self.PWid), 33)
+            self.PW_setDriver('GV12', self.TEVcloud.getTPW_daysGrid_export(self.PWid), 33) 
+            self.PW_setDriver('GV13', self.TEVcloud.getTPW_daysGrid_import(self.PWid), 33)
+            self.PW_setDriver('GV14', self.TEVcloud.getTPW_daysGrid_export(self.PWid)- self.TPW.getTPW_daysGrid_import(self.site_id), 33)
 
 
         except Exception as e:
@@ -214,7 +214,6 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             {'driver': 'GV13', 'value': 0, 'uom': 33}, 
             {'driver': 'GV14', 'value': 0, 'uom': 33}, 
 
-   
             {'driver': 'GV19', 'value': 0, 'uom': 151},  #PowerShare Typ   
 
             ]
