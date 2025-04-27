@@ -68,6 +68,11 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             'self_consumption' : 1 , 
             'autonomous' : 2, 
             'site_ctrl' : 3 }
+        #self.operationModeEnum = {0:'backup', 1:'self_consumption', 2:'autonomous', 3:'site_ctrl'}
+        #self.operationModeEnumList = ['backup','self_consumption', 'autonomous', 'site_ctrl']    
+        #self.OPERATING_MODES = ["backup", "self_consumption", "autonomous"]
+        self.TOU_MODES = ["economics", "balanced"]
+        self.gridstatus = {'on_grid':0, 'islanded_ready':1, 'islanded':2, 'transition ot grid':3}
 
     
         logging.info('_init_ Tesla Charge Node COMPLETE')
@@ -160,17 +165,18 @@ class teslaEV_PwrShareNode(udi_interface.Node):
                 self.PW_setDriver('GV5', self.operationMode[self.TEVcloud.teslaExtractOperationMode(self.PWid)])
             except KeyError:
                 self.PW_setDriver('GV5', None)
-
-            self.PW_setDriver('GV6', self.TEVcloud.tesla_grid_staus(self.PWid))
+            try: 
+                self.PW_setDriver('GV6', self.gridstatus[self.TEVcloud.tesla_grid_staus(self.PWid)])
+            except KeyError:
+                self.PW_setDriver('GV6', None)
             self.PW_setDriver('GV7', self.TEVcloud.tesla_live_grid_service_active(self.PWid))
-
-            self.PW_setDriver('GV8', self.TEVcloud.getTPW_daysConsumption(self.PWid), 33)
-            self.PW_setDriver('GV9', self.TEVcloud.getTPW_daysSolar(self.PWid), 33)
-            self.PW_setDriver('GV10', self.TEVcloud.getTPW_daysBattery_export(self.PWid), 33)       
-            self.PW_setDriver('GV11', self.TEVcloud.getTPW_daysBattery_import(self.PWid), 33)
-            self.PW_setDriver('GV12', self.TEVcloud.getTPW_daysGrid_export(self.PWid), 33) 
-            self.PW_setDriver('GV13', self.TEVcloud.getTPW_daysGrid_import(self.PWid), 33)
-            self.PW_setDriver('GV14', self.TEVcloud.getTPW_daysGrid_export(self.PWid)- self.TPW.getTPW_daysGrid_import(self.site_id), 33)
+            self.PW_setDriver('GV8', self.TEVcloud.tesla_home_energy_total(self.PWid, 'today'), 33)
+            #self.PW_setDriver('GV9', self.TEVcloud.getTPW_daysSolar(self.PWid), 33)
+            self.PW_setDriver('GV10', self.TEVcloud.tesla_battery_energy_export(self.PWid, 'today'), 33)       
+            self.PW_setDriver('GV11', self.TEVcloud.tesla_battery_energy_import(self.PWid, 'today'), 33)
+            self.PW_setDriver('GV12', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'today'), 33) 
+            self.PW_setDriver('GV13', self.TEVcloud.tesla_grid_energy_import(self.PWid, 'today'), 33)
+            self.PW_setDriver('GV14', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'today')- self.TEVcloud.tesla_grid_energy_import(self.PWid, 'today'), 33)
 
 
         except Exception as e:
@@ -204,10 +210,10 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             {'driver': 'GV5', 'value': 99, 'uom': 25},  
             {'driver': 'GV6', 'value': 99, 'uom': 25},  
             {'driver': 'GV7', 'value': 99, 'uom': 25},  
-            {'driver': 'GV29', 'value': 99, 'uom': 25}, 
+            #{'driver': 'GV29', 'value': 99, 'uom': 25}, 
             {'driver': 'GV8', 'value': 99, 'uom': 25}, 
 
-            {'driver': 'GV9', 'value': 0, 'uom': 33}, 
+            #{'driver': 'GV9', 'value': 0, 'uom': 33}, 
             {'driver': 'GV10', 'value': 0, 'uom': 33},  
             {'driver': 'GV11', 'value': 0, 'uom': 33},  
             {'driver': 'GV12', 'value': 0, 'uom': 33},
