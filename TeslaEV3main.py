@@ -480,7 +480,7 @@ class TeslaEVController(udi_interface.Node):
             nodeName = self.poly.getValidName('Powershare Info')
             nodeAdr = self.poly.getValidAddress(nodeAdr)
             logging.info(f'Creating pwrshare: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.PW_siteid}')
-            self.power_share_node = teslaEV_PwrShareNode(self.poly, self.primary, nodeAdr, nodeName,  self.PW_siteid, self.TEVcloud )
+            self.power_share_node = teslaEV_PwrShareNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.PW_siteid, self.TEVcloud )
             self.node_addresses.append(nodeAdr)
         logging.debug(f'climate drivers0 {self.climateNode.drivers}')
 

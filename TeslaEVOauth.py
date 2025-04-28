@@ -534,6 +534,7 @@ class teslaEVAccess(teslaAccess):
         #power_walls= {}
         logging.debug('tesla_get_energy_products ')
         try:
+            site_id = None
             code, temp = self._callApi('GET','/products' )
             logging.debug('products: {} '.format(temp))
             if 'response' in temp:
