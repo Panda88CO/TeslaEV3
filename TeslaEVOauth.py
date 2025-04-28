@@ -2133,20 +2133,87 @@ class teslaEVAccess(teslaAccess):
 #############################
         
     def tesla_set_storm_mode(self, site_id, mode) -> None:
-        #logging.debug('tesla_set_storm_mode : {}'.format(mode))
+        logging.debug(f'EV tesla_set_storm_mode : {site_id} {mode}')
         self.teslaPW_cloud.tesla_set_storm_mode(site_id, mode)
 
     def update_date_time(self, site_id) -> None:
+        logging.debug(f'EV update_date_time : {site_id}')
         self.teslaPW_cloud.update_date_time(site_id)
 
-    def tesla_get_today_history(self, site_id, type) -> None:
-        #logging.debug('tesla_get_today_history : {}'.format(type))
-        self.teslaPW_cloud.tesla_get_today_history(site_id, type)
+    def teslaEV_GetTimestamp(self, site_id) -> None:
+        logging.debug(f'EV teslaEV_GetTimestamp : {site_id}')
+        self.teslaPW_cloud.teslaEV_GetTimestamp(site_id)
 
-    def tesla_get_yesterday_history(self, site_id, type) -> None:
-        #logging.debug('tesla_get_yesterday_history : {}'.format(type))
-        self.teslaPW_cloud.tesla_get_yesterday_history(site_id, type)
 
-    def tesla_get_2day_history(self, site_id, type) -> None:
-        #logging.debug('tesla_get_2day_history : {}'.format(type))
-        self.teslaPW_cloud.tesla_get_2day_history(site_id, type)
+    def tesla_get_today_history(self, site_id, day_str) -> None:
+        logging.debug(f'EV tesla_get_today_history : {site_id} {day_str}')
+        self.teslaPW_cloud.tesla_get_today_history(site_id, day_str)
+
+    def tesla_get_yesterday_history(self, site_id, day_str) -> None:
+        logging.debug(f'EV tesla_get_yesterday_history : {site_id} {day_str}')
+        self.teslaPW_cloud.tesla_get_yesterday_history(site_id, day_str)
+
+    def tesla_get_2day_history(self, site_id, day_str) -> None:
+        logging.debug(f'EV tesla_get_2day_history : {site_id} {day_str}')
+        self.teslaPW_cloud.tesla_get_2day_history(site_id, day_str)
+
+    def teslaUpdateCloudData(self , site_id, mode):
+        logging.debug(f'EV teslaUpdateCloudData : {site_id} {mode}')
+        self.teslaPW_cloud.teslaUpdateCloudData(site_id, mode)
+
+    def tesla_set_storm_mode(self , site_id, enable):
+        logging.debug(f'EV tesla_set_storm_mode : {site_id} {enable}')
+        self.teslaPW_cloud.tesla_set_storm_mode(site_id, enable)
+
+    def tesla_set_operation(self , site_id, command):
+        logging.debug(f'EV tesla_set_operation : {site_id} {command}')
+        self.teslaPW_cloud.tesla_set_operation(site_id, command)
+
+    def tesla_set_backup_percent(self , site_id, command):
+        logging.debug(f'EV tesla_set_backup_percent : {site_id} {command}')
+        self.teslaPW_cloud.tesla_set_backup_percent(site_id, command)
+
+    def tesla_set_grid_import_export(self , site_id, enable, mode):
+        logging.debug(f'EV tesla_set_grid_import_export : {site_id} {enable} {mode}') 
+        self.teslaPW_cloud.tesla_set_grid_import_export(site_id, enable, mode)
+
+    def tesla_set_grid_import_export(self , site_id, value):
+        logging.debug(f'EV tesla_set_grid_import_export : {site_id} {value}') 
+        self.teslaPW_cloud.tesla_set_grid_import_export(site_id, value)
+
+    def tesla_live_grid_service_active(self, site_id) -> None:
+        logging.debug(f'EV tesla_live_grid_service_active : {site_id}')
+        self.teslaPW_cloud.tesla_live_grid_service_active(site_id)
+
+    def teslaExtractOperationMode(self, site_id) -> None:
+        logging.debug(f'EV teslaExtractOperationMode : {site_id}')
+        self.teslaPW_cloud.teslaExtractOperationMode(site_id)
+
+    def tesla_grid_staus(self, site_id) -> None:
+        logging.debug(f'EV tesla_grid_staus : {site_id}')
+        self.teslaPW_cloud.tesla_grid_staus(site_id)
+
+    def tesla_home_energy_total(self, site_id) -> None:
+        logging.debug(f'EV tesla_home_energy_total : {site_id}')
+        self.teslaPW_cloud.tesla_home_energy_total(site_id)
+
+    def tesla_battery_energy_export(self, site_id) -> None:
+        logging.debug(f'EV tesla_battery_energy_export : {site_id}')
+        self.teslaPW_cloud.tesla_battery_energy_export(site_id)
+
+    def tesla_battery_energy_import(self, site_id) -> None:
+        logging.debug(f'EV tesla_battery_energy_import : {site_id}')
+        self.teslaPW_cloud.tesla_battery_energy_import(site_id)                                        
+
+    def tesla_grid_energy_export(self, site_id) -> None:
+        logging.debug(f'EV tesla_grid_energy_export : {site_id}')
+        self.teslaPW_cloud.tesla_grid_energy_export(site_id)
+
+    def tesla_grid_energy_import(self, site_id) -> None:
+        logging.debug(f'EV tesla_grid_energy_import : {site_id}')
+        self.teslaPW_cloud.tesla_grid_energy_import(site_id)                                        
+
+    def tesla_set_off_grid_vehicle_charging(self, site_id, value) -> None:
+        logging.debug(f'EV tesla_set_off_grid_vehicle_charging : {site_id} {value}')
+        self.teslaPW_cloud.tesla_set_off_grid_vehicle_charging(site_id, value)
+

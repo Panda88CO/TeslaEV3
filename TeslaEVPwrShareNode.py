@@ -84,7 +84,7 @@ class teslaEV_PwrShareNode(udi_interface.Node):
     
     def poll(self):
         logging.debug('PowerShare Poll called')
-        self.TEVcloud.teslaUpdateCloudDatapass(self.PWid, 'all') 
+        self.TEVcloud.teslaUpdateCloudData(self.PWid, 'all') 
         self.updateISYdrivers()
 
     def node_ready (self):
@@ -197,7 +197,7 @@ class teslaEV_PwrShareNode(udi_interface.Node):
 
     commands = { 'UPDATE': ISYupdate
                 ,'BACKUP_PCT'   : setBackupPercent
-                ,'STORM_MODE'   :setStormMode
+                ,'STORM_MODE'   : setStormMode
                 ,'OP_MODE'      : setOperatingMode
                 ,'GRID_MODE'    : set_grid_mode
                 ,'EV_CHRG_MODE' : set_EV_charge_reserve

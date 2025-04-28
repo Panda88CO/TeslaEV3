@@ -106,23 +106,23 @@
          <accepts>         
             <cmd id="UPDATE" /> 
             <cmd id="BACKUP_PCT" > 
-               <p id="" editor="PERCENT" init="GV1" /> 
+               <p id="" editor="PERCENT" init="GV21" /> 
             </cmd> 
             <cmd id="OP_MODE" > 
-               <p id="" editor="setOP_MODE" init="GV2" /> 
+               <p id="" editor="setOP_MODE" init="GV24" /> 
             </cmd> 
             <cmd id="STORM_MODE" > 
-               <p id="" editor="setTOGGLE" init="GV3" /> 
+               <p id="" editor="setTOGGLE" init="GV25" /> 
             </cmd> 
             <!--<cmd id="TOU_MODE" > 
                <p id="" editor="setTOU_MODE" init="GV4" /> 
             </cmd> -->
             <cmd id="GRID_MODE" > 
-               <p id="import" editor="setGRID_IMP_MODE" init="GV5" /> 
-               <p id="export" editor="setGRID_EXP_MODE" init="GV6" /> 
+               <p id="import" editor="setGRID_IMP_MODE" init="GV26" /> 
+               <p id="export" editor="setGRID_EXP_MODE" init="GV27" /> 
             </cmd> 
             <cmd id="EV_CHRG_MODE" > 
-               <p id="" editor="PERCENT" init="GV7" /> 
+               <p id="" editor="PERCENT" init="GV28" /> 
             </cmd> 
          </accepts>
       </cmds>
