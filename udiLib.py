@@ -252,15 +252,15 @@ def sentry2ISY(self, state):
     if state is not None:
         if state in ['SentryModeStateOff']:
             return(1)
-        elif state() == ['SentryModeStateIdle']:
+        elif state() in ['SentryModeStateIdle']:
             return(2)
-        elif state() == ['SentryModeStateArmed']:
+        elif state() in ['SentryModeStateArmed']:
             return(0)
-        elif state() == ['SentryModeStateAware']:
+        elif state() in ['SentryModeStateAware']:
             return(4)
-        elif state() == ['SentryModeStatePanic']:
+        elif state() in ['SentryModeStatePanic']:
             return(5)
-        elif state() == ['SentryModeStateQuiet']:
+        elif state() in ['SentryModeStateQuiet']:
             return(6)      
         else:
             return(99)

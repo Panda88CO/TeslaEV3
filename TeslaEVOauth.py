@@ -1832,7 +1832,7 @@ class teslaEVAccess(teslaAccess):
                 #return(round(self.carInfo[EVid]['vehicle_state']['odometer'], 2))
 
         except Exception as e:
-            logging.debug(f' Exception teslaEV_GetOdometer - {e}')
+            logging.debug(f' Exception teslaEV_GetSentryState - {e}')
             return(None)
     #def teslaEV_GetSunRoofPercent(self, EVid):
     #    try:
