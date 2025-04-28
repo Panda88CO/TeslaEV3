@@ -543,14 +543,14 @@ class teslaEVAccess(teslaAccess):
                     logging.debug(f'site: {site}')
                     if 'energy_site_id' in site:
                         if 'wall_connectors' in site['components']:
-                            self.nbr_wall_conn = len(site['components']['wall_connectors'])
+                            self.wall_connector = len(site['components']['wall_connectors'])
                         site_id = site['energy_site_id']
-            logging.debug(f'Nbr wall coinnectors: {self.nbr_wall_conn}')
+            logging.debug(f'Nbr wall coinnectors: {self.wall_connector}')
             self.teslaPW_cloud = teslaPWAccess(self.poly, '') # scope can be empty as already connected
-            return(site_id, self.nbr_wall_conn)
+            return(site_id, self.wall_connector)
         except Exception as e:
             logging.error('tesla_get_energy_products Exception : {}'.format(e))
-            return(site_id, self.nbr_wall_conn)
+            return(site_id, self.wall_connector)
    
     def _teslaEV_wake_ev(self, EVid):
         logging.debug(f'_teslaEV_wake_ev - {EVid}')
