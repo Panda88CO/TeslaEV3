@@ -69,6 +69,8 @@
       <editors />
       <sts>
          <st id="ST" editor="HOURS" /> <!--hours left-->
+         <st id="GV0" editor="TEXT" /> <!--InstantaneousPowerKW-->
+      
          <st id="GV1" editor="KW" /> <!--InstantaneousPowerKW-->
          <st id="GV2" editor="PSSTATUS" /><!--Status-->
          <st id="GV3" editor="PSSTOP" /><!--Stop Reason-->
@@ -85,14 +87,20 @@
          <st id="GV12" editor="KWH" />
          <st id="GV13" editor="KWH" />
          <st id="GV14" editor="KWH" />
+         <st id="GV15" editor="KWH" />
+         <st id="GV17" editor="KWH" />
+         <st id="GV18" editor="KWH" />
          <st id="GV19" editor="unixtime" />
-         <st id="GV21" editor="PERCENT" />
-         <st id="GV22" editor="OP_MODE" />
-         <st id="GV23" editor="TOGGLE" />
-         <!--<st id="GV4" editor="TOU_MODE" />-->
-         <st id="GV25" editor="GRID_IMP_MODE" />  
-         <st id="GV26" editor="GRID_EXP_MODE" />
-         <st id="GV27" editor="PERCENT" />      
+         <st id="GV20" editor="KWH" />
+         <st id="GV21" editor="KWH" />
+         <st id="GV22" editor="KWH" />
+         <st id="GV23" editor="PERCENT" />
+         <st id="GV24" editor="OP_MODE" />
+         <st id="GV25" editor="TOGGLE" />
+         <st id="GV26" editor="GRID_IMP_MODE" />  
+         <st id="GV27" editor="GRID_EXP_MODE" />
+         <st id="GV28" editor="PERCENT" />      
+         <st id="GV29" editor="unixtime" />
       </sts>
       <cmds>
          <sends>

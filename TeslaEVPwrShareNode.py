@@ -174,7 +174,12 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             self.PW_setDriver('GV12', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'today'), 33) 
             self.PW_setDriver('GV13', self.TEVcloud.tesla_grid_energy_import(self.PWid, 'today'), 33)
             self.PW_setDriver('GV14', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'today')- self.TEVcloud.tesla_grid_energy_import(self.PWid, 'today'), 33)
-
+            self.PW_setDriver('GV15', self.TEVcloud.tesla_home_energy_total(self.PWid, 'yesterday'), 33)
+            self.PW_setDriver('GV17', self.TEVcloud.tesla_battery_energy_export(self.PWid, 'yesterday'), 33)       
+            self.PW_setDriver('GV18', self.TEVcloud.tesla_battery_energy_import(self.PWid, 'yesterday'), 33)
+            self.PW_setDriver('GV19', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'yesterday'), 33) 
+            self.PW_setDriver('GV20', self.TEVcloud.tesla_grid_energy_import(self.PWid, 'yesterday'), 33)
+            self.PW_setDriver('GV21', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'yesterday')- self.TEVcloud.tesla_grid_energy_import(self.PWid, 'yesterday'), 33)
 
         except Exception as e:
             logging.error(f'updateISYdrivers charge node failed: nodes may not be 100% ready {e}')
@@ -200,6 +205,7 @@ class teslaEV_PwrShareNode(udi_interface.Node):
 
     drivers = [
             {'driver': 'ST', 'value': 99, 'uom': 25},  #hours left-
+            {'driver': 'GV0', 'value': 'None', 'uom': 145},      
             {'driver': 'GV1', 'value': 99, 'uom': 25},  #InstantaneousPowerKW
             {'driver': 'GV2', 'value': 99, 'uom': 25},  #Status
             {'driver': 'GV3', 'value': 99, 'uom': 25},  #charge_port_latch
@@ -216,8 +222,24 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             {'driver': 'GV12', 'value': 0, 'uom': 33},
             {'driver': 'GV13', 'value': 0, 'uom': 33}, 
             {'driver': 'GV14', 'value': 0, 'uom': 33}, 
+            {'driver': 'GV15', 'value': 0, 'uom': 33}, 
 
+            {'driver': 'GV17', 'value': 0, 'uom': 33}, 
+            {'driver': 'GV18', 'value': 0, 'uom': 33}, 
+
+            {'driver': 'GV20', 'value': 0, 'uom': 33}, 
+            {'driver': 'GV21', 'value': 0, 'uom': 33},
+
+
+            {'driver': 'GV22', 'value': 0, 'uom': 0},
+            {'driver': 'GV23', 'value': 0, 'uom': 58},
+            {'driver': 'GV24', 'value': 0, 'uom': 0}, 
+            {'driver': 'GV25', 'value': 0, 'uom': 58}, 
+            {'driver': 'GV26', 'value': 99, 'uom': 25},
+            {'driver': 'GV28', 'value': 99, 'uom': 58}, 
+            {'driver': 'GV27', 'value': 99, 'uom': 25},
             {'driver': 'GV19', 'value': 0, 'uom': 151},  #PowerShare Typ   
+            {'driver': 'GV29', 'value': 0, 'uom': 151},  #PowerShare Typ   
 
             ]
             

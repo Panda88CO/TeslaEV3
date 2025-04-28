@@ -269,6 +269,7 @@ CMD-nlsevcharge-CHARGEAMPS-NAME=Set Max Charge Current
 ND-pwrshare-NAME=EV power share
 ND-pwrshare-ICON=TElectricity
 ST-nlspwrshare-ST-NAME=Hours Remaining
+ST-nlspwrshare-GV0-NAME=Connected EV
 ST-nlspwrshare-GV1-NAME=Instant Power
 ST-nlspwrshare-GV2-NAME=Powershare Status
 ST-nlspwrshare-GV3-NAME=Powershare Stop Reason
@@ -296,4 +297,27 @@ PSTYPE-2=Load
 PSTYPE-3=Home
 PSTYPE-99=Unknown
 
+
+ST-nlspwrshare-GV8-NAME = Home Total Use Today
+ST-nlspwrshare-GV9-NAME = Solar Export Today
+ST-nlspwrshare-GV10-NAME = Battery Export Today
+ST-nlspwrshare-GV11-NAME = Battery Import Today
+ST-nlspwrshare-GV12-NAME = Grid Export Today
+ST-nlspwrshare-GV13-NAME = Grid Import Today
+ST-nlspwrshare-GV14-NAME = Grid/House Net Use Today
+
+ST-nlspwrshare-GV15-NAME = Home Total Use Yesterday
+
+ST-nlspwrshare-GV17-NAME = Battery Export Yesterday
+ST-nlspwrshare-GV18-NAME = Battery Import Yesterday
+ST-nlspwrshare-GV20-NAME = Grid Export Yesterday
+ST-nlspwrshare-GV21-NAME = Grid Import Yesterday
+ST-nlspwrshare-GV22-NAME = GV22
+ST-nlspwrshare-GV22-NAME = GV23
+ST-nlspwrshare-GV22-NAME = GV24
+ST-nlspwrshare-GV22-NAME = GV25
+ST-nlspwrshare-GV22-NAME = GV26
+ST-nlspwrshare-GV22-NAME = GV29
+ST-nlspwrshare-GV19-NAME = Last EV update
+ST-nlspwrshare-GV19-NAME = Last PowerShare update
 

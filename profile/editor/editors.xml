@@ -270,4 +270,7 @@
   <editor id = "setGRID_EXP_MODE" > 
      <range  uom="25" subset="0-2" nls="GRID_EXP_MODE" />
   </editor>    
+    <editor id = "TEXT" > 
+     <range  uom="145"  nls="text" />
+  </editor>    
 </editors> 
