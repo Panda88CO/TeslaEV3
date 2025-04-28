@@ -20,7 +20,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVOauth import teslaAccess
 
 
-VERSION = '0.1.03'
+VERSION = '0.1.4'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -84,7 +84,7 @@ class TeslaEVController(udi_interface.Node):
         self.node = self.poly.getNode(self.address)
         self.EVid = None
         self.data_flowing = False
-        self.nbr_wall_cons = 0
+        self.nbr_wall_conn = 0
         logging.info('Controller init DONE')
         logging.debug(f'drivers ; {self.drivers}')
 
@@ -314,7 +314,7 @@ class TeslaEVController(udi_interface.Node):
         assigned_addresses =[self.id]
         self.node_addresses = [self.id]
         self.PW_siteid, self.nbr_wall_conn = self.TEVcloud.tesla_get_energy_products()
-        logging.debug(f'Nbr Wall Cons main {self.nbr_wall_cons}')
+        logging.debug(f'Nbr Wall Cons main {self.nbr_wall_conn}')
         code, vehicles = self.TEVcloud.teslaEV_get_vehicles()
         if code in ['ok']:
             self.vehicleList = self.TEVcloud.teslaEV_get_vehicle_list()
@@ -433,7 +433,7 @@ class TeslaEVController(udi_interface.Node):
                         self.heartbeat()
                 if 'shortPoll' in pollList:
                     self.shortPoll()
-                    if self.nbr_wall_conn != 0:
+                    if self.power_share_node:
                         self.power_share_node.poll()
             else:
                 logging.info('Waiting for system/nodes to initialize')
@@ -474,8 +474,8 @@ class TeslaEVController(udi_interface.Node):
         #if not self.poly.getNode(nodeAdr):
         logging.info(f'Creating ChargingNode: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.EVid}')
         self.chargeNode = teslaEV_ChargeNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.TEVcloud )
-        logging.debug(f'Nbr Wall Cons create: {self.nbr_wall_cons}')
-        if self.nbr_wall_cons != 0: 
+        logging.debug(f'Nbr Wall Cons create: {self.nbr_wall_conn}')
+        if self.nbr_wall_conn != 0: 
             nodeAdr = 'pwrshare'+str(self.EVid)[-8:]
             nodeName = self.poly.getValidName('Powershare Info')
             nodeAdr = self.poly.getValidAddress(nodeAdr)
