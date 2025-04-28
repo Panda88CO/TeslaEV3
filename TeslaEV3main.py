@@ -281,8 +281,9 @@ class TeslaEVController(udi_interface.Node):
                 evID = self.TEVcloud.teslaEV_stream_get_id(data)
                 logging.debug(f'EVid in data = {evID}')
                 #if evID in self.EVid:
-                self.TEVcloud.teslaEV_stream_process_data(data)                
-                self.update_all_drivers()
+                self.TEVcloud.teslaEV_stream_process_data(data)
+                if self.subnodesReady():            
+                    self.update_all_drivers()
         except Exception as e:
             logging.error(f'Exception webhook {e}')
 
