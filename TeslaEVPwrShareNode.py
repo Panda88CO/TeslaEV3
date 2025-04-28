@@ -68,13 +68,9 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             'self_consumption' : 1 , 
             'autonomous' : 2, 
             'site_ctrl' : 3 }
-        #self.operationModeEnum = {0:'backup', 1:'self_consumption', 2:'autonomous', 3:'site_ctrl'}
-        #self.operationModeEnumList = ['backup','self_consumption', 'autonomous', 'site_ctrl']    
-        #self.OPERATING_MODES = ["backup", "self_consumption", "autonomous"]
         self.TOU_MODES = ["economics", "balanced"]
         self.gridstatus = {'on_grid':0, 'islanded_ready':1, 'islanded':2, 'transition ot grid':3}
 
-    
         logging.info('_init_ Tesla Charge Node COMPLETE')
         logging.debug(f'drivers ; {self.drivers}')
 
@@ -88,7 +84,8 @@ class teslaEV_PwrShareNode(udi_interface.Node):
     
     def poll(self):
         logging.debug('PowerShare Poll called')
-        pass 
+        self.TEVcloud.teslaUpdateCloudDatapass(self.PWid, 'all') 
+        self.updateISYdrivers()
 
     def node_ready (self):
         return(self.nodeReady )
