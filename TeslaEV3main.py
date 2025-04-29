@@ -570,8 +570,11 @@ class TeslaEVController(udi_interface.Node):
                 self.EV_setDriver('GV4', self.TEVcloud.teslaEV_GetOdometer(self.EVid), 116)
             else:
                 self.EV_setDriver('GV4', int(self.TEVcloud.teslaEV_GetOdometer(self.EVid)*1.6), 83)
-
-            self.EV_setDriver('GV5', self.sentry2ISY(self.TEVcloud.teslaEV_GetSentryState(self.EVid)),25)
+            tmp = self.TEVcloud.teslaEV_GetSentryState(self.EVid)
+            logging.debug(f'sentry update {tmp}')
+            tmp_val = self.sentry2ISY(tmp)
+            logging.debug(f'sentry update va {tmp_val}')
+            self.EV_setDriver('GV5', tmp_val, 25)
             
             windows  = self.TEVcloud.teslaEV_GetWindowStates(self.EVid)
             if 'FrontLeft' not in windows:

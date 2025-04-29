@@ -438,7 +438,7 @@ class teslaEVAccess(teslaAccess):
                         invalid = val
                     else:
                         logging.debug('ELSE {}'.format(self.stream_data[EVid][dataKey]))
-                        ret_val = val
+                        ret_val = str(val)
                 if invalid:
                     return(None)
                 else:
