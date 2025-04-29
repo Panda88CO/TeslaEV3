@@ -534,7 +534,7 @@ class teslaEVAccess(teslaAccess):
         #power_walls= {}
         logging.debug('tesla_get_energy_products ')
         try:
-            site_id = None
+            site_id = ''
             code, temp = self._callApi('GET','/products' )
             logging.debug('products: {} '.format(temp))
             if 'response' in temp:
@@ -544,7 +544,7 @@ class teslaEVAccess(teslaAccess):
                     if 'energy_site_id' in site:
                         if 'wall_connectors' in site['components']:
                             self.wall_connector = len(site['components']['wall_connectors'])
-                        site_id = site['energy_site_id']
+                        site_id = str(site['energy_site_id'])
             logging.debug(f'Nbr wall coinnectors: {self.wall_connector}')
             self.teslaPW_cloud = teslaPWAccess(self.poly, '') # scope can be empty as already connected
             return(site_id, self.wall_connector)
@@ -2140,7 +2140,7 @@ class teslaEVAccess(teslaAccess):
         logging.debug(f'EV update_date_time : {site_id}')
         self.teslaPW_cloud.update_date_time(site_id)
 
-    def teslaEV_GetTimestamp(self, site_id) -> None:
+    def teslaPW_GetTimestamp(self, site_id) -> None:
         logging.debug(f'EV teslaEV_GetTimestamp : {site_id}')
         self.teslaPW_cloud.teslaEV_GetTimestamp(site_id)
 
