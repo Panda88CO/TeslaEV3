@@ -29,6 +29,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
 
         self.n_queue = []
         self.poly.subscribe(self.poly.ADDNODEDONE, self.node_queue)
+        
         self.poly.subscribe(self.poly.START, self.start, address)
 
         self.poly.ready()
