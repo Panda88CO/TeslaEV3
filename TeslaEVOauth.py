@@ -2211,3 +2211,15 @@ class teslaEVAccess(teslaAccess):
         logging.debug(f'EV tesla_set_off_grid_vehicle_charging : {site_id} {value}')
         self.teslaPW_cloud.tesla_set_off_grid_vehicle_charging(site_id, value)
 
+    def teslaExtractBackupPercent(self, site_id) -> None:
+        logging.debug(f'EV teslaExtractBackupPercent : {site_id}')
+        self.teslaPW_cloud.teslaExtractBackupPercent(site_id)       
+
+    def teslaExtractOperationMode(self, site_id) -> None:
+        logging.debug(f'EV teslaExtractOperationMode : {site_id}')
+        self.teslaPW_cloud.teslaExtractOperationMode(site_id)     
+
+    def teslaExtractStormMode(self, site_id) -> None:
+        logging.debug(f'EV teslaExtractStormMode : {site_id}')
+        self.teslaPW_cloud.teslaExtractStormMode(site_id)             
+        
