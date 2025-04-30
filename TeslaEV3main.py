@@ -259,8 +259,8 @@ class TeslaEVController(udi_interface.Node):
 
             evID = self.TEVcloud.teslaEV_stream_get_id(data)
             logging.debug(f'EVid in data = {evID}')
-            #if evID in self.EVid:
-            self.TEVcloud.teslaEV_stream_process_data(data)
+            if evID == self.EVid:
+                self.TEVcloud.teslaEV_stream_process_data(data)
 
         except Exception as e:
             logging.debug('message processing timeout - no new commands') 
@@ -272,9 +272,6 @@ class TeslaEVController(udi_interface.Node):
 
         #@measure_time
     def insert_message(self, msg):
-        """
-        Callback for broker published events
-        """
         logging.debug('on_message: {}'.format(json.loads(msg.payload.decode("utf-8"))) )
         self.messageQueue.put(msg)
         qsize = self.messageQueue.qsize()
