@@ -32,7 +32,10 @@ class TeslaEVController(udi_interface.Node):
         logging.setLevel(10)
         logging.debug('Init Message system')
         self.messageQueue = Queue()
-        
+        self.background_thread = threading.Thread(target=self.process_message)
+        self.background_thread.daemon = True  # Daemonize thread
+        self.background_thread.start()
+
         self.poly = polyglot
         self.node = None
         self.portalID = None
@@ -253,21 +256,19 @@ class TeslaEVController(udi_interface.Node):
 
     def process_message(self):
         try:
-            #self.messageLock.acquire()
-            data = self.messageQueue.get(timeout = 10) 
-            logging.debug('Received message - Q size={}'.format(self.messageQueue.qsize()))
+            while True:
+                data = self.messageQueue.get(timeout = 10) 
+                logging.debug('Received message - Q size={}'.format(self.messageQueue.qsize()))
 
-            evID = self.TEVcloud.teslaEV_stream_get_id(data)
-            logging.debug(f'EVid in data = {evID}')
-            if evID == self.EVid:
-                self.TEVcloud.teslaEV_stream_process_data(data)
-
+                evID = self.TEVcloud.teslaEV_stream_get_id(data)
+                logging.debug(f'EVid in data = {evID}')
+                if evID == self.EVid:
+                    self.TEVcloud.teslaEV_stream_process_data(data)
+                    if self.subnodesReady():            
+                        self.update_all_drivers()
         except Exception as e:
             logging.debug('message processing timeout - no new commands') 
-            logging.debug('Messages processed - updating drivers')
-            if self.subnodesReady():            
-                self.update_all_drivers()
-            pass
+
             #self.messageLock.release()
 
         #@measure_time
@@ -276,12 +277,12 @@ class TeslaEVController(udi_interface.Node):
         self.messageQueue.put(msg)
         qsize = self.messageQueue.qsize()
         logging.debug('Message received and put in queue (size : {})'.format(qsize))
-        logging.debug('Creating threads to handle the received messages')
-        threads = []
-        for idx in range(0, qsize):
-            threads.append(Thread(target = self.process_message ))
-        [t.start() for t in threads]
-        logging.debug('{} on_message threads starting'.format(qsize))
+        #logging.debug('Creating threads to handle the received messages')
+        #threads = []
+        ##for idx in range(0, qsize):
+        #    threads.append(Thread(target = self.process_message ))
+        #[t.start() for t in threads]
+        #logging.debug('{} on_message threads starting'.format(qsize))
 
     def init_webhook(self, EVid):
         EV = str(EVid)
@@ -311,6 +312,11 @@ class TeslaEVController(udi_interface.Node):
             else:
                 self.data_flowing = True
                 self.insert_message(data)
+                qsize = self.messageQueue.qsize()
+                while qsize != 0:
+                    time.sleep(1)
+                #if self.subnodesReady():            
+                #    self.update_all_drivers()
                 '''
                 evID = self.TEVcloud.teslaEV_stream_get_id(data)
                 logging.debug(f'EVid in data = {evID}')
@@ -436,6 +442,7 @@ class TeslaEVController(udi_interface.Node):
 
     def stop(self):
         self.Notices.clear()
+        #self.background_thread.stop()
         #if self.TEV:
         self.TEVcloud.teslaEV_streaming_delete_config(self.EVid)
         self.EV_setDriver('ST', 0, 25 )
