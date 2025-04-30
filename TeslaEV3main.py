@@ -272,7 +272,7 @@ class TeslaEVController(udi_interface.Node):
 
         #@measure_time
     def insert_message(self, msg):
-        logging.debug('on_message: {}'.format(json.loads(msg.payload.decode("utf-8"))) )
+        logging.debug('on_message: {}'.format(msg)))
         self.messageQueue.put(msg)
         qsize = self.messageQueue.qsize()
         logging.debug('Message received and put in queue (size : {})'.format(qsize))
