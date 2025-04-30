@@ -573,7 +573,7 @@ class TeslaEVController(udi_interface.Node):
             tmp = self.TEVcloud.teslaEV_GetSentryState(self.EVid)
             logging.debug(f'sentry update {tmp}')
             tmp_val = self.sentry2ISY(tmp)
-            logging.debug(f'sentry update va {tmp_val}')
+            logging.debug(f'sentry update var {tmp_val}')
             self.EV_setDriver('GV5', tmp_val, 25)
             
             windows  = self.TEVcloud.teslaEV_GetWindowStates(self.EVid)
