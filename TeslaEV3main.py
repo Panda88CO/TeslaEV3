@@ -45,6 +45,7 @@ class TeslaEVController(udi_interface.Node):
         self.vin_list = [] # needed for streaming server
         #self.stream_cert = {}
         self.TEVcloud = ev_cloud_access
+        self.power_share_node = None
         
         
         self.ISYforced = False
@@ -586,7 +587,7 @@ class TeslaEVController(udi_interface.Node):
                 if self.chargeNode.node_ready():
                     self.chargeNode.updateISYdrivers()
                     
-                if self.TEVcloud.wall_connector != 0: 
+                if self.power_share_node: 
                     logging.debug(f'power share updateISYdrivers {self.power_share_node.node_ready()}')   
                     if self.power_share_node.node_ready():
                         self.power_share_node.updateISYdrivers()
