@@ -2163,9 +2163,9 @@ class teslaEVAccess(teslaAccess):
         logging.debug(f'EV teslaUpdateCloudData : {site_id} {mode}')
         self.teslaPW_cloud.teslaUpdateCloudData(site_id, mode)
 
-    def tesla_set_storm_mode(self , site_id, enable):
-        logging.debug(f'EV tesla_set_storm_mode : {site_id} {enable}')
-        self.teslaPW_cloud.tesla_set_storm_mode(site_id, enable)
+    #def tesla_set_storm_mode(self , site_id, enable):
+    #    logging.debug(f'EV tesla_set_storm_mode : {site_id} {enable}')
+    #    self.teslaPW_cloud.tesla_set_storm_mode(site_id, enable)
 
     def tesla_set_operation(self , site_id, command):
         logging.debug(f'EV tesla_set_operation : {site_id} {command}')
@@ -2179,9 +2179,9 @@ class teslaEVAccess(teslaAccess):
         logging.debug(f'EV tesla_set_grid_import_export : {site_id} {enable} {mode}') 
         self.teslaPW_cloud.tesla_set_grid_import_export(site_id, enable, mode)
 
-    def tesla_set_grid_import_export(self , site_id, value):
-        logging.debug(f'EV tesla_set_grid_import_export : {site_id} {value}') 
-        self.teslaPW_cloud.tesla_set_grid_import_export(site_id, value)
+    #def tesla_set_grid_import_export(self , site_id, value):
+    #    logging.debug(f'EV tesla_set_grid_import_export : {site_id} {value}') 
+    #    self.teslaPW_cloud.tesla_set_grid_import_export(site_id, value)
 
     def tesla_live_grid_service_active(self, site_id) -> None:
         logging.debug(f'EV tesla_live_grid_service_active : {site_id}')
@@ -2195,27 +2195,27 @@ class teslaEVAccess(teslaAccess):
         logging.debug(f'EV tesla_grid_staus : {site_id}')
         self.teslaPW_cloud.tesla_grid_staus(site_id)
 
-    def tesla_home_energy_total(self, site_id) -> None:
-        logging.debug(f'EV tesla_home_energy_total : {site_id}')
-        self.teslaPW_cloud.tesla_home_energy_total(site_id)
+    def tesla_home_energy_total(self, site_id, day):
+        logging.debug(f'EV tesla_home_energy_total : {site_id} {day}')
+        self.teslaPW_cloud.tesla_home_energy_total(site_id, day)
 
-    def tesla_battery_energy_export(self, site_id) -> None:
-        logging.debug(f'EV tesla_battery_energy_export : {site_id}')
-        self.teslaPW_cloud.tesla_battery_energy_export(site_id)
+    def tesla_battery_energy_export(self, site_id, day):
+        logging.debug(f'EV tesla_battery_energy_export : {site_id} {day}')
+        self.teslaPW_cloud.tesla_battery_energy_export(site_id, day)
 
-    def tesla_battery_energy_import(self, site_id) -> None:
-        logging.debug(f'EV tesla_battery_energy_import : {site_id}')
-        self.teslaPW_cloud.tesla_battery_energy_import(site_id)                                        
+    def tesla_battery_energy_import(self, site_id, day):
+        logging.debug(f'EV tesla_battery_energy_import : {site_id}  {day}')
+        self.teslaPW_cloud.tesla_battery_energy_import(site_id, day)                                        
 
-    def tesla_grid_energy_export(self, site_id) -> None:
-        logging.debug(f'EV tesla_grid_energy_export : {site_id}')
-        self.teslaPW_cloud.tesla_grid_energy_export(site_id)
+    def tesla_grid_energy_export(self, site_id, day):
+        logging.debug(f'EV tesla_grid_energy_export : {site_id} {day}')
+        self.teslaPW_cloud.tesla_grid_energy_export(site_id, day)
 
-    def tesla_grid_energy_import(self, site_id) -> None:
-        logging.debug(f'EV tesla_grid_energy_import : {site_id}')
-        self.teslaPW_cloud.tesla_grid_energy_import(site_id)                                        
+    def tesla_grid_energy_import(self, site_id, day):
+        logging.debug(f'EV tesla_grid_energy_import : {site_id} {day}')
+        self.teslaPW_cloud.tesla_grid_energy_import(site_id, day)                                        
 
-    def tesla_set_off_grid_vehicle_charging(self, site_id, value) -> None:
+    def tesla_set_off_grid_vehicle_charging(self, site_id, value):
         logging.debug(f'EV tesla_set_off_grid_vehicle_charging : {site_id} {value}')
         self.teslaPW_cloud.tesla_set_off_grid_vehicle_charging(site_id, value)
 
