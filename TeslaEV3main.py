@@ -21,7 +21,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVOauth import teslaAccess
 
 
-VERSION = '0.1.7'
+VERSION = '0.1.8'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -53,8 +53,6 @@ class TeslaEVController(udi_interface.Node):
         self.FARENHEIT = 1 
         self.KM = 0
         self.MILES = 1
-        #self.dUnit = self.MILES #  Miles = 1, Kilometer = 0
-        #self.tUnit = self.FARENHEIT  #  C = 0, F=1,
         self.supportedParams = ['DIST_UNIT', 'TEMP_UNIT']
         self.paramsProcessed = False
         self.customParameters = Custom(self.poly, 'customparams')
@@ -62,15 +60,12 @@ class TeslaEVController(udi_interface.Node):
         self.Notices = Custom(polyglot, 'notices')
         self.ISYforced = False
         
-        
         self.primary = primary
         self.address = address
         self.name = name
         self.webhookTestTimeoutSeconds = 5
         self.n_queue = []
         self.poly.subscribe(self.poly.ADDNODEDONE, self.node_queue)
-        #self.poly.subscribe(polyglot.START, self.start, 'controller')
-        #self.poly.subscribe(self.poly.WEBHOOK, self.webhook)
         self.hb = 0
         self.connected = False
         self.nodeDefineDone = False
@@ -136,15 +131,7 @@ class TeslaEVController(udi_interface.Node):
             if 'PortalSecret' in data:
                 self.portalSecret = data['PortalSecret']
             self.portalReady = True
-                
-  
-            #if 'issuedAt' in data:
-            #    stream_cert = {}
-            #    stream_cert['issuedAt'] = data['issuedAt']
-            #    stream_cert['expiry'] = data['expiry']
-            #    stream_cert['expectedRenewal'] = data['expectedRenewal']
-            #    stream_cert['ca'] = data['ca']
-            #    self.TEVcloud.stream_cert  = stream_cert
+
             logging.debug(f'Custom Data portal: {self.portalID} {self.portalSecret}')
 
         self.TEVcloud.customNsHandler(key, data)
@@ -273,8 +260,6 @@ class TeslaEVController(udi_interface.Node):
             except Exception as e:
                 logging.debug('message processing timeout - no new commands')
                 pass
-
-            #self.messageLock.release()
 
         #@measure_time
     def insert_message(self, msg):
@@ -454,6 +439,7 @@ class TeslaEVController(udi_interface.Node):
         logging.debug('stop - Cleaning up')
         #self.scheduler.shutdown()
         self.poly.stop()
+        sys.exit() # kill running threads
 
 
 
@@ -479,10 +465,12 @@ class TeslaEVController(udi_interface.Node):
                     self.longPoll()
                     if 'shortPoll' in pollList: #send short polls heart beat as shortpoll is not executed
                         self.heartbeat()
+                if self.power_share_node:
+                        self.power_share_node.poll('all')
                 if 'shortPoll' in pollList:
                     self.shortPoll()
                     if self.power_share_node:
-                        self.power_share_node.poll()
+                        self.power_share_node.poll('critical')
             else:
                 logging.info('Waiting for system/nodes to initialize')
 

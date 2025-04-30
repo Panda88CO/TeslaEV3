@@ -2163,10 +2163,6 @@ class teslaEVAccess(teslaAccess):
         logging.debug(f'EV teslaUpdateCloudData : {site_id} {mode}')
         self.teslaPW_cloud.teslaUpdateCloudData(site_id, mode)
 
-    #def tesla_set_storm_mode(self , site_id, enable):
-    #    logging.debug(f'EV tesla_set_storm_mode : {site_id} {enable}')
-    #    self.teslaPW_cloud.tesla_set_storm_mode(site_id, enable)
-
     def tesla_set_operation(self , site_id, command):
         logging.debug(f'EV tesla_set_operation : {site_id} {command}')
         self.teslaPW_cloud.tesla_set_operation(site_id, command)
@@ -2178,10 +2174,6 @@ class teslaEVAccess(teslaAccess):
     def tesla_set_grid_import_export(self , site_id, enable, mode):
         logging.debug(f'EV tesla_set_grid_import_export : {site_id} {enable} {mode}') 
         self.teslaPW_cloud.tesla_set_grid_import_export(site_id, enable, mode)
-
-    #def tesla_set_grid_import_export(self , site_id, value):
-    #    logging.debug(f'EV tesla_set_grid_import_export : {site_id} {value}') 
-    #    self.teslaPW_cloud.tesla_set_grid_import_export(site_id, value)
 
     def tesla_live_grid_service_active(self, site_id) -> None:
         logging.debug(f'EV tesla_live_grid_service_active : {site_id}')

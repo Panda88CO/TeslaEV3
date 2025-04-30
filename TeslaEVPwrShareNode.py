@@ -82,9 +82,12 @@ class teslaEV_PwrShareNode(udi_interface.Node):
     def stop(self):
         logging.debug('stop - Cleaning up')
     
-    def poll(self):
-        logging.debug('PowerShare Poll called')
-        self.TEVcloud.teslaUpdateCloudData(self.PWid, 'all') 
+    def poll(self, mode):
+        logging.debug(f'PowerShare Poll called {mode}')
+        if mode == 'critical':
+            self.TEVcloud.teslaUpdateCloudData(self.PWid, 'critical') 
+        else:
+            self.TEVcloud.teslaUpdateCloudData(self.PWid, 'all') 
         self.updateISYdrivers()
 
     def node_ready (self):
