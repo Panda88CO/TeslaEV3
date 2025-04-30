@@ -547,6 +547,10 @@ class teslaEVAccess(teslaAccess):
                         site_id = str(site['energy_site_id'])
             logging.debug(f'Nbr wall coinnectors: {self.wall_connector}')
             self.teslaPW_cloud = teslaPWAccess(self.poly, '') # scope can be empty as already connected
+            self.teslaPW_cloud.tesla_get_site_info(site_id)
+            self.teslaPW_cloud.tesla_get_live_status(site_id)
+            #self.teslaPW_cloud.tesla_get_2day_history(site_id, 'backup')
+
             return(site_id, self.wall_connector)
         except Exception as e:
             logging.error('tesla_get_energy_products Exception : {}'.format(e))

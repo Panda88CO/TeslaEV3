@@ -84,6 +84,7 @@ class teslaEV_PwrShareNode(udi_interface.Node):
     
     def poll(self):
         logging.debug('PowerShare Poll called')
+
         self.TEVcloud.teslaUpdateCloudData(self.PWid, 'all') 
         self.updateISYdrivers()
 
