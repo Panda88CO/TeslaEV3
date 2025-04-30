@@ -542,8 +542,10 @@ class teslaEVAccess(teslaAccess):
                     #site = temp['response'][indx]
                     logging.debug(f'site: {site}')
                     if 'energy_site_id' in site:
-                        if 'wall_connectors' in site['components']:
-                            self.wall_connector = len(site['components']['wall_connectors'])
+                        if site['components']['battery']:
+                            if 'wall_connectors' in site['components']:
+                                self.wall_connector = len(site['components']['wall_connectors'])
+
                         site_id = str(site['energy_site_id'])
             logging.debug(f'Nbr wall coinnectors: {self.wall_connector}')
             self.teslaPW_cloud = teslaPWAccess(self.poly, '') # scope can be empty as already connected
