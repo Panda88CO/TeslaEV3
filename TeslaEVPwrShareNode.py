@@ -86,6 +86,7 @@ class teslaEV_PwrShareNode(udi_interface.Node):
         logging.debug('PowerShare Poll called')
 
         self.TEVcloud.teslaUpdateCloudData(self.PWid, 'all') 
+        self.EV_setDriver('GV29', int(time.time()), 151 )
         self.updateISYdrivers()
 
     def node_ready (self):
@@ -152,6 +153,7 @@ class teslaEV_PwrShareNode(udi_interface.Node):
         try:
             logging.info(f'Powershare updateISYdrivers {self.EVid} {self.drivers}')
             self.update_time()
+            
             #if self.TEVcloud.teslaEV_GetCarState(self.EVid) in ['online']:    
             self.EV_setDriver('ST', self.TEVcloud.teslaEV_PowershareHoursLeft(self.EVid) , 20)
             self.EV_setDriver('GV1', self.TEVcloud.teslaEV_PowershareInstantaneousPowerKW(self.EVid), 33)
@@ -167,20 +169,20 @@ class teslaEV_PwrShareNode(udi_interface.Node):
                 self.PW_setDriver('GV6', self.gridstatus[self.TEVcloud.tesla_grid_staus(self.PWid)])
             except KeyError:
                 self.PW_setDriver('GV6', None)
-            self.PW_setDriver('GV7', self.TEVcloud.tesla_live_grid_service_active(self.PWid))
-            self.PW_setDriver('GV8', self.TEVcloud.tesla_home_energy_total(self.PWid, 'today'), 33)
+            self.EV_setDriver('GV7', self.TEVcloud.tesla_live_grid_service_active(self.PWid))
+            self.EV_setDriver('GV8', self.TEVcloud.tesla_home_energy_total(self.PWid, 'today'), 33)
             #self.PW_setDriver('GV9', self.TEVcloud.getTPW_daysSolar(self.PWid), 33)
-            self.PW_setDriver('GV10', self.TEVcloud.tesla_battery_energy_export(self.PWid, 'today'), 33)       
-            self.PW_setDriver('GV11', self.TEVcloud.tesla_battery_energy_import(self.PWid, 'today'), 33)
-            self.PW_setDriver('GV12', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'today'), 33) 
-            self.PW_setDriver('GV13', self.TEVcloud.tesla_grid_energy_import(self.PWid, 'today'), 33)
-            self.PW_setDriver('GV14', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'today')- self.TEVcloud.tesla_grid_energy_import(self.PWid, 'today'), 33)
-            self.PW_setDriver('GV15', self.TEVcloud.tesla_home_energy_total(self.PWid, 'yesterday'), 33)
-            self.PW_setDriver('GV17', self.TEVcloud.tesla_battery_energy_export(self.PWid, 'yesterday'), 33)       
-            self.PW_setDriver('GV18', self.TEVcloud.tesla_battery_energy_import(self.PWid, 'yesterday'), 33)
-            self.PW_setDriver('GV19', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'yesterday'), 33) 
-            self.PW_setDriver('GV20', self.TEVcloud.tesla_grid_energy_import(self.PWid, 'yesterday'), 33)
-            self.PW_setDriver('GV21', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'yesterday')- self.TEVcloud.tesla_grid_energy_import(self.PWid, 'yesterday'), 33)
+            self.EV_setDriver('GV10', self.TEVcloud.tesla_battery_energy_export(self.PWid, 'today'), 33)       
+            self.EV_setDriver('GV11', self.TEVcloud.tesla_battery_energy_import(self.PWid, 'today'), 33)
+            self.EV_setDriver('GV12', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'today'), 33) 
+            self.EV_setDriver('GV13', self.TEVcloud.tesla_grid_energy_import(self.PWid, 'today'), 33)
+            self.EV_setDriver('GV14', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'today')- self.TEVcloud.tesla_grid_energy_import(self.PWid, 'today'), 33)
+            self.EV_setDriver('GV15', self.TEVcloud.tesla_home_energy_total(self.PWid, 'yesterday'), 33)
+            self.EV_setDriver('GV17', self.TEVcloud.tesla_battery_energy_export(self.PWid, 'yesterday'), 33)       
+            self.EV_setDriver('GV18', self.TEVcloud.tesla_battery_energy_import(self.PWid, 'yesterday'), 33)
+            self.EV_setDriver('GV20', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'yesterday'), 33) 
+            self.EV_setDriver('GV21', self.TEVcloud.tesla_grid_energy_import(self.PWid, 'yesterday'), 33)
+            self.EV_setDriver('GV22', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'yesterday')- self.TEVcloud.tesla_grid_energy_import(self.PWid, 'yesterday'), 33)
 
         except Exception as e:
             logging.error(f'updateISYdrivers charge node failed: nodes may not be 100% ready {e}')
