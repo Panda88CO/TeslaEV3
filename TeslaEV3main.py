@@ -255,8 +255,10 @@ class TeslaEVController(udi_interface.Node):
             self.poly.Notices['region'] = 'Region not specified (NA = Nort America + Asia (-China), EU = Europe. middle East, Africa, CN = China)'
 
     def process_message(self):
-        try:
-            while True:
+        logging.debug('Stating proccess_mnessage thread')
+        while True:
+            try:
+      
                 data = self.messageQueue.get(timeout = 10) 
                 logging.debug('Received message - Q size={}'.format(self.messageQueue.qsize()))
 
@@ -266,14 +268,16 @@ class TeslaEVController(udi_interface.Node):
                     self.TEVcloud.teslaEV_stream_process_data(data)
                     if self.subnodesReady():            
                         self.update_all_drivers()
-        except Exception as e:
-            logging.debug('message processing timeout - no new commands') 
+                time.sleep(1)
+            except Exception as e:
+                logging.debug('message processing timeout - no new commands')
+                pass
 
             #self.messageLock.release()
 
         #@measure_time
     def insert_message(self, msg):
-        logging.debug('on_message: {}'.format(msg))
+        logging.debug('insert_message: {}'.format(msg))
         self.messageQueue.put(msg)
         qsize = self.messageQueue.qsize()
         logging.debug('Message received and put in queue (size : {})'.format(qsize))
