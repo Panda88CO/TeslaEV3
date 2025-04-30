@@ -21,7 +21,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVOauth import teslaAccess
 
 
-VERSION = '0.1.5'
+VERSION = '0.1.6'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -272,7 +272,7 @@ class TeslaEVController(udi_interface.Node):
 
         #@measure_time
     def insert_message(self, msg):
-        logging.debug('on_message: {}'.format(msg)))
+        logging.debug('on_message: {}'.format(msg))
         self.messageQueue.put(msg)
         qsize = self.messageQueue.qsize()
         logging.debug('Message received and put in queue (size : {})'.format(qsize))
