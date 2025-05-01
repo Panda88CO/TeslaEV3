@@ -86,9 +86,9 @@ class teslaEV_PwrShareNode(udi_interface.Node):
         logging.debug(f'PowerShare Poll called {mode}')
         if mode == 'critical':
             self.TEVcloud.teslaUpdateCloudData(self.PWid, 'critical') 
-        else:
+        elif mode == 'all':
             self.TEVcloud.teslaUpdateCloudData(self.PWid, 'all') 
-        self.updateISYdrivers()
+        self.updateISYPWdrivers()
 
     def node_ready (self):
         return(self.nodeReady )
@@ -146,9 +146,9 @@ class teslaEV_PwrShareNode(udi_interface.Node):
     def ISYupdate (self, command):
         logging.debug('ISY-update called  Setup Node')
         #self.TEVcloud.pollSystemData(self.PWid, 'all')
+        self.poll('all')
         self.updateISYdrivers()
             #self.reportDrivers()
-
 
     def updateISYdrivers(self):
         try:
@@ -169,6 +169,49 @@ class teslaEV_PwrShareNode(udi_interface.Node):
                 self.PW_setDriver('GV6', self.gridstatus[self.TEVcloud.tesla_grid_staus(self.PWid)])
             except KeyError:
                 self.PW_setDriver('GV6', None)
+            '''   
+            self.EV_setDriver('GV7', self.TEVcloud.tesla_live_grid_service_active(self.PWid))
+            self.EV_setDriver('GV8', self.TEVcloud.tesla_home_energy_total(self.PWid, 'today'), 33)
+
+            self.EV_setDriver('GV10', self.TEVcloud.tesla_battery_energy_export(self.PWid, 'today'), 33)       
+            self.EV_setDriver('GV11', self.TEVcloud.tesla_battery_energy_import(self.PWid, 'today'), 33)
+            self.EV_setDriver('GV12', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'today'), 33) 
+            self.EV_setDriver('GV13', self.TEVcloud.tesla_grid_energy_import(self.PWid, 'today'), 33)
+            self.EV_setDriver('GV14', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'today')- self.TEVcloud.tesla_grid_energy_import(self.PWid, 'today'), 33)
+            self.EV_setDriver('GV15', self.TEVcloud.tesla_home_energy_total(self.PWid, 'yesterday'), 33)
+            self.EV_setDriver('GV17', self.TEVcloud.tesla_battery_energy_export(self.PWid, 'yesterday'), 33)       
+            self.EV_setDriver('GV18', self.TEVcloud.tesla_battery_energy_import(self.PWid, 'yesterday'), 33)
+            self.EV_setDriver('GV20', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'yesterday'), 33) 
+            self.EV_setDriver('GV21', self.TEVcloud.tesla_grid_energy_import(self.PWid, 'yesterday'), 33)
+            self.EV_setDriver('GV22', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'yesterday')- self.TEVcloud.tesla_grid_energy_import(self.PWid, 'yesterday'), 33)
+            self.EV_setDriver('GV23', self.TEVcloud.teslaExtractBackupPercent(self.site_id))
+            self.EV_setDriver('GV24', self.TEVcloud.teslaExtractOperationMode(self.site_id))
+            self.EV_setDriver('GV25', self.TEVcloud.teslaExtractStormMode(self.site_id))
+            '''
+        except Exception as e:
+            logging.error(f'updateISYdrivers charge node failed: nodes may not be 100% ready {e}')
+
+
+    def updateISYPWdrivers(self):
+        try:
+            logging.info(f'Powershare updateISYPWdrivers {self.EVid} {self.drivers}')
+            #self.update_time()
+            #if self.TEVcloud.teslaEV_GetCarState(self.EVid) in ['online']:    
+            #self.EV_setDriver('ST', self.TEVcloud.teslaEV_PowershareHoursLeft(self.EVid) , 20)
+            #self.EV_setDriver('GV1', self.TEVcloud.teslaEV_PowershareInstantaneousPowerKW(self.EVid), 33)
+            #self.EV_setDriver('GV2', self.ps_state[self.TEVcloud.teslaEV_PowershareStatus(self.EVid)],25)
+            #self.EV_setDriver('GV3', self.ps_stop_reason[self.TEVcloud.teslaEV_PowershareStopReason(self.EVid)],25)
+            #self.EV_setDriver('GV4', self.ps_type[self.TEVcloud.teslaEV_PowershareType(self.EVid)], 25) 
+
+            #try:
+            #    self.EV_setDriver('GV5', self.operationMode[self.TEVcloud.teslaExtractOperationMode(self.PWid)])
+            #except KeyError:
+            #    self.EV_setDriver('GV5', None)
+            #try: 
+            #    self.EV_setDriver('GV6', self.gridstatus[self.TEVcloud.tesla_grid_staus(self.PWid)])
+            #except KeyError:
+            #    self.EV_setDriver('GV6', None)
+
             self.EV_setDriver('GV7', self.TEVcloud.tesla_live_grid_service_active(self.PWid))
             self.EV_setDriver('GV8', self.TEVcloud.tesla_home_energy_total(self.PWid, 'today'), 33)
 
@@ -187,13 +230,13 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             self.EV_setDriver('GV24', self.TEVcloud.teslaExtractOperationMode(self.site_id))
             self.EV_setDriver('GV25', self.TEVcloud.teslaExtractStormMode(self.site_id))
         except Exception as e:
-            logging.error(f'updateISYdrivers charge node failed: nodes may not be 100% ready {e}')
+            logging.error(f'updateISYPWdrivers charge node failed: nodes may not be 100% ready {e}')
 
     #def ISYupdate (self, command):
     #    logging.info('ISY-update called')
     #    code, state = self.TEVcloud.teslaEV_update_connection_status(self.EVid)
     #    code, res = self.TEVcloud.teslaEV_UpdateCloudInfo(self.EVid)
-    #    self.updateISYdrivers()
+    #    self.updateISYPWdrivers()
     #    self.update_time()
     #    self.EV_setDriver('GV21', self.command_res2ISY(code), 25)
      
