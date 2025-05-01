@@ -160,16 +160,16 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             self.EV_setDriver('GV2', self.ps_state[self.TEVcloud.teslaEV_PowershareStatus(self.EVid)],25)
             self.EV_setDriver('GV3', self.ps_stop_reason[self.TEVcloud.teslaEV_PowershareStopReason(self.EVid)],25)
             self.EV_setDriver('GV4', self.ps_type[self.TEVcloud.teslaEV_PowershareType(self.EVid)], 25) 
-
+            '''
             try:
-                self.PW_setDriver('GV5', self.operationMode[self.TEVcloud.teslaExtractOperationMode(self.PWid)])
+                self.EV_setDriver('GV5', self.operationMode[self.TEVcloud.teslaExtractOperationMode(self.PWid)])
             except KeyError:
-                self.PW_setDriver('GV5', None)
+                self.EV_setDriver('GV5', None)
             try: 
-                self.PW_setDriver('GV6', self.gridstatus[self.TEVcloud.tesla_grid_staus(self.PWid)])
+                self.EV_setDriver('GV6', self.gridstatus[self.TEVcloud.tesla_grid_staus(self.PWid)])
             except KeyError:
-                self.PW_setDriver('GV6', None)
-            '''   
+                self.EV_setDriver('GV6', None)
+               
             self.EV_setDriver('GV7', self.TEVcloud.tesla_live_grid_service_active(self.PWid))
             self.EV_setDriver('GV8', self.TEVcloud.tesla_home_energy_total(self.PWid, 'today'), 33)
 
@@ -203,14 +203,14 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             #self.EV_setDriver('GV3', self.ps_stop_reason[self.TEVcloud.teslaEV_PowershareStopReason(self.EVid)],25)
             #self.EV_setDriver('GV4', self.ps_type[self.TEVcloud.teslaEV_PowershareType(self.EVid)], 25) 
 
-            #try:
-            #    self.EV_setDriver('GV5', self.operationMode[self.TEVcloud.teslaExtractOperationMode(self.PWid)])
-            #except KeyError:
-            #    self.EV_setDriver('GV5', None)
-            #try: 
-            #    self.EV_setDriver('GV6', self.gridstatus[self.TEVcloud.tesla_grid_staus(self.PWid)])
-            #except KeyError:
-            #    self.EV_setDriver('GV6', None)
+            try:
+                self.EV_setDriver('GV5', self.operationMode[self.TEVcloud.teslaExtractOperationMode(self.PWid)])
+            except KeyError:
+                self.EV_setDriver('GV5', None)
+            try: 
+                self.EV_setDriver('GV6', self.gridstatus[self.TEVcloud.tesla_grid_staus(self.PWid)])
+            except KeyError:
+                self.EV_setDriver('GV6', None)
 
             self.EV_setDriver('GV7', self.TEVcloud.tesla_live_grid_service_active(self.PWid))
             self.EV_setDriver('GV8', self.TEVcloud.tesla_home_energy_total(self.PWid, 'today'), 33)

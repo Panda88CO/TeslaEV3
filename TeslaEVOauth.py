@@ -2214,10 +2214,7 @@ class teslaEVAccess(teslaAccess):
     def teslaExtractBackupPercent(self, site_id) -> None:
         logging.debug(f'EV teslaExtractBackupPercent : {site_id}')
         self.teslaPW_cloud.teslaExtractBackupPercent(site_id)       
-
-    def teslaExtractOperationMode(self, site_id) -> None:
-        logging.debug(f'EV teslaExtractOperationMode : {site_id}')
-        self.teslaPW_cloud.teslaExtractOperationMode(site_id)     
+ 
 
     def teslaExtractStormMode(self, site_id) -> None:
         logging.debug(f'EV teslaExtractStormMode : {site_id}')
