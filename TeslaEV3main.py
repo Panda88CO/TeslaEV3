@@ -21,7 +21,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVOauth import teslaAccess
 
 
-VERSION = '0.1.9'
+VERSION = '0.1.10'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -616,10 +616,14 @@ class TeslaEVController(udi_interface.Node):
                 self.EV_setDriver('GV4', self.TEVcloud.teslaEV_GetOdometer(self.EVid), 116)
             else:
                 self.EV_setDriver('GV4', int(self.TEVcloud.teslaEV_GetOdometer(self.EVid)*1.6), 83)
-
-            self.EV_setDriver('GV5', self.sentry2ISY(self.TEVcloud.teslaEV_GetSentryState(self.EVid)),25)
+            temp = self.TEVcloud.teslaEV_GetSentryState(self.EVid)
+            logging.debug(f'teslaEV_GetSentryState {temp}')
+            temp_val = self.sentry2ISY(temp)
+            logging.debug(f'teslaEV_GetSentryState ISY {temp_val}')
+            self.EV_setDriver('GV5', temp_val, 25)
             
             windows  = self.TEVcloud.teslaEV_GetWindowStates(self.EVid)
+            logging.debug(f'teslaEV_GetSientryState ISY {windows}')
             if 'FrontLeft' not in windows:
                 windows['FrontLeft'] = None
             if 'FrontRight' not in windows:

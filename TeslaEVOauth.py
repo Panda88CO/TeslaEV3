@@ -1826,6 +1826,20 @@ class teslaEVAccess(teslaAccess):
 
     def teslaEV_GetSentryState(self, EVid):
         try:
+            if self._stream_data_found(EVid, 'SentryMode'):
+                if 'invalid' in  self.stream_data[EVid]['SentryMode']:
+                    if self.stream_data[EVid]['SentryMode']['invalid']:
+                        return(None)
+                else:
+                    return(self.stream_data[EVid]['SentryMode']['sentryModeStateValue'])
+            else:
+                return(None)
+                #return(self.carInfo[EVid]['vehicle_state']['center_display_state'])
+        except Exception as e:
+            logging.debug(f' Exception teslaEV_GetSentryState - {e}')
+            return(None)
+        '''
+        try:
             #logging.debug(f'teslaEV_GetOdometer: for {EVid}')
             if self._stream_return_data(EVid, 'SentryMode'):
                 return(self.stream_data[EVid]['SentryMode']['sentryModeStateValue'])
@@ -1836,6 +1850,10 @@ class teslaEVAccess(teslaAccess):
         except Exception as e:
             logging.debug(f' Exception teslaEV_GetSentryState - {e}')
             return(None)
+
+        '''
+
+
     #def teslaEV_GetSunRoofPercent(self, EVid):
     #    try:
     #        #logging.debug(f'teslaEV_GetSunRoofState: for {EVid}')

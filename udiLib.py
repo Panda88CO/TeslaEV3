@@ -248,7 +248,7 @@ def latch2ISY(self, state):
     else:
         return(99)
 
-def sentry2ISY(self, state):
+def sentry2ISY(self, state) -> int:
     if state is not None:
         if state in ['SentryModeStateOff']:
             return(1)
