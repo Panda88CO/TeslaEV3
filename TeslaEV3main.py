@@ -28,7 +28,7 @@ class TeslaEVController(udi_interface.Node):
 
     def __init__(self, polyglot, primary, address, name, ev_cloud_access):
         super(TeslaEVController, self).__init__(polyglot, primary, address, name)
-        logging.info('_init_ Tesla EV Controller ')
+        logging.info(f'_init_ Tesla EV Controller {VERSION}')
         logging.setLevel(10)
         logging.debug('Init Message system')
         self.messageQueue = Queue()
