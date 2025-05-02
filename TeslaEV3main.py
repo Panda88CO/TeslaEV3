@@ -78,7 +78,7 @@ class TeslaEVController(udi_interface.Node):
         polyglot.subscribe(polyglot.START, self.start, 'controller')
         polyglot.subscribe(polyglot.CUSTOMNS, self.customNSHandler)
         polyglot.subscribe(polyglot.OAUTH, self.oauthHandler)
-        polyglot.poly.subscribe(polyglot.ADDNODEDONE, self.node_queue)
+        polyglot.subscribe(polyglot.ADDNODEDONE, self.node_queue)
         self.hb = 0
         self.connected = False
         self.nodeDefineDone = False
