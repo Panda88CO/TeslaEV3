@@ -65,7 +65,20 @@ class TeslaEVController(udi_interface.Node):
         self.name = name
         self.webhookTestTimeoutSeconds = 5
         self.n_queue = []
-        self.poly.subscribe(self.poly.ADDNODEDONE, self.node_queue)
+        
+        polyglot.subscribe(polyglot.STOP, self.stop)
+        polyglot.subscribe(polyglot.CUSTOMPARAMS, self.customParamsHandler)
+        polyglot.subscribe(polyglot.CONFIGDONE, self.configDoneHandler)
+        #polyglot.subscribe(polyglot.ADDNODEDONE, TEV.node_queue)        
+        polyglot.subscribe(polyglot.LOGLEVEL, self.handleLevelChange)
+        polyglot.subscribe(polyglot.NOTICES, self.handleNotices)
+        polyglot.subscribe(polyglot.POLL, self.systemPoll)        
+        polyglot.subscribe(polyglot.WEBHOOK, self.webhook)
+        logging.debug('Calling start')
+        polyglot.subscribe(polyglot.START, self.start, 'controller')
+        polyglot.subscribe(polyglot.CUSTOMNS, self.customNSHandler)
+        polyglot.subscribe(polyglot.OAUTH, self.oauthHandler)
+        polyglot.poly.subscribe(polyglot.ADDNODEDONE, self.node_queue)
         self.hb = 0
         self.connected = False
         self.nodeDefineDone = False
