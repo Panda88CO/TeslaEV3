@@ -36,14 +36,14 @@ except ImportError:
 
 # Implements the API calls to your external service
 # It inherits the OAuth class
-class teslaPWAccess(teslaAccess):
+class teslaPWAccess(object):
     yourApiEndpoint = 'https://fleet-api.prd.na.vn.cloud.tesla.com'
 
-    def __init__(self, polyglot, scope):
-        super().__init__(polyglot, scope)
+    def __init__(self, polyglot, tesla_api):
+        #super().__init__(polyglot, tesla_api)
         logging.info('teslaPWAccess initializing')
         self.poly = polyglot
-        self.scope = scope
+        self.tesla_api = tesla_api
         logging.info('External service connectivity initialized...')
         self.OPERATING_MODES = [ "self_consumption", "autonomous"]
         self.EXPORT_RULES = ['battery_ok', 'pv_only', 'never']
@@ -86,7 +86,7 @@ class teslaPWAccess(teslaAccess):
         power_walls= {}
         logging.debug('tesla_get_products ')
         try:
-            temp = self._callApi('GET','/products' )
+            temp = self.tesla_api._callApi('GET','/products' )
             logging.debug('products: {} '.format(temp))
             if 'response' in temp:
                 for indx in range(0,len(temp['response'])):
@@ -102,6 +102,30 @@ class teslaPWAccess(teslaAccess):
         except Exception as e:
             logging.error('tesla_get_products Exception : {}'.format(e))
 
+            
+    def tesla_get_energy_products(self):
+        #power_walls= {}
+        logging.debug('tesla_get_energy_products ')
+        try:
+            site_id = ''
+            code, temp = self.tesla_api._callApi('GET','/products' )
+            logging.debug('products: {} '.format(temp))
+            if 'response' in temp:
+                for indx, site  in enumerate(temp['response']):
+                    #site = temp['response'][indx]
+                    logging.debug(f'site: {site}')
+                    if 'energy_site_id' in site:
+                        if site['components']['battery']:
+                            if 'wall_connectors' in site['components']:
+                                self.wall_connector = len(site['components']['wall_connectors'])
+
+                        site_id = str(site['energy_site_id'])
+            logging.debug(f'Nbr wall coinnectors: {self.wall_connector}')
+            self.teslaPW_cloud = teslaPWAccess(self.poly, '') # scope can be empty as already connected
+            return(site_id, self.wall_connector)
+        except Exception as e:
+            logging.error('tesla_get_energy_products Exception : {}'.format(e))
+            return(site_id, self.wall_connector)
 
     def tesla_get_live_status(self, site_id) -> None:
         logging.debug('tesla_get_live_status ')
@@ -109,7 +133,7 @@ class teslaPWAccess(teslaAccess):
             if site_id not in self.total_pack_energy:
                 self.total_pack_energy[site_id] = self.NaN
             if site_id is not None:
-                temp = self._callApi('GET','/energy_sites/'+site_id +'/live_status' )
+                temp = self.tesla_api._callApi('GET','/energy_sites/'+site_id +'/live_status' )
                 logging.debug('live_status: {} '.format(temp))
                 if 'response' in temp:
                     self.site_live_info[site_id] = temp['response']
@@ -128,7 +152,7 @@ class teslaPWAccess(teslaAccess):
         try:
             if site_id not in self.installation_tz:
                 self.installation_tz[site_id] = None
-            temp = self._callApi('GET','/energy_sites/'+site_id +'/site_info' )
+            temp = self.tesla_api._callApi('GET','/energy_sites/'+site_id +'/site_info' )
             logging.debug('site_info: {} '.format(temp))           
             if 'response' in temp:
                 self.site_info[site_id] = temp['response']
@@ -146,7 +170,7 @@ class teslaPWAccess(teslaAccess):
         try:
             reserve = int(reserve_pct)
             body = {'backup_reserve_percent': reserve}
-            temp = self._callApi('POST','/energy_sites/'+site_id +'/backup', body )
+            temp = self.tesla_api._callApi('POST','/energy_sites/'+site_id +'/backup', body )
             logging.debug('backup_percent: {} '.format(temp))   
         except Exception as e:
             logging.error('tesla_set_backup_percent Exception : {}'.format(e))
@@ -157,7 +181,7 @@ class teslaPWAccess(teslaAccess):
 
             reserve = int(reserve_pct)
             body = {'off_grid_vehicle_charging_reserve_percent': reserve}
-            temp = self._callApi('POST','/energy_sites/'+site_id +'/off_grid_vehicle_charging_reserve', body )
+            temp = self.tesla_api._callApi('POST','/energy_sites/'+site_id +'/off_grid_vehicle_charging_reserve', body )
             logging.debug('off_grid_vehicle_charging: {} '.format(temp))   
         except Exception as e:
             logging.error('tesla_set_off_grid_vehicle_charging Exception : {}'.format(e))
@@ -169,7 +193,7 @@ class teslaPWAccess(teslaAccess):
             if pref_export in self.EXPORT_RULES:
                 body = {'disallow_charge_from_grid_with_solar_installed' : solar_charge,
                         'customer_preferred_export_rule': pref_export}
-                temp = self._callApi('POST','/energy_sites/'+site_id +'/grid_import_export', body )
+                temp = self.tesla_api._callApi('POST','/energy_sites/'+site_id +'/grid_import_export', body )
                 logging.debug('operation: {} '.format(temp))               
         except Exception as e:
             logging.error('tesla_set_grid_import_export Exception : {}'.format(e))
@@ -180,7 +204,7 @@ class teslaPWAccess(teslaAccess):
         try:
             if mode in self.OPERATING_MODES:
                 body = {'default_real_mode' : mode}
-                temp = self._callApi('POST','/energy_sites/'+site_id +'/operation', body )
+                temp = self.tesla_api._callApi('POST','/energy_sites/'+site_id +'/operation', body )
                 logging.debug('operation: {} '.format(temp))               
         except Exception as e:
             logging.error('tesla_set_operation Exception : {}'.format(e))
@@ -189,7 +213,7 @@ class teslaPWAccess(teslaAccess):
         logging.debug('tesla_set_storm_mode : {}'.format(mode))
         try:
             body = {'enabled' : mode}
-            temp = self._callApi('POST','/energy_sites/'+site_id +'/storm_mode', body )
+            temp = self.tesla_api._callApi('POST','/energy_sites/'+site_id +'/storm_mode', body )
             logging.debug('storm_mode: {} '.format(temp))               
         except Exception as e:
             logging.error('tesla_set_storm_mode Exception : {}'.format(e))
@@ -241,8 +265,8 @@ class teslaPWAccess(teslaAccess):
                         #'time_zone'     : 'America/Los_Angeles'
                         }
                 logging.debug('body = {}'.format(params))
-                hist_data = self._callApi('GET','/energy_sites/'+site_id +'/calendar_history?'+'kind='+str(type)+'&start_date='+t_start_str+'&end_date='+t_end_str+'&period=day'+'&time_zone='+self.tz_str  )
-                #temp = self._callApi('GET','/energy_sites/'+site_id +'/calendar_history?'+ urllib.parse.urlencode(params) )
+                hist_data = self.tesla_api._callApi('GET','/energy_sites/'+site_id +'/calendar_history?'+'kind='+str(type)+'&start_date='+t_start_str+'&end_date='+t_end_str+'&period=day'+'&time_zone='+self.tz_str  )
+                #temp = self.tesla_api._callApi('GET','/energy_sites/'+site_id +'/calendar_history?'+ urllib.parse.urlencode(params) )
                 logging.debug('result ({}) = {}'.format(type, hist_data))
                 if hist_data:
                     if 'response' in hist_data:
@@ -277,8 +301,8 @@ class teslaPWAccess(teslaAccess):
                         #'time_zone'     : 'America/Los_Angeles'
                         }
                 logging.debug('body = {}'.format(params))
-                hist_data = self._callApi('GET','/energy_sites/'+site_id +'/calendar_history?'+'kind='+str(type)+'&start_date='+t_start_str+'&end_date='+t_end_str+'&period=day'+'&time_zone='+self.tz_str  )
-                #temp = self._callApi('GET','/energy_sites/'+site_id +'/calendar_history?'+ urllib.parse.urlencode(params) )
+                hist_data = self.tesla_api._callApi('GET','/energy_sites/'+site_id +'/calendar_history?'+'kind='+str(type)+'&start_date='+t_start_str+'&end_date='+t_end_str+'&period=day'+'&time_zone='+self.tz_str  )
+                #temp = self.tesla_api._callApi('GET','/energy_sites/'+site_id +'/calendar_history?'+ urllib.parse.urlencode(params) )
                 logging.debug('result ({})= {}'.format(type, hist_data))
                 if hist_data:
                     if 'response' in hist_data:
@@ -312,8 +336,8 @@ class teslaPWAccess(teslaAccess):
                         #'time_zone'     : 'America/Los_Angeles'
                         }
                 logging.debug('body = {}'.format(params))
-                hist_data = self._callApi('GET','/energy_sites/'+site_id +'/calendar_history?'+'kind='+str(type)+'&start_date='+t_start_str+'&end_date='+t_end_str+'&period=day'+'&time_zone='+self.tz_str  )
-                #temp = self._callApi('GET','/energy_sites/'+site_id +'/calendar_history?'+ urllib.parse.urlencode(params) )
+                hist_data = self.tesla_api._callApi('GET','/energy_sites/'+site_id +'/calendar_history?'+'kind='+str(type)+'&start_date='+t_start_str+'&end_date='+t_end_str+'&period=day'+'&time_zone='+self.tz_str  )
+                #temp = self.tesla_api._callApi('GET','/energy_sites/'+site_id +'/calendar_history?'+ urllib.parse.urlencode(params) )
                 if hist_data:
                     if 'response' in hist_data:
                         logging.debug('result ({}) = {}'.format(type, hist_data['response']))
@@ -518,7 +542,7 @@ class teslaPWAccess(teslaAccess):
 
     def isConnectedToPW(self) -> bool:
         try:
-            return( self.authenticated())
+            return( self.tesla_api.authenticated())
         except KeyError:
             return(None)
 

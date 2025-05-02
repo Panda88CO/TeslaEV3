@@ -14,7 +14,7 @@ class teslaEV_PwrShareNode(udi_interface.Node):
     #from  udiLib import node_queue, wait_for_node_done, mask2key, latch2ISY, cond2ISY, heartbeat, state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
     from  udiLib import node_queue, command_res2ISY, wait_for_node_done, tempUnitAdjust, latch2ISY, chargeState2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat,  code2ISY, state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
 
-    def __init__(self, polyglot, parent, address, name, evid,  pwid, TEVcloud):
+    def __init__(self, polyglot, parent, address, name, evid,  pwid, TEVcloud, TPWcloud):
         super(teslaEV_PwrShareNode, self).__init__(polyglot, parent, address, name)
         logging.info('_init_ Tesla Power Share Node')
         self.poly = polyglot
@@ -22,6 +22,7 @@ class teslaEV_PwrShareNode(udi_interface.Node):
         self.EVid = evid
         self.PWid = pwid
         self.TEVcloud = TEVcloud
+        self.TPWcloud = TPWcloud
         self.address = address 
         self.name = name
         self.nodeReady = False
@@ -85,9 +86,9 @@ class teslaEV_PwrShareNode(udi_interface.Node):
     def poll(self, mode):
         logging.debug(f'PowerShare Poll called {mode}')
         if mode == 'critical':
-            self.TEVcloud.teslaUpdateCloudData(self.PWid, 'critical') 
+            self.TPWcloud.teslaUpdateCloudData(self.PWid, 'critical') 
         elif mode == 'all':
-            self.TEVcloud.teslaUpdateCloudData(self.PWid, 'all') 
+            self.TPWcloud.teslaUpdateCloudData(self.PWid, 'all') 
         self.updateISYPWdrivers()
 
     def node_ready (self):
@@ -103,14 +104,14 @@ class teslaEV_PwrShareNode(udi_interface.Node):
     def setStormMode(self, command):
         logging.debug('setStormMode : {}'.format(command))
         value = int(command.get('value'))
-        self.TEVcloud.tesla_set_storm_mode(self.PWid, value == 1)
+        self.TPWcloud.tesla_set_storm_mode(self.PWid, value == 1)
         self.EV_setDriver('GV23', value)
         
     def setOperatingMode(self, command):
         try:
             logging.debug('setOperatingMode: {}'.format(command))
             value = int(command.get('value'))
-            self.TEVcloud.tesla_set_operation(self.PWid, self.operationMode[value])
+            self.TPWcloud.tesla_set_operation(self.PWid, self.operationMode[value])
             self.EV_setDriver('GV22', value)
         except KeyError:
             self.EV_setDriver('GV22', 99)
@@ -118,7 +119,7 @@ class teslaEV_PwrShareNode(udi_interface.Node):
     def setBackupPercent(self, command):
         logging.debug('setBackupPercent: {}'.format(command))
         value = float(command.get('value'))
-        self.TEVcloud.tesla_set_backup_percent(self.PWid, value )
+        self.TPWcloud.tesla_set_backup_percent(self.PWid, value )
         self.EV_setDriver('GV21', value)
 
     #def setTOUmode(self, command):
@@ -132,14 +133,14 @@ class teslaEV_PwrShareNode(udi_interface.Node):
         query = command.get("query")
         imp_mode = int(query.get("import.uom25"))
         exp_mode = int(query.get("export.uom25"))
-        self.TEVcloud.tesla_set_grid_import_export(self.PWid, imp_mode == 1, exp_mode) 
+        self.TPWcloud.tesla_set_grid_import_export(self.PWid, imp_mode == 1, exp_mode) 
         self.EV_setDriver('GV25', int(query.get("import.uom25")))
         self.EV_setDriver('GV26', exp_mode)
 
     def set_EV_charge_reserve(self, command):
         logging.debug('setTPW_EV_offgrid_charge_reserve {}'.format(command))
         value = int(command.get('value'))
-        self.TEVcloud.tesla_set_off_grid_vehicle_charging(self.PWid, value)
+        self.TPWcloud.tesla_set_off_grid_vehicle_charging(self.PWid, value)
         self.EV_setDriver('GV27', value, 51)
 
 
@@ -204,31 +205,31 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             #self.EV_setDriver('GV4', self.ps_type[self.TEVcloud.teslaEV_PowershareType(self.EVid)], 25) 
 
             try:
-                self.EV_setDriver('GV5', self.operationMode[self.TEVcloud.teslaExtractOperationMode(self.PWid)])
+                self.EV_setDriver('GV5', self.operationMode[self.TPWcloud.teslaExtractOperationMode(self.PWid)])
             except KeyError:
                 self.EV_setDriver('GV5', None)
             try: 
-                self.EV_setDriver('GV6', self.gridstatus[self.TEVcloud.tesla_grid_staus(self.PWid)])
+                self.EV_setDriver('GV6', self.gridstatus[self.TPWcloud.tesla_grid_staus(self.PWid)])
             except KeyError:
                 self.EV_setDriver('GV6', None)
 
-            self.EV_setDriver('GV7', self.TEVcloud.tesla_live_grid_service_active(self.PWid))
-            self.EV_setDriver('GV8', self.TEVcloud.tesla_home_energy_total(self.PWid, 'today'), 33)
+            self.EV_setDriver('GV7', self.TPWcloud.tesla_live_grid_service_active(self.PWid))
+            self.EV_setDriver('GV8', self.TPWcloud.tesla_home_energy_total(self.PWid, 'today'), 33)
 
-            self.EV_setDriver('GV10', self.TEVcloud.tesla_battery_energy_export(self.PWid, 'today'), 33)       
-            self.EV_setDriver('GV11', self.TEVcloud.tesla_battery_energy_import(self.PWid, 'today'), 33)
-            self.EV_setDriver('GV12', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'today'), 33) 
-            self.EV_setDriver('GV13', self.TEVcloud.tesla_grid_energy_import(self.PWid, 'today'), 33)
-            self.EV_setDriver('GV14', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'today')- self.TEVcloud.tesla_grid_energy_import(self.PWid, 'today'), 33)
-            self.EV_setDriver('GV15', self.TEVcloud.tesla_home_energy_total(self.PWid, 'yesterday'), 33)
-            self.EV_setDriver('GV17', self.TEVcloud.tesla_battery_energy_export(self.PWid, 'yesterday'), 33)       
-            self.EV_setDriver('GV18', self.TEVcloud.tesla_battery_energy_import(self.PWid, 'yesterday'), 33)
-            self.EV_setDriver('GV20', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'yesterday'), 33) 
-            self.EV_setDriver('GV21', self.TEVcloud.tesla_grid_energy_import(self.PWid, 'yesterday'), 33)
-            self.EV_setDriver('GV22', self.TEVcloud.tesla_grid_energy_export(self.PWid, 'yesterday')- self.TEVcloud.tesla_grid_energy_import(self.PWid, 'yesterday'), 33)
-            self.EV_setDriver('GV23', self.TEVcloud.teslaExtractBackupPercent(self.site_id))
-            self.EV_setDriver('GV24', self.TEVcloud.teslaExtractOperationMode(self.site_id))
-            self.EV_setDriver('GV25', self.TEVcloud.teslaExtractStormMode(self.site_id))
+            self.EV_setDriver('GV10', self.TPWcloud.tesla_battery_energy_export(self.PWid, 'today'), 33)       
+            self.EV_setDriver('GV11', self.TPWcloud.tesla_battery_energy_import(self.PWid, 'today'), 33)
+            self.EV_setDriver('GV12', self.TPWcloud.tesla_grid_energy_export(self.PWid, 'today'), 33) 
+            self.EV_setDriver('GV13', self.TPWcloud.tesla_grid_energy_import(self.PWid, 'today'), 33)
+            self.EV_setDriver('GV14', self.TPWcloud.tesla_grid_energy_export(self.PWid, 'today')- self.TEVcloud.tesla_grid_energy_import(self.PWid, 'today'), 33)
+            self.EV_setDriver('GV15', self.TPWcloud.tesla_home_energy_total(self.PWid, 'yesterday'), 33)
+            self.EV_setDriver('GV17', self.TPWcloud.tesla_battery_energy_export(self.PWid, 'yesterday'), 33)       
+            self.EV_setDriver('GV18', self.TPWcloud.tesla_battery_energy_import(self.PWid, 'yesterday'), 33)
+            self.EV_setDriver('GV20', self.TPWcloud.tesla_grid_energy_export(self.PWid, 'yesterday'), 33) 
+            self.EV_setDriver('GV21', self.TPWcloud.tesla_grid_energy_import(self.PWid, 'yesterday'), 33)
+            self.EV_setDriver('GV22', self.TPWcloud.tesla_grid_energy_export(self.PWid, 'yesterday')- self.TEVcloud.tesla_grid_energy_import(self.PWid, 'yesterday'), 33)
+            self.EV_setDriver('GV23', self.TPWcloud.teslaExtractBackupPercent(self.site_id))
+            self.EV_setDriver('GV24', self.TPWcloud.teslaExtractOperationMode(self.site_id))
+            self.EV_setDriver('GV25', self.TPWcloud.teslaExtractStormMode(self.site_id))
         except Exception as e:
             logging.error(f'updateISYPWdrivers charge node failed: nodes may not be 100% ready {e}')
 

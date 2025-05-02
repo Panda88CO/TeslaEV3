@@ -93,7 +93,7 @@ class teslaEVAccess(object):
         self.teslaPW_cloud = None
         time.sleep(1)
 
-
+    '''
     def customNsDone(self):
         return(self.customNsHandlerDone)
     
@@ -194,11 +194,11 @@ class teslaEVAccess(object):
 
  
     def add_to_parameters(self,  key, value):
-        '''add_to_parameters'''
+        ''add_to_parameters''
         self.customParameters[key] = value
 
     def check_parameters(self, key, value):
-        '''check_parameters'''
+        ''check_parameters''
         if key in self.customParameters:
             return(self.customParameters[key]  == value)
         else:
@@ -344,7 +344,7 @@ class teslaEVAccess(object):
         return(code, res)
    
 
-
+    '''
 
 
     def extract_needed_delay(self, input_string):
@@ -1597,7 +1597,6 @@ class teslaEVAccess(object):
     def teslaEV_SetSeatHeating (self, EVid, seat, levelHeat):
         logging.debug(f'teslaEV_SetSeatHeating {levelHeat}, {seat} for {EVid}')
         try:
-            self.rearSeatHeat = False #????????
             code, state = self.teslaEV_update_connection_status(EVid) 
             if state in ['asleep', 'offline']:
                 code, state = self._teslaEV_wake_ev(EVid)
@@ -1608,7 +1607,7 @@ class teslaEVAccess(object):
                 thirdrow = [3,6,7,8]
                 if not 0 <= int(levelHeat) <= 3:
                     logging.error(f'Invalid seat heat level passed (0-3) : {levelHeat}')
-                    return('error', f'Invalid seat heat level passed (0-3) : {levelHeat}')
+                    return('error', 'Invalid seat heat level passed (0-3) : {levelHeat}')
                 if seat not in seats: 
                     logging.error(f'Invalid seatpassed 0,1, 2, 4, 5 : {seat}')
                     return('error','Invalid seatpassed 0,1, 2, 4, 5 : {seat}')  
@@ -2151,7 +2150,7 @@ class teslaEVAccess(object):
 #############################
 #    TeslaPW call through
 #############################
-    '''    
+        
     def tesla_set_storm_mode(self, site_id, mode) -> None:
         logging.debug(f'EV tesla_set_storm_mode : {site_id} {mode}')
         self.teslaPW_cloud.tesla_set_storm_mode(site_id, mode)
@@ -2237,4 +2236,4 @@ class teslaEVAccess(object):
     def teslaExtractStormMode(self, site_id) -> None:
         logging.debug(f'EV teslaExtractStormMode : {site_id}')
         self.teslaPW_cloud.teslaExtractStormMode(site_id)             
-    '''
+        

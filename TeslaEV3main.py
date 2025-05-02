@@ -13,12 +13,14 @@ except ImportError:
     logging.basicConfig(level=20)
 import threading
 import json
-from TeslaEVOauth import teslaEVAccess
+from TeslaEVapi import teslaEVAccess
+from TeslaPWapi import teslaPWAccess
+from TeslaAPIOauth import teslaApiAccess
 #from TeslaEVStatusNode import teslaEV_StatusNode
 from TeslaEVClimateNode import teslaEV_ClimateNode
 from TeslaEVChargeNode import teslaEV_ChargeNode
 from TeslaEVPwrShareNode import teslaEV_PwrShareNode
-from TeslaEVOauth import teslaAccess
+from TeslaEVapi import teslaAccess
 
 
 VERSION = '0.1.10'
@@ -26,7 +28,7 @@ VERSION = '0.1.10'
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
 
-    def __init__(self, polyglot, primary, address, name, ev_cloud_access):
+    def __init__(self, polyglot, primary, address, name, tesla_api ):
         super(TeslaEVController, self).__init__(polyglot, primary, address, name)
         logging.info(f'_init_ Tesla EV Controller {VERSION}')
         logging.setLevel(10)
@@ -44,7 +46,9 @@ class TeslaEVController(udi_interface.Node):
         self.vehicleList = []
         self.vin_list = [] # needed for streaming server
         #self.stream_cert = {}
-        self.TEVcloud = ev_cloud_access
+        self.tesla_api = tesla_api
+        self.TEVcloud = teslaEVAccess(self.poly, self.tesla_api)
+        self.TPWcloud = teslaPWAccess(self.poly, self.tesla_api)
         self.power_share_node = None
         
         
@@ -113,7 +117,7 @@ class TeslaEVController(udi_interface.Node):
         self.nodes_in_db = self.poly.getNodesFromDb()
         self.config_done= True
         try:
-            self.TEVcloud.getAccessToken()
+            self.tesla_api.getAccessToken()
         except ValueError:
             logging.warning('Access token is not yet available. Please authenticate.')
             self.poly.Notices['auth'] = 'Please initiate authentication'
@@ -121,7 +125,7 @@ class TeslaEVController(udi_interface.Node):
 
     def oauthHandler(self, token):
         # When user just authorized, pass this to your service, which will pass it to the OAuth handler
-        self.TEVcloud.oauthHandler(token)
+        self.tesla_api.oauthHandler(token)
         # Then proceed with device discovery
         self.configDoneHandler()
 
@@ -147,8 +151,8 @@ class TeslaEVController(udi_interface.Node):
 
             logging.debug(f'Custom Data portal: {self.portalID} {self.portalSecret}')
 
-        self.TEVcloud.customNsHandler(key, data)
-        self.customNsDoneV =self.TEVcloud.customNsDone()
+        self.tesla_api.customNsHandler(key, data)
+        self.customNsDoneV =self.tesla_api.customNsDone()
     #def customDataHandler(self, Data):
     #    logging.debug('customDataHandler')
     #    self.customData.load(Data)
@@ -171,7 +175,7 @@ class TeslaEVController(udi_interface.Node):
                     logging.error(f'Unsupported region {region}')
                     self.poly.Notices['REGION'] = 'Unknown Region specified (NA = North America + Asia (-China), EU = Europe. middle East, Africa, CN = China)'
                 else:
-                    self.TEVcloud.cloud_set_region(region)
+                    self.tesla_api.cloud_set_region(region)
         else:
             logging.warning('No region found')
             self.customParameters['REGION'] = 'Input region NA, EU, CN'
@@ -232,7 +236,7 @@ class TeslaEVController(udi_interface.Node):
                 else:
                     self.TEVcloud.teslaEV_set_location_enabled(self.locationEn)
                     if self.locationEn.upper() == 'TRUE':
-                        self.TEVcloud.append_scope('vehicle_location')
+                        self.tesla_api.append_scope('vehicle_location')
                     
         else:
             logging.warning('No LOCATION')
@@ -241,20 +245,6 @@ class TeslaEVController(udi_interface.Node):
 
         logging.debug('customParamsHandler finish ')
         
-        if 'REGION' in userParams:
-            if self.customParameters['REGION'] != 'Input region NA, EU, CN':
-                region = str(self.customParameters['REGION'])
-                if region.upper() not in ['NA', 'EU', 'CN']:
-                    logging.error(f'Unsupported region {region}')
-                    self.poly.Notices['REGION'] = 'Unknown Region specified (NA = North America + Asia (-China), EU = Europe. middle East, Africa, CN = China)'
-                else:
-                    self.TEVcloud.cloud_set_region(region)
-        else:
-            logging.warning('No region found')
-            self.customParameters['REGION'] = 'Input region NA, EU, CN'
-            region = None
-            self.poly.Notices['region'] = 'Region not specified (NA = Nort America + Asia (-China), EU = Europe. middle East, Africa, CN = China)'
-
     def process_message(self):
         logging.debug('Stating proccess_mnessage thread')
         while True:
@@ -345,20 +335,20 @@ class TeslaEVController(udi_interface.Node):
             logging.info(f'Waiting for node to initialize {self.customParam_done} {self.customNsDoneV} {self.config_done} {self.portalReady}')
             #logging.debug(f' 1 2 3: {} {} {} {}'.format(self.customParam_done, , self.config_done))
             time.sleep(1)
-        self.TEVcloud.initializePortal(self.portalID, self.portalSecret)
+        self.tesla_api.initializePortal(self.portalID, self.portalSecret)
         logging.debug(f'Portal Credentials: {self.portalID} {self.portalSecret}')
-        #self.TEVcloud.initializePortal(self.portalID, self.portalSecret)
-        while not self.TEVcloud.portal_ready():
+        #self.tesla_api.initializePortal(self.portalID, self.portalSecret)
+        while not self.tesla_api.portal_ready():
             time.sleep(5)
             logging.debug('Waiting for portal connection')
-        while not self.TEVcloud.authenticated():
+        while not self.tesla_api.authenticated():
             logging.info('Waiting to authenticate to complete - press authenticate button')
             self.poly.Notices['auth'] = 'Please initiate authentication'
             time.sleep(5)
 
         assigned_addresses =[self.id]
         self.node_addresses = [self.id]
-        self.PW_siteid, self.nbr_wall_conn = self.TEVcloud.tesla_get_energy_products()
+        self.PW_siteid, self.nbr_wall_conn = self.TPWcloud.tesla_get_energy_products()
         logging.debug(f'Nbr Wall Cons main {self.nbr_wall_conn}')
         code, vehicles = self.TEVcloud.teslaEV_get_vehicles()
         if code in ['ok']:
@@ -460,12 +450,12 @@ class TeslaEVController(udi_interface.Node):
         logging.debug(f'portal_initialize {portalId} {portalSecret}')
         #portalId = None
         #portalSecret = None
-        self.TEVcloud.initializePortal(portalId, portalSecret)
+        self.tesla_api.initializePortal(portalId, portalSecret)
 
     def systemPoll(self, pollList):
         logging.debug(f'systemPoll - {pollList}')
         if self.TEVcloud:
-            if self.TEVcloud.authenticated():
+            if self.tesla_api.authenticated():
                 code, state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
                 if state:
                     self.EV_setDriver('ST', self.state2ISY(state), 25)
@@ -497,7 +487,7 @@ class TeslaEVController(udi_interface.Node):
         #    logging.info('Not all nodes ready:')
 
     def longPoll(self):
-        logging.info('Tesla EV  Controller longPoll - connected = {}'.format(self.TEVcloud.authenticated()))
+        logging.info('Tesla EV  Controller longPoll - connected = {}'.format(self.tesla_api.authenticated()))
 
         try:
             logging.debug(f'long poll list - checking for token update required')
@@ -1020,29 +1010,25 @@ if __name__ == "__main__":
         #polyglot.updateProfile()
         polyglot.setCustomParamsDoc()
 
-        TEV_cloud = teslaEVAccess(polyglot, 'energy_device_data energy_cmds vehicle_device_data vehicle_cmds vehicle_charging_cmds open_id offline_access')
+        TeslaApi = teslaApiAccess(polyglot,'energy_device_data energy_cmds vehicle_device_data vehicle_cmds vehicle_charging_cmds open_id offline_access')
         #TEV_cloud = teslaEVAccess(polyglot, 'energy_device_data energy_cmds open_id offline_access')
         #TEV_cloud = teslaEVAccess(polyglot, 'open_id vehicle_device_data vehicle_cmds  vehicle_charging_cmds offline_access')
-        logging.debug(f'TEV_Cloud {TEV_cloud}')
+        logging.debug(f'TeslaAPI {TeslaApi}')
 
-
-
-
-
-        TEV =TeslaEVController(polyglot, 'controller', 'controller', 'Tesla EV Status', TEV_cloud)
+        TEV =TeslaEVController(polyglot, 'controller', 'controller', 'Tesla EV Status', TeslaApi)
         logging.debug('before subscribe')
-        polyglot.subscribe(polyglot.STOP, TEV.stop)
-        polyglot.subscribe(polyglot.CUSTOMPARAMS, TEV.customParamsHandler)
-        polyglot.subscribe(polyglot.CONFIGDONE, TEV.configDoneHandler)
+        #polyglot.subscribe(polyglot.STOP, TEV.stop)
+        #polyglot.subscribe(polyglot.CUSTOMPARAMS, TEV.customParamsHandler)
+        #polyglot.subscribe(polyglot.CONFIGDONE, TEV.configDoneHandler)
         #polyglot.subscribe(polyglot.ADDNODEDONE, TEV.node_queue)        
-        polyglot.subscribe(polyglot.LOGLEVEL, TEV.handleLevelChange)
-        polyglot.subscribe(polyglot.NOTICES, TEV.handleNotices)
-        polyglot.subscribe(polyglot.POLL, TEV.systemPoll)        
-        polyglot.subscribe(polyglot.WEBHOOK, TEV.webhook)
-        logging.debug('Calling start')
-        polyglot.subscribe(polyglot.START, TEV.start, 'controller')
-        polyglot.subscribe(polyglot.CUSTOMNS, TEV.customNSHandler)
-        polyglot.subscribe(polyglot.OAUTH, TEV.oauthHandler)
+        #polyglot.subscribe(polyglot.LOGLEVEL, TEV.handleLevelChange)
+        ##polyglot.subscribe(polyglot.NOTICES, TEV.handleNotices)
+        #polyglot.subscribe(polyglot.POLL, TEV.systemPoll)        
+        #polyglot.subscribe(polyglot.WEBHOOK, TEV.webhook)
+        #logging.debug('Calling start')
+        #polyglot.subscribe(polyglot.START, TEV.start, 'controller')
+        #polyglot.subscribe(polyglot.CUSTOMNS, TEV.customNSHandler)
+        #polyglot.subscribe(polyglot.OAUTH, TEV.oauthHandler)
         
         logging.debug('after subscribe')
         polyglot.ready()
