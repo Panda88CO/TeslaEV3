@@ -21,7 +21,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVOauth import teslaAccess
 
 
-VERSION = '0.1.8'
+VERSION = '0.1.9'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -465,11 +465,11 @@ class TeslaEVController(udi_interface.Node):
                     self.longPoll()
                     if 'shortPoll' in pollList: #send short polls heart beat as shortpoll is not executed
                         self.heartbeat()
-                if self.power_share_node:
+                if self.nbr_wall_conn != 0:
                         self.power_share_node.poll('all')
                 if 'shortPoll' in pollList:
                     self.shortPoll()
-                    if self.power_share_node:
+                    if self.nbr_wall_conn != 0:
                         self.power_share_node.poll('critical')
             else:
                 logging.info('Waiting for system/nodes to initialize')
@@ -575,7 +575,7 @@ class TeslaEVController(udi_interface.Node):
                 if self.chargeNode.node_ready():
                     self.chargeNode.updateISYdrivers()
                     
-                if self.power_share_node: 
+                if self.nbr_wall_conn != 0: 
                     logging.debug(f'power share updateISYdrivers {self.power_share_node.node_ready()}')   
                     if self.power_share_node.node_ready():
                         self.power_share_node.updateISYdrivers()
