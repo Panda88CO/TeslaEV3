@@ -207,7 +207,8 @@ class teslaPWAccess(teslaAccess):
         t_yesterday = t_now - timedelta(days = 1)
         self.t_yesterday_date = t_yesterday.strftime('%Y-%m-%d')
         logging.debug('timezone info : {}'.format(self.installation_tz))
-        if self.installation_tz[site_id]:
+        
+        if site_id in self.installation_tz:
             self.tz_str = self.installation_tz[site_id]
         else:
             self.tz_str = t_now.tzname()
