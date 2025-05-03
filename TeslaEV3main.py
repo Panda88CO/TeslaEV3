@@ -234,7 +234,7 @@ class TeslaEVController(udi_interface.Node):
                     logging.error(f'Unsupported Location Setting {self.locationEn}')
                     self.poly.Notices['location'] = 'Unknown Location setting '
                 else:
-                    self.TEVcloud.teslaEV_set_location_enabled(self.locationEn)
+                    self.tesla_api.teslaEV_set_location_enabled(self.locationEn)
                     if self.locationEn.upper() == 'TRUE':
                         self.tesla_api.append_scope('vehicle_location')
                     
@@ -394,7 +394,7 @@ class TeslaEVController(udi_interface.Node):
 
 
         # force creation of new config - assume this will enable retransmit of all data 
-        if not self.TEVcloud.teslaEV_streaming_check_certificate_update(self.EVid, True ): #We need to update streaming server credentials
+        if not self.tesla_api.teslaEV_streaming_check_certificate_update(self.EVid, True ): #We need to update streaming server credentials
             logging.info('')
             self.poly.Notices['SYNC']=f'{EVname} ERROR failed to connect to streaming server - EV may be too old'
             #self.stop()
@@ -409,7 +409,7 @@ class TeslaEVController(udi_interface.Node):
             #sys.exit()
         #sync_status = False
        
-        while not self.TEVcloud.teslaEV_streaming_synched(self.EVid):
+        while not self.tesla_api.teslaEV_streaming_synched(self.EVid):
             time.sleep(3)
 
                     
@@ -437,7 +437,7 @@ class TeslaEVController(udi_interface.Node):
         self.Notices.clear()
         #self.background_thread.stop()
         #if self.TEV:
-        self.TEVcloud.teslaEV_streaming_delete_config(self.EVid)
+        self.tesla_api.teslaEV_streaming_delete_config(self.EVid)
         self.EV_setDriver('ST', 0, 25 )
         logging.debug('stop - Cleaning up')
         #self.scheduler.shutdown()
@@ -491,7 +491,7 @@ class TeslaEVController(udi_interface.Node):
 
         try:
             logging.debug(f'long poll list - checking for token update required')
-            self.TEVcloud.teslaEV_streaming_check_certificate_update(self.EVid) #We need to check if we need to update streaming server credentials
+            self.tesla_api.teslaEV_streaming_check_certificate_update(self.EVid) #We need to check if we need to update streaming server credentials
 
         except Exception:
             logging.info(f'Not all nodes ready:')
@@ -519,7 +519,7 @@ class TeslaEVController(udi_interface.Node):
             nodeName = self.poly.getValidName('Powershare Info')
             nodeAdr = self.poly.getValidAddress(nodeAdr)
             logging.info(f'Creating pwrshare: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.PW_siteid}')
-            self.power_share_node = teslaEV_PwrShareNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.PW_siteid, self.TEVcloud )
+            self.power_share_node = teslaEV_PwrShareNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.PW_siteid, self.TEVcloud, self.TPWcloud )
             self.node_addresses.append(nodeAdr)
         logging.debug(f'climate drivers0 {self.climateNode.drivers}')
 

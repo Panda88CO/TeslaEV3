@@ -47,8 +47,8 @@ class teslaEVAccess(object):
         self.poly = polyglot
         self.tesla_api = tesla_api
         #self.customParameters = Custom(self.poly, 'customparams')
-        self.stream_cert = Custom(polyglot, 'customdata')
-        self.poly.subscribe(self.poly.CUSTOMDATA, self.customDataHandler) 
+        #self.stream_cert = Custom(polyglot, 'customdata')
+        #self.poly.subscribe(self.poly.CUSTOMDATA, self.customDataHandler) 
 
         self.EndpointNA= 'https://fleet-api.prd.na.vn.cloud.tesla.com'
         self.EndpointEU= 'https://fleet-api.prd.eu.vn.cloud.tesla.com'
@@ -78,7 +78,7 @@ class teslaEVAccess(object):
         self.locationEn = False
         self.canActuateTrunks = False
         self.sunroofInstalled = False
-        self.readSeatHeat = False
+        self.rearSeatHeat = False
         self.steeringWheeelHeat = False
         self.steeringWheelHeatDetected = False
         self.ev_list = []
@@ -2150,7 +2150,7 @@ class teslaEVAccess(object):
 #############################
 #    TeslaPW call through
 #############################
-        
+'''        
     def tesla_set_storm_mode(self, site_id, mode) -> None:
         logging.debug(f'EV tesla_set_storm_mode : {site_id} {mode}')
         self.teslaPW_cloud.tesla_set_storm_mode(site_id, mode)
@@ -2236,4 +2236,4 @@ class teslaEVAccess(object):
     def teslaExtractStormMode(self, site_id) -> None:
         logging.debug(f'EV teslaExtractStormMode : {site_id}')
         self.teslaPW_cloud.teslaExtractStormMode(site_id)             
-        
+'''        
