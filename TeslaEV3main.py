@@ -348,6 +348,7 @@ class TeslaEVController(udi_interface.Node):
 
         assigned_addresses =[self.id]
         self.node_addresses = [self.id]
+        self.poly.Notices['products'] = 'Acquiring supported products'
         self.PW_siteid, self.nbr_wall_conn = self.TPWcloud.tesla_get_energy_products()
         logging.debug(f'Nbr Wall Cons main {self.nbr_wall_conn}')
         code, vehicles = self.TEVcloud.teslaEV_get_vehicles()
@@ -383,8 +384,9 @@ class TeslaEVController(udi_interface.Node):
         nodeName = self.poly.getValidName(EVname)
         self.node.rename(nodeName)
         assigned_addresses.append(self.address)
-        
+        self.poly.Notices['subnotes'] = 'Creating sub-notes - 2 or 3 depending on powershare support'
         time.sleep(1)
+        self.poly.Notices.delete('products')
         self.createSubNodes()
 
         while not (self.subnodesReady()):
@@ -394,6 +396,7 @@ class TeslaEVController(udi_interface.Node):
 
 
         # force creation of new config - assume this will enable retransmit of all data 
+        self.poly.Notices['subscribe1'] = 'Subscribing to datastream from EV'
         if not self.tesla_api.teslaEV_streaming_check_certificate_update(self.EVid, True ): #We need to update streaming server credentials
             logging.info('')
             self.poly.Notices['SYNC']=f'{EVname} ERROR failed to connect to streaming server - EV may be too old'
@@ -410,6 +413,7 @@ class TeslaEVController(udi_interface.Node):
         #sync_status = False
        
         while not self.tesla_api.teslaEV_streaming_synched(self.EVid):
+            self.poly.Notices['subscribe2'] = 'Waiting for EV to synchronize datastream - this may take some time '
             time.sleep(3)
 
                     
@@ -425,7 +429,10 @@ class TeslaEVController(udi_interface.Node):
                 logging.debug('Removing node : {} {}'.format(node['name'], node))
                 self.poly.delNode(node['address'])
         self.update_all_drivers()
+        self.poly.Notices['done'] = 'Initialization process completed'
         self.initialized = True
+        time.sleep(2)
+        self.poly.Notices.clear()
 
 
     def validate_params(self):
