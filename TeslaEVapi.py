@@ -1830,7 +1830,7 @@ class teslaEVAccess(object):
                     if self.stream_data[EVid]['SentryMode']['invalid']:
                         return(None)
                 else:
-                    return(self.stream_data[EVid]['SentryMode']['sentryModeStateValue'])
+                    return(str(self.stream_data[EVid]['SentryMode']['sentryModeStateValue']))
             else:
                 return(None)
                 #return(self.carInfo[EVid]['vehicle_state']['center_display_state'])
