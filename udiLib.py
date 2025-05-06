@@ -121,23 +121,27 @@ def season2ISY(self, season):
 
 def state2ISY(self, state):
     logging.debug(f'state2ISY : state {state}')
+    res = 99
     if state is not None:
         if state.lower() == 'offline':
-            return(0)
+            res = 0
         elif state.lower() == 'online':
-            return(1)
+            res = 1
         elif state.lower() == 'asleep':
-            return(2) 
+            res = 2 
         elif state.lower() == 'overload':
-            return(4)
+            res = 4
         elif state.lower() == 'error':
-            return(5)
+            res = 5
         else:          
             logging.error(f'Unknown state passed {state}')
-            return(99)
+            res = 99
     else:
-        return(99)
-    
+        res = 99
+    logging.debug(f'state2ISY {res} - {state}')
+    return (res)
+
+
 def sync_state2ISY(self, state):
     logging.debug(f'sync_state2ISY : state {state}')
     if state is not None:

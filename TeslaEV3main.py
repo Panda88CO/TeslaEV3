@@ -23,7 +23,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVapi import teslaAccess
 
 
-VERSION = '0.1.13'
+VERSION = '0.1.14'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -428,7 +428,12 @@ class TeslaEVController(udi_interface.Node):
             if node['address'] not in self.node_addresses:
                 logging.debug('Removing node : {} {}'.format(node['name'], node))
                 self.poly.delNode(node['address'])
+
+              
         self.update_all_drivers()
+        state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+        logging.debug(f' state : {state}')
+        self.EV_setDriver('ST', self.state2ISY(state), 25)  
         self.poly.Notices['done'] = 'Initialization process completed'
         self.initialized = True
         time.sleep(2)
@@ -597,10 +602,7 @@ class TeslaEVController(udi_interface.Node):
         try:
             logging.debug(f'Update main node {self.drivers}')
             self.update_time()
-            #state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            #logging.debug(f' state : {state}')
-            #code, state = self.TEVcloud.teslaEV_update_connection_status(self.EVid)
-            #self.EV_setDriver('ST', self.state2ISY(state), 25)
+
             self.EV_setDriver('GV29', self.sync_state2ISY(self.tesla_api.stream_synched), 25)
 
             logging.info(f'updateISYdrivers - Status for {self.EVid}')
