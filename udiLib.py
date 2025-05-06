@@ -252,21 +252,23 @@ def sentry2ISY(self, state) -> int:
     try:
         if state is not None:
             if state == 'SentryModeStateOff':
-                return(1)
+                res = 1
             elif state == 'SentryModeStateIdle':
-                return(2)
+                res = 2
             elif state == 'SentryModeStateArmed':
-                return(3)
+                res = 3
             elif state == 'SentryModeStateAware':
-                return(4)
+                res = 4
             elif state == 'SentryModeStatePanic':
-                return(5)
+                res = 5
             elif state == 'SentryModeStateQuiet':
-                return(6)      
+                res = 6      
             else:
-                return(99)
+                res = 99
         else:
-            return(99)
+            res = 99
+        logging.debug(f'sentry2ISY = {res}')
+        return (res)
     except Exception as e:
         logging.debug(f'Error sentry2ISY {state}:  {e} ')
         return(99)
