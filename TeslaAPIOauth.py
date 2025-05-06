@@ -244,7 +244,7 @@ class teslaApiAccess(teslaAccess):
         #istr =  vin_list
         #vinstr_list.append(istr)
         #logging.debug(f'vinstr_list {vinstr_list}')
-
+        location_field = {}
         powershare_fields = {}
         stream_fields = {                  
                         'EstBatteryRange' : { 'interval_seconds': 60, 'minimum_delta': 1, 'resend_interval_seconds' : 600 },                    
@@ -279,7 +279,7 @@ class teslaApiAccess(teslaAccess):
                         'HomelinkNearby' : { 'interval_seconds': 60 },                        
                         'Odometer': { 'interval_seconds': 60,'minimum_delta': 1},
                         'DoorState' : { 'interval_seconds': 60 },
-                        'Location' : { 'interval_seconds': 60 },
+     
                         'DCChargingEnergyIn': { 'interval_seconds': 10, 'minimum_delta': 5 },
                         'DCChargingPower' : { 'interval_seconds': 10, 'minimum_delta': 5 },
                         'ACChargingEnergyIn': { 'interval_seconds': 10,'minimum_delta': 5 },
@@ -316,6 +316,11 @@ class teslaApiAccess(teslaAccess):
                         #charge_miles_added_rated   
                         #charger_power                     
                         }
+        if self.locationEn:
+            location_field = {
+                                   'Location' : { 'interval_seconds': 60 },
+                        }
+        
         if self.wall_connector != 0:  # there are wall connector / power share
             powershare_fields = {
                         'PowershareHoursLeft':{ 'interval_seconds': 60,'minimum_delta': 0.016  },     
@@ -330,7 +335,7 @@ class teslaApiAccess(teslaAccess):
                     'port': 443,
                     'exp': int(self.stream_cert['expiry']),
                     'alert_types': [ 'service' ],
-                    'fields': stream_fields | powershare_fields, 
+                    'fields': stream_fields | location_field | powershare_fields, 
                     'ca' : Cert_CA,
                     'hostname': 'my.isy.io'
                     },               

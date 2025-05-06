@@ -63,7 +63,7 @@ SENTRYSTATE-2=Ideal
 SENTRYSTATE-3=Armed 
 SENTRYSTATE-4=Aware 
 SENTRYSTATE-5=Panic 
-SENTRYSTATE-6=Quite 
+SENTRYSTATE-6=Quiet 
 SENTRYSTATE-99=Unknown 
 ST-nlsevstatus-GV10-NAME=Sunroof Percent Open
 
