@@ -23,7 +23,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVapi import teslaAccess
 
 
-VERSION = '0.1.11'
+VERSION = '0.1.13'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -601,7 +601,7 @@ class TeslaEVController(udi_interface.Node):
             #logging.debug(f' state : {state}')
             #code, state = self.TEVcloud.teslaEV_update_connection_status(self.EVid)
             #self.EV_setDriver('ST', self.state2ISY(state), 25)
-            self.EV_setDriver('GV29', self.sync_state2ISY(self.TEVcloud.stream_synched), 25)
+            self.EV_setDriver('GV29', self.sync_state2ISY(self.tesla_api.stream_synched), 25)
 
             logging.info(f'updateISYdrivers - Status for {self.EVid}')
             self.EV_setDriver('GV1',self.display2ISY(self.TEVcloud.teslaEV_GetCenterDisplay(self.EVid)), 25)
