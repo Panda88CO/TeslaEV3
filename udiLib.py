@@ -179,8 +179,7 @@ def display2ISY(self,state):
         elif state == 'DisplayStateDog':
             return(9)
         elif state == 'DisplayStateEntertainment':
-            return(10)
-                                                                          
+            return(10)                                                                          
         else:          
             logging.error('Unknown state passed {state}')
             return(99)
