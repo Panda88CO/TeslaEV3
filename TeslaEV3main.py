@@ -259,7 +259,9 @@ class TeslaEVController(udi_interface.Node):
                     self.TEVcloud.teslaEV_stream_process_data(data)
                     if self.subnodesReady():            
                         self.update_all_drivers()
+                        self.EV_setDriver('ST', 1, 25) # Car must be online to stream data 
                 time.sleep(1)
+
             except Exception as e:
                 logging.debug('message processing timeout - no new commands')
                 pass
@@ -416,6 +418,7 @@ class TeslaEVController(udi_interface.Node):
             self.poly.Notices['subscribe2'] = 'Waiting for EV to synchronize datastream - this may take some time '
             time.sleep(3)
 
+        self.EV_setDriver('ST', 1, 25)  # EV is synched so online 
                     
         logging.debug(f'Scanning db for extra nodes : {assigned_addresses} - {self.node_addresses}')
 
@@ -431,9 +434,7 @@ class TeslaEVController(udi_interface.Node):
 
               
         self.update_all_drivers()
-        state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        logging.debug(f' state : {state}')
-        self.EV_setDriver('ST', self.state2ISY(state), 25)  
+
         self.poly.Notices['done'] = 'Initialization process completed'
         self.initialized = True
         time.sleep(2)
