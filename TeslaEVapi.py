@@ -476,7 +476,7 @@ class teslaEVAccess(object):
             return(code, self.carInfo[EVid]['state'])
         except Exception as e:
             logging.error(f'teslaEV_GetCarState Exception : {e}')
-            return(None)
+            return(None, None)
 
 
     def teslaEV_GetConnectionStatus(self, EVid):
@@ -496,7 +496,7 @@ class teslaEVAccess(object):
                 return(code, res)
         except Exception as e:
             logging.error(f'teslaEV_update_vehicle_status Exception : {e}')
-    
+            return(None, None)
 
     def teslaEV_update_connection_status(self, EVid):
         #logging.debug(f'teslaEV_GetConnectionStatus: for {EVid}')
@@ -507,6 +507,7 @@ class teslaEVAccess(object):
         except Exception as e:
             logging.error(f'teslaEV_update_connection_status - {e}')
             return('error', e)
+
 
 
     def teslaEV_GetName(self, EVid):
