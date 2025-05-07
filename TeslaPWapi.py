@@ -233,7 +233,10 @@ class teslaPWAccess(object):
         logging.debug('timezone info : {}'.format(self.installation_tz))
         
         if site_id in self.installation_tz:
-            self.tz_str = self.installation_tz[site_id]
+            if self.installation_tz[site_id] is not None:
+                self.tz_str = self.installation_tz[site_id]
+            else:
+                self.tz_str = t_now.tzname()  
         else:
             self.tz_str = t_now.tzname()
 

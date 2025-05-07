@@ -23,7 +23,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVapi import teslaAccess
 
 
-VERSION = '0.1.14'
+VERSION = '0.1.15'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -69,7 +69,8 @@ class TeslaEVController(udi_interface.Node):
         self.name = name
         self.webhookTestTimeoutSeconds = 5
         self.n_queue = []
-        
+        self.TEVcloud = teslaEVAccess(self.poly, self.tesla_api)
+        self.TPWcloud = teslaPWAccess(self.poly, self.tesla_api)
         polyglot.subscribe(polyglot.STOP, self.stop)
         polyglot.subscribe(polyglot.CUSTOMPARAMS, self.customParamsHandler)
         polyglot.subscribe(polyglot.CONFIGDONE, self.configDoneHandler)
@@ -102,6 +103,7 @@ class TeslaEVController(udi_interface.Node):
         self.EVid = None
         self.data_flowing = False
         self.nbr_wall_conn = 0
+
         logging.info('Controller init DONE')
         logging.debug(f'drivers ; {self.drivers}')
 
@@ -390,12 +392,12 @@ class TeslaEVController(udi_interface.Node):
         time.sleep(1)
         self.poly.Notices.delete('products')
         self.createSubNodes()
-
+        logging.debug(f'climate drivers1 {self.climateNode.drivers}')
         while not (self.subnodesReady()):
             logging.debug(f'Subnodes {self.subnodesReady()} ')
             logging.debug('waiting for nodes to be created')
             time.sleep(5)
-
+        logging.debug(f'climate drivers2 {self.climateNode.drivers}')
 
         # force creation of new config - assume this will enable retransmit of all data 
         self.poly.Notices['subscribe1'] = 'Subscribing to datastream from EV'
@@ -404,7 +406,7 @@ class TeslaEVController(udi_interface.Node):
             self.poly.Notices['SYNC']=f'{EVname} ERROR failed to connect to streaming server - EV may be too old'
             #self.stop()
             sys.exit()
-
+        logging.debug(f'climate drivers3 {self.climateNode.drivers}')
             
         code, state = self.TEVcloud._teslaEV_wake_ev(self.EVid)
         logging.debug(f'Wake EV {code} {state}')
@@ -413,13 +415,13 @@ class TeslaEVController(udi_interface.Node):
             #self.stop()
             #sys.exit()
         #sync_status = False
-       
+        logging.debug(f'climate drivers4 {self.climateNode.drivers}')
         while not self.tesla_api.teslaEV_streaming_synched(self.EVid):
             self.poly.Notices['subscribe2'] = 'Waiting for EV to synchronize datastream - this may take some time '
             time.sleep(3)
 
         self.EV_setDriver('ST', 1, 25)  # EV is synched so online 
-                    
+        logging.debug(f'climate drivers5 {self.climateNode.drivers}')                    
         logging.debug(f'Scanning db for extra nodes : {assigned_addresses} - {self.node_addresses}')
 
         for indx, node  in enumerate(self.nodes_in_db):
@@ -431,7 +433,8 @@ class TeslaEVController(udi_interface.Node):
             if node['address'] not in self.node_addresses:
                 logging.debug('Removing node : {} {}'.format(node['name'], node))
                 self.poly.delNode(node['address'])
-
+        
+        logging.debug(f'climate drivers6 {self.climateNode.drivers}')
               
         self.update_all_drivers()
 
@@ -439,7 +442,7 @@ class TeslaEVController(udi_interface.Node):
         self.initialized = True
         time.sleep(2)
         self.poly.Notices.clear()
-
+        logging.debug(f'climate drivers7 {self.climateNode.drivers}')
 
     def validate_params(self):
         logging.debug('validate_params: {}'.format(self.Parameters.dump()))
@@ -468,7 +471,7 @@ class TeslaEVController(udi_interface.Node):
     def systemPoll(self, pollList):
         logging.debug(f'systemPoll - {pollList}')
         if self.TEVcloud:
-            if self.tesla_api.authenticated():
+            if self.tesla_api.authenticated() and self.initialized:
                 code, state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
                 if state:
                     self.EV_setDriver('ST', self.state2ISY(state), 25)
@@ -518,6 +521,7 @@ class TeslaEVController(udi_interface.Node):
         #if not self.poly.getNode(nodeAdr):
         logging.info(f'Creating ClimateNode: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.EVid}')
         self.climateNode = teslaEV_ClimateNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.TEVcloud )
+        time.sleep(2)
         self.node_addresses.append(nodeAdr)
         nodeAdr = 'charge'+str(self.EVid)[-10:]
         nodeName = self.poly.getValidName('Charging Info')
@@ -526,6 +530,7 @@ class TeslaEVController(udi_interface.Node):
         #if not self.poly.getNode(nodeAdr):
         logging.info(f'Creating ChargingNode: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.EVid}')
         self.chargeNode = teslaEV_ChargeNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.TEVcloud )
+        time.sleep(2)
         logging.debug(f'Nbr Wall Cons create: {self.nbr_wall_conn}')
         if self.nbr_wall_conn != 0: 
             nodeAdr = 'pwrshare'+str(self.EVid)[-8:]
@@ -534,14 +539,16 @@ class TeslaEVController(udi_interface.Node):
             logging.info(f'Creating pwrshare: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.PW_siteid}')
             self.power_share_node = teslaEV_PwrShareNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.PW_siteid, self.TEVcloud, self.TPWcloud )
             self.node_addresses.append(nodeAdr)
+        else:
+            self.power_share_node.nodeReady = True
         logging.debug(f'climate drivers0 {self.climateNode.drivers}')
-
+        time.sleep(2)
 
     def subnodesReady(self):
-        return(self.climateNode.nodeReady and self.chargeNode.nodeReady )
+        return(self.climateNode.nodeReady and self.chargeNode.nodeReady and self.power_share_node.nodeReady)
 
     def ready(self):
-        return(self.climateNode.nodeReady and self.chargeNode.nodeReady )
+        return(self.climateNode.nodeReady and self.chargeNode.nodeReady and self.power_share_node.nodeReady)
 
     def update_time(self):
         logging.debug('update_time')
