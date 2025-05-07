@@ -315,6 +315,8 @@ def EV_setDriver(self, key, value, Unit=None):
         if value is None:
             #logging.debug('None value passed = seting 99, UOM 25')
             self.node.setDriver(key, 99, True, True, 25)
+        elif isinstance(value, str) and value == 'invalid':
+            self.node.setDriver(key, 97, True, True, 25)
         else:
             if Unit:
                 self.node.setDriver(key, value, True, True, Unit)

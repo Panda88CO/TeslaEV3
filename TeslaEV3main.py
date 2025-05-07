@@ -23,7 +23,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVapi import teslaAccess
 
 
-VERSION = '0.1.16'
+VERSION = '0.1.17'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -63,7 +63,7 @@ class TeslaEVController(udi_interface.Node):
         self.portalData = Custom(self.poly, 'customNSdata')
         self.Notices = Custom(polyglot, 'notices')
         self.ISYforced = False
-        
+        self.STATE_UPDATE_MIN = 15
         self.primary = primary
         self.address = address
         self.name = name
@@ -472,14 +472,17 @@ class TeslaEVController(udi_interface.Node):
         logging.debug(f'systemPoll - {pollList}')
         if self.TEVcloud:
             if self.tesla_api.authenticated() and self.initialized:
-                code, state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-                if state:
-                    self.EV_setDriver('ST', self.state2ISY(state), 25)
-                    self.poly.Notices.delete('offline')
-                else:
-                    self.poly.Notices['offline']='API connection Failure - please re-authenticate'
-                    self.EV_setDriver('ST', 98, 25)
-                    #self.TEVcloud.teslaEV_get_vehicles()
+                time_n = int(time.time())
+                last_time = self.TEVcloud.teslaEV_GetTimestamp(self.EVid)
+                if (time_n - last_time) > self.STATE_UPDATE_MIN * 60:
+                    code, state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+                    if state:
+                        self.EV_setDriver('ST', self.state2ISY(state), 25)
+                        self.poly.Notices.delete('offline')
+                    else:
+                        self.poly.Notices['offline']='API connection Failure - please re-authenticate'
+                        self.EV_setDriver('ST', 98, 25)
+                        #self.TEVcloud.teslaEV_get_vehicles()
                 if 'longPoll' in pollList: 
                     self.longPoll()
                     if 'shortPoll' in pollList: #send short polls heart beat as shortpoll is not executed

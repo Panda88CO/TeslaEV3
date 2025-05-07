@@ -158,7 +158,7 @@ class teslaEVAccess(object):
     def _stream_return_data(self, EVid, dataKey):
         try:
             logging.debug(f'_stream_return_data {dataKey} {self.stream_data[EVid]} ')
-            invalid = False
+ 
             ret_val = None
             if dataKey in self.stream_data[EVid]:
                 for key in self.stream_data[EVid][dataKey]:
@@ -184,14 +184,14 @@ class teslaEVAccess(object):
                         ret_val = bool(val)
                     elif key in ['invalid', ]:
                         logging.debug('invalid {}'.format(bool(val)))
-                        invalid = val
+                        if val:
+                            ret_val = 'invalid'
+                        else:
+                            ret_val = None
                     else:
                         logging.debug('ELSE {}'.format(self.stream_data[EVid][dataKey]))
                         ret_val = val
-                if invalid:
-                    return(None)
-                else:
-                    return(ret_val)
+                return(ret_val)
             else:
                 return(None)
 
@@ -624,7 +624,7 @@ class teslaEVAccess(object):
             if self._stream_data_found(EVid, 'PowershareStatus'):
                 if 'invalid' in  self.stream_data[EVid]['PowershareStatus']:
                     if self.stream_data[EVid]['PowershareStatus']['invalid']:
-                        return(None)
+                        return('invalid')
                 else:
                     return(self.stream_data[EVid]['PowershareStatus']['powershareStateValue'])
             else:
@@ -641,7 +641,7 @@ class teslaEVAccess(object):
             if self._stream_data_found(EVid, 'PowershareStopReason'):
                 if 'invalid' in  self.stream_data[EVid]['PowershareStopReason']:
                     if self.stream_data[EVid]['PowershareStopReason']['invalid']:
-                        return(None)
+                        return('invalid')
                 else:
                     return(self.stream_data[EVid]['PowershareStopReason']['powershareStopReasonValue'])
             else:
@@ -660,7 +660,7 @@ class teslaEVAccess(object):
             if self._stream_data_found(EVid, 'PowershareType'):
                 if 'invalid' in  self.stream_data[EVid]['PowershareType']:
                     if self.stream_data[EVid]['PowershareType']['invalid']:
-                        return(None)
+                        return('invalid')
                 else:
                     return(self.stream_data[EVid]['PowershareType']['powershareTypeValue'])
             else:
@@ -762,7 +762,7 @@ class teslaEVAccess(object):
             if self._stream_data_found(EVid, 'ChargePortDoorOpen'):
                 if 'invalid' in  self.stream_data[EVid]['ChargePortDoorOpen']:
                     if self.stream_data[EVid]['ChargePortDoorOpen']['invalid']:
-                        return(None)
+                        return('invalid')
                 else:
                     return(self.stream_data[EVid]['ChargePortDoorOpen']['booleanValue'])
             else:
@@ -779,7 +779,7 @@ class teslaEVAccess(object):
             if self._stream_data_found(EVid, 'ChargePortLatch'):
                 if 'invalid' in  self.stream_data[EVid]['ChargePortLatch']:
                     if self.stream_data[EVid]['ChargePortLatch']['invalid']:
-                        return(None)
+                        return('invalid')
                 else:
 
                     return(self.stream_data[EVid]['ChargePortLatch']['chargePortLatchValue'])
@@ -838,7 +838,7 @@ class teslaEVAccess(object):
             if self._stream_data_found(EVid, 'DetailedChargeState'):
                 if 'invalid' in  self.stream_data[EVid]['DetailedChargeState']:
                     if self.stream_data[EVid]['DetailedChargeState']['invalid']:
-                        return(None)
+                        return('invalid')
                 else:
                     return(self.stream_data[EVid]['DetailedChargeState']['detailedChargeStateValue'])
             else:
@@ -1435,7 +1435,7 @@ class teslaEVAccess(object):
             if self._stream_data_found(EVid, 'CenterDisplay'):
                 if 'invalid' in  self.stream_data[EVid]['CenterDisplay']:
                     if self.stream_data[EVid]['CenterDisplay']['invalid']:
-                        return(None)
+                        return('invalid')
                 else:
                     return(self.stream_data[EVid]['CenterDisplay']['displayStateValue'])
             else:
@@ -1576,7 +1576,7 @@ class teslaEVAccess(object):
             if self._stream_data_found(EVid, 'SentryMode'):
                 if 'invalid' in  self.stream_data[EVid]['SentryMode']:
                     if self.stream_data[EVid]['SentryMode']['invalid']:
-                        return(None)
+                        return('invalid')
                 else:
                     return(str(self.stream_data[EVid]['SentryMode']['sentryModeStateValue']))
             else:
