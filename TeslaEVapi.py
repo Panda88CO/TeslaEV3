@@ -547,20 +547,16 @@ class teslaEVAccess(object):
             temp = {}
             temp['longitude'] = None
             temp['latitude'] = None
-            if self.tesla_api.stream_synched:
+            if self._stream_data_found(EVid, 'Location'):
                 logging.debug('teslaEV_GetLocation stream: {} for {}'.format(EVid,self.stream_data[EVid]['Location'] ))
-                loc = self.stream_data[EVid]['Location']['locationValue']
-                temp['longitude'] = self.stream_data[EVid]['Location']['locationValue']['longitude']
-                temp['latitude'] = self.stream_data[EVid]['Location']['locationValue']['latitude']
-                #data_found = True
-            #if not data_found:
-            #    logging.debug('teslaEV_GetLocation Org: {} for {}'.format(EVid,self.carInfo[EVid]['drive_state'] ))
-            #    if 'longitude' in self.carInfo[EVid]['drive_state']:
-            #        temp['longitude'] = self.carInfo[EVid]['drive_state']['longitude']
-            #        temp['latitude'] = self.carInfo[EVid]['drive_state']['latitude']
-            #    elif 'active_route_longitude'in self.carInfo[EVid]['drive_state']:
-            #        temp['longitude'] = self.carInfo[EVid]['drive_state']['active_route_longitude']
-            #        temp['latitude'] = self.carInfo[EVid]['drive_state']['active_route_latitude']                
+                if 'invalid' in  self.stream_data[EVid]['Location']:
+                    if self.stream_data[EVid]['Location']['invalid']:
+                        temp['longitude'] = 'invalid'
+                        temp['latitude'] = 'invalid'
+                else:
+                    temp['longitude'] = self.stream_data[EVid]['Location']['locationValue']['longitude']
+                    temp['latitude'] = self.stream_data[EVid]['Location']['locationValue']['latitude']
+              
             return(temp)
         except Exception as e:
             logging.debug(f'teslaEV_GetLocation - location error {e}')
