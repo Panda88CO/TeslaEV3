@@ -76,6 +76,8 @@ def state2Nbr(self, val):
         return(0)
     elif val == 'alert':
         return(1)
+    elif val == 'aleinvalidrt':
+        return(97)    
     else:
         return(99)
 
@@ -133,6 +135,8 @@ def state2ISY(self, state):
             res = 4
         elif state.lower() == 'error':
             res = 5
+        elif state.lower() == 'invalid':
+            res = 97           
         else:          
             logging.error(f'Unknown state passed {state}')
             res = 99
@@ -179,7 +183,9 @@ def display2ISY(self,state):
         elif state == 'DisplayStateDog':
             return(9)
         elif state == 'DisplayStateEntertainment':
-            return(10)                                                                          
+            return(10)     
+        elif state == 'invalid':
+            return(97)                                                                                  
         else:          
             logging.error('Unknown state passed {state}')
             return(99)
@@ -197,6 +203,8 @@ def code2ISY(self, state):
             return(4)
         elif state.lower() == 'error':
             return(5)
+        elif state.lower() == 'invalid':
+            return(97)       
         else:
             logging.error('Unknown state passed {state}')
             return(99)
@@ -246,6 +254,8 @@ def latch2ISY(self, state):
             return(0)
         elif state in ['ChargePortLatchSNA']:
             return(4)
+        elif state in ['invalid']:
+            return(97)
         else:
             return(99)
     else:
@@ -265,7 +275,9 @@ def sentry2ISY(self, state) -> int:
             elif state == 'SentryModeStatePanic':
                 res = 5
             elif state == 'SentryModeStateQuiet':
-                res = 6      
+                res = 6    
+            elif state == 'invalid':
+                res = 97                   
             else:
                 res = 99
         else:
@@ -290,6 +302,8 @@ def chargeState2ISY(self, state):
             return(4)
         elif state in ['complete','ChargeStateComplete', 'DetailedChargeStateComplete']:
             return(5)
+        elif state in ['invalid',]:
+            return(97)        
         else:
             return(99) 
     else:

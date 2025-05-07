@@ -779,7 +779,7 @@ class teslaEVAccess(object):
             if self._stream_data_found(EVid, 'ChargePortLatch'):
                 if 'invalid' in  self.stream_data[EVid]['ChargePortLatch']:
                     logging.debug('teslaEV_ChargePortLatched - invalid detected {}'.format(self.stream_data[EVid]['ChargePortLatch']))
-                    logging.debug('teslaEV_ChargePortLatched - value{}'.format(self.stream_data[EVid]['ChargePortLatch']['invalid']))
+                    logging.debug('teslaEV_ChargePortLatched - value {}'.format(self.stream_data[EVid]['ChargePortLatch']['invalid']))
                     if self.stream_data[EVid]['ChargePortLatch']['invalid']:
                         return('invalid')
                     else:
