@@ -23,7 +23,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVapi import teslaAccess
 
 
-VERSION = '0.1.15'
+VERSION = '0.1.16'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -539,16 +539,20 @@ class TeslaEVController(udi_interface.Node):
             logging.info(f'Creating pwrshare: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.PW_siteid}')
             self.power_share_node = teslaEV_PwrShareNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.PW_siteid, self.TEVcloud, self.TPWcloud )
             self.node_addresses.append(nodeAdr)
-        else:
-            self.power_share_node.nodeReady = True
         logging.debug(f'climate drivers0 {self.climateNode.drivers}')
         time.sleep(2)
 
     def subnodesReady(self):
-        return(self.climateNode.nodeReady and self.chargeNode.nodeReady and self.power_share_node.nodeReady)
+        if self.power_share_node is None:
+            return(self.climateNode.nodeReady and self.chargeNode.nodeReady)
+        else:
+            return(self.climateNode.nodeReady and self.chargeNode.nodeReady and self.power_share_node.nodeReady)
 
     def ready(self):
-        return(self.climateNode.nodeReady and self.chargeNode.nodeReady and self.power_share_node.nodeReady)
+        if self.power_share_node is None:
+            return(self.climateNode.nodeReady and self.chargeNode.nodeReady)
+        else:
+            return(self.climateNode.nodeReady and self.chargeNode.nodeReady and self.power_share_node.nodeReady)
 
     def update_time(self):
         logging.debug('update_time')

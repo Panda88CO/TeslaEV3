@@ -218,15 +218,25 @@ class teslaEV_PwrShareNode(udi_interface.Node):
 
             self.EV_setDriver('GV10', self.TPWcloud.tesla_battery_energy_export(self.PWid, 'today'), 33)       
             self.EV_setDriver('GV11', self.TPWcloud.tesla_battery_energy_import(self.PWid, 'today'), 33)
-            self.EV_setDriver('GV12', self.TPWcloud.tesla_grid_energy_export(self.PWid, 'today'), 33) 
-            self.EV_setDriver('GV13', self.TPWcloud.tesla_grid_energy_import(self.PWid, 'today'), 33)
-            self.EV_setDriver('GV14', self.TPWcloud.tesla_grid_energy_export(self.PWid, 'today')- self.TPWcloud.tesla_grid_energy_import(self.PWid, 'today'), 33)
+            exportPwr = self.TPWcloud.tesla_grid_energy_export(self.PWid, 'today')
+            self.EV_setDriver('GV12', exportPwr, 33) 
+            importPwr =  self.TPWcloud.tesla_grid_energy_import(self.PWid, 'today')
+            self.EV_setDriver('GV13',importPwr, 33)
+            if importPwr is not None and exportPwr is not None:
+                self.EV_setDriver('GV14', exportPwr- importPwr, 33)
+            else:
+                self.EV_setDriver('GV14', 99, 25)
             self.EV_setDriver('GV15', self.TPWcloud.tesla_home_energy_total(self.PWid, 'yesterday'), 33)
             self.EV_setDriver('GV17', self.TPWcloud.tesla_battery_energy_export(self.PWid, 'yesterday'), 33)       
             self.EV_setDriver('GV18', self.TPWcloud.tesla_battery_energy_import(self.PWid, 'yesterday'), 33)
-            self.EV_setDriver('GV20', self.TPWcloud.tesla_grid_energy_export(self.PWid, 'yesterday'), 33) 
-            self.EV_setDriver('GV21', self.TPWcloud.tesla_grid_energy_import(self.PWid, 'yesterday'), 33)
-            self.EV_setDriver('GV22', self.TPWcloud.tesla_grid_energy_export(self.PWid, 'yesterday')- self.TPWcloud.tesla_grid_energy_import(self.PWid, 'yesterday'), 33)
+            exportPwr = self.TPWcloud.tesla_grid_energy_export(self.PWid, 'yesterday')
+            self.EV_setDriver('GV20', exportPwr, 33) 
+            importPwr =  self.TPWcloud.tesla_grid_energy_import(self.PWid, 'yesterday')
+            self.EV_setDriver('GV21',importPwr, 33)
+            if importPwr is not None and exportPwr is not None:
+                self.EV_setDriver('GV22', exportPwr- importPwr, 33)
+            else:
+                self.EV_setDriver('GV22', 99, 25)
             self.EV_setDriver('GV23', self.TPWcloud.teslaExtractBackupPercent(self.site_id))
             self.EV_setDriver('GV24', self.TPWcloud.teslaExtractOperationMode(self.site_id))
             self.EV_setDriver('GV25', self.TPWcloud.teslaExtractStormMode(self.site_id))
