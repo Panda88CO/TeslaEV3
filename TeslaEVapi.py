@@ -776,18 +776,18 @@ class teslaEVAccess(object):
         logging.debug(f'teslaEV_ChargePortLatched for {EVid} {self.stream_data[EVid]}')
         #return(self._stream_return_data(EVid, 'ChargePortLatch'))
         try:
+            res = None
             if self._stream_data_found(EVid, 'ChargePortLatch'):
                 if 'invalid' in  self.stream_data[EVid]['ChargePortLatch']:
                     logging.debug('teslaEV_ChargePortLatched - invalid detected {}'.format(self.stream_data[EVid]['ChargePortLatch']))
                     logging.debug('teslaEV_ChargePortLatched - value {}'.format(self.stream_data[EVid]['ChargePortLatch']['invalid']))
                     if self.stream_data[EVid]['ChargePortLatch']['invalid']:
-                        return('invalid')
-                    else:
-                        return(None)
+                       res = 'invalid'
+
                 else:
-                    return(self.stream_data[EVid]['ChargePortLatch']['chargePortLatchValue'])
-            else:
-                return(None)
+                    res = self.stream_data[EVid]['ChargePortLatch']['chargePortLatchValue']
+            logging.debug(f'teslaEV_ChargePortLatched - return {res}')
+            return(res)
         except Exception as e:
             logging.debug(f'Exception teslaEV_ChargePortLatched - {e}')
             self.stream_data[EVid]['ChargePortLatch']['chargePortLatchValue'] = 'ChargePortLatchUnknown'
