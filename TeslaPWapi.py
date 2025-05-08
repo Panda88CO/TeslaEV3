@@ -565,12 +565,14 @@ class teslaPWAccess(object):
         
     def teslaExtractOperationMode(self, site_id):
         try:
+            logging.debug(f'teslaExtractOperationMode {site_id} {self.site_info}')
             return(self.site_info[site_id]['default_real_mode'])
         except KeyError:
             return(None)
         
     def teslaExtractStormMode(self, site_id):
         try:
+            logging.debug(f'teslaExtractStormMode {site_id} {self.site_live_info}')
             return(self.site_live_info[site_id]['storm_mode_active'])
         except KeyError:
             return(None)
@@ -578,12 +580,15 @@ class teslaPWAccess(object):
     def teslaExtractBackupPercent(self, site_id):
         logging.debug('teslaExtractBackupPercent : {} {}'.format(site_id, self.site_info))
         try:
+            logging.debug(f'teslaExtractBackupPercent {site_id} {self.site_info}')
+
             return(self.site_info[site_id]['backup_reserve_percent'])
         except KeyError:
             return(None)
         
     def tesla_total_battery(self, site_id):
         try:
+
             return(self.site_live_info[site_id][site_id]['total_pack_energy'])
         except KeyError:
             return(None)
@@ -591,6 +596,8 @@ class teslaPWAccess(object):
 
     def tesla_remaining_battery (self, site_id):
         try:
+            logging.debug(f'tesla_remaining_battery {site_id} {self.site_live_info}')
+
             return(self.site_live_info[site_id]['energy_left'])
         except KeyError:
             return(None)
@@ -598,18 +605,21 @@ class teslaPWAccess(object):
 
     def tesla_island_staus(self, site_id):
         try:
+
             return(self.site_live_info[site_id]['island_status'])
         except KeyError:
             return(None)    
         
     def tesla_grid_staus(self, site_id):
         try:
+            logging.debug(f'tesla_grid_staus {site_id} {self.site_live_info}')
             return(self.site_live_info[site_id]['grid_status'])
         except KeyError:
             return(None)    
         
     def tesla_live_grid_service_active(self, site_id):
         try:
+            logging.debug(f'tesla_live_grid_service_active {site_id} {self.site_live_info}')
             return(self.site_live_info[site_id]['grid_services_active'])
         except KeyError:
             return(None)
@@ -672,6 +682,7 @@ class teslaPWAccess(object):
     def teslaExtractGridStatus(self, site_id):
 
         try:
+            logging.debug(f'')
             return(self.site_live_info[site_id]['island_status'])
         except KeyError:
             return(None)
@@ -756,6 +767,7 @@ class teslaPWAccess(object):
         
     def tesla_home_energy_total(self, site_id, day):    
         try:
+            logging.debug(f'tesla_home_energy_total {site_id} {self.history_data}')
             return(self.history_data[site_id]['energy'][day]['consumer_energy_imported_from_grid'] + self.history_data[site_id]['energy'][day]['consumer_energy_imported_from_solar'] + self.history_data[site_id]['energy'][day]['consumer_energy_imported_from_battery'] + self.history_data[site_id]['energy'][day]['consumer_energy_imported_from_generator'] )
         except KeyError:
             return(None)
