@@ -474,15 +474,17 @@ class TeslaEVController(udi_interface.Node):
             if self.tesla_api.authenticated() and self.initialized:
                 time_n = int(time.time())
                 last_time = self.TEVcloud.teslaEV_GetTimestamp(self.EVid)
-                if (time_n - last_time) > self.STATE_UPDATE_MIN * 60:
-                    code, state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-                    if state:
-                        self.EV_setDriver('ST', self.state2ISY(state), 25)
-                        self.poly.Notices.delete('offline')
-                    else:
-                        self.poly.Notices['offline']='API connection Failure - please re-authenticate'
-                        self.EV_setDriver('ST', 98, 25)
-                        #self.TEVcloud.teslaEV_get_vehicles()
+                logging.debug(f'tine now {time_n} , last_time {last_time}')
+                if isinstance(time_n, int) and isinstance(last_time, int):
+                    if (time_n - last_time) > self.STATE_UPDATE_MIN * 60:
+                        code, state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+                        if state:
+                            self.EV_setDriver('ST', self.state2ISY(state), 25)
+                            self.poly.Notices.delete('offline')
+                        else:
+                            self.poly.Notices['offline']='API connection Failure - please re-authenticate'
+                            self.EV_setDriver('ST', 98, 25)
+                            #self.TEVcloud.teslaEV_get_vehicles()
                 if 'longPoll' in pollList: 
                     self.longPoll()
                     if 'shortPoll' in pollList: #send short polls heart beat as shortpoll is not executed
