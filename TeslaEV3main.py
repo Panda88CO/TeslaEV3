@@ -23,7 +23,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVapi import teslaAccess
 
 
-VERSION = '0.1.19'
+VERSION = '0.1.20'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -497,21 +497,23 @@ class TeslaEVController(udi_interface.Node):
                 logging.info('Waiting for system/nodes to initialize')
 
     def shortPoll(self):
-        logging.info('Tesla EV Controller shortPoll(HeartBeat)')
-        self.heartbeat()
-        
-        #try:
-        #    logging.debug(f'short poll list - heart beat')
-        #except Exception:
-        #    logging.info('Not all nodes ready:')
+        try:
+            logging.info('Tesla EV Controller shortPoll(HeartBeat)')
+            self.heartbeat()
+            if self.nbr_wall_conn != 0:
+                self.power_share_node.poll('critical')
+
+
+        except Exception:
+            logging.info('Not all nodes ready:')
 
     def longPoll(self):
-        logging.info('Tesla EV  Controller longPoll - connected = {}'.format(self.tesla_api.authenticated()))
-
         try:
+            logging.info('Tesla EV  Controller longPoll - connected = {}'.format(self.tesla_api.authenticated()))
             logging.debug(f'long poll list - checking for token update required')
             self.tesla_api.teslaEV_streaming_check_certificate_update(self.EVid) #We need to check if we need to update streaming server credentials
-
+            if self.nbr_wall_conn != 0:
+                self.power_share_node.poll('critical')
         except Exception:
             logging.info(f'Not all nodes ready:')
 

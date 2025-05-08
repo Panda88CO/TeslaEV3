@@ -195,7 +195,7 @@ class teslaEV_PwrShareNode(udi_interface.Node):
 
     def updateISYPWdrivers(self):
         try:
-            logging.info(f'Powershare updateISYPWdrivers {self.EVid} {self.drivers}')
+            logging.info(f'Powershare updateISYPWdrivers {self.EVid} {self.PWid} {self.drivers}')
             #self.update_time()
             #if self.TEVcloud.teslaEV_GetCarState(self.EVid) in ['online']:    
             #self.EV_setDriver('ST', self.TEVcloud.teslaEV_PowershareHoursLeft(self.EVid) , 20)
@@ -237,9 +237,9 @@ class teslaEV_PwrShareNode(udi_interface.Node):
                 self.EV_setDriver('GV22', exportPwr- importPwr, 33)
             else:
                 self.EV_setDriver('GV22', 99, 25)
-            self.EV_setDriver('GV23', self.TPWcloud.teslaExtractBackupPercent(self.site_id))
-            self.EV_setDriver('GV24', self.TPWcloud.teslaExtractOperationMode(self.site_id))
-            self.EV_setDriver('GV25', self.TPWcloud.teslaExtractStormMode(self.site_id))
+            self.EV_setDriver('GV23', self.TPWcloud.teslaExtractBackupPercent(self.PWid))
+            self.EV_setDriver('GV24', self.TPWcloud.teslaExtractOperationMode(self.PWid))
+            self.EV_setDriver('GV25', self.TPWcloud.teslaExtractStormMode(self.PWid))
         except Exception as e:
             logging.error(f'updateISYPWdrivers charge node failed: nodes may not be 100% ready {e}')
 

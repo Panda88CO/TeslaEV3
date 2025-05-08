@@ -2,7 +2,7 @@
    <nodeDef id="controller" nls="nlsevstatus">
       <editors />
       <sts>
-         <st id="ST" editor="CARSTATE" />
+         <st id="ST" editor="NODEST" />
          <st id="GV1" editor="CONSOLE" />
          <st id="GV2" editor="BOOLSTATE" />
          <st id="GV0" editor="NUMBER" />
