@@ -743,6 +743,7 @@ class teslaPWAccess(object):
 
     def tesla_grid_energy_import(self, site_id, day):
         try:
+            logging.debug(f'tesla_grid_energy_import {site_id} {self.history_data}')
             return(self.history_data[site_id]['energy'][day]['grid_energy_imported'])
         except KeyError:
             return(None)
