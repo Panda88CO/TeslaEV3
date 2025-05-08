@@ -90,7 +90,7 @@ class teslaApiAccess(teslaAccess):
         self.next_chaging_call = temp
         self.next_device_data_call = temp
         self.stream_data = {}
-        self.wall_connector = 0
+        self.powerShareEn = False
         self.teslaPW_cloud = None
         time.sleep(1)
 
@@ -184,6 +184,10 @@ class teslaApiAccess(teslaAccess):
         logging.debug(f'teslaEV_set_location_enabled {self.locationEn}')
 
     
+    def teslaEV_set_power_share_enabled(self, state):
+        self.powerShareEn = state
+        logging.debug(f'teslaEV_set_power_share_enabled {self.powerShareEn}')
+
     def main_module_enabled(self, node_name):
         logging.debug(f'main_module_enabled called {node_name}')
         if node_name in self.customParameters :           
@@ -321,7 +325,7 @@ class teslaApiAccess(teslaAccess):
                                    'Location' : { 'interval_seconds': 60 },
                         }
         
-        if self.wall_connector != 0:  # there are wall connector / power share
+        if self.powerShareEn:  # there are wall connector / power share
             powershare_fields = {
                         'PowershareHoursLeft':{ 'interval_seconds': 60,'minimum_delta': 0.016  },     
                         'PowershareInstantaneousPowerKW':{ 'interval_seconds': 60, 'minimum_delta': 0.1  },     
