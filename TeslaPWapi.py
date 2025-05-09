@@ -73,6 +73,7 @@ class teslaPWAccess(object):
         #time.sleep(1)
         self.PWiniitalized = True
         self.wall_connector = 0
+        self.ev_names = {}
         #while not self.handleCustomParamsDone:
         #    logging.debug('Waiting for customParams to complete - getAccessToken')
         #    time.sleep(0.2)
@@ -112,6 +113,7 @@ class teslaPWAccess(object):
             site_id = ''
             code, temp = self.tesla_api._callApi('GET','/products' )
             logging.debug('products: {} '.format(temp))
+            
             if 'response' in temp:
                 for indx, site  in enumerate(temp['response']):
                     #site = temp['response'][indx]
@@ -122,13 +124,35 @@ class teslaPWAccess(object):
                                 self.wall_connector = len(site['components']['wall_connectors'])
 
                         site_id = str(site['energy_site_id'])
+                    if 'vin' in site:
+                        if 'display_name' in site:
+                            self.ev_names[site['vin']] = site['display_name']
+                        else:
+                            self.ev_names[site['vin']] = site['vin']
+
             logging.debug(f'Nbr wall coinnectors: {self.wall_connector}')
-            self.teslaPW_cloud = teslaPWAccess(self.poly, '') # scope can be empty as already connected
+            #self.teslaPW_cloud = teslaPWAccess(self.poly, '') # scope can be empty as already connected
             return(site_id, self.wall_connector)
         except Exception as e:
             logging.error('tesla_get_energy_products Exception : {}'.format(e))
             return(site_id, self.wall_connector)
      
+    def tesla_get_vehicle_name(self, vin):
+        try:
+            logging.debug(f'tesla_get_vehicle_name {vin}')
+            name = self.carInfo[vin]['display_name']
+            return(str(name))
+        except Exception:
+            return(str(vin))
+        
+
+    def tesla_powershare_connected_ev(self, site_id):
+        try:
+            logging.debug('tesla_powershare_connected_ev ')
+            vin = self.site_live_info[site_id]['wall_connectors']['vin']
+            return(self.tesla_get_vehicle_name(vin))
+        except Exception:
+            return('No EV connected')
 
     def tesla_get_live_status(self, site_id) -> None:
         logging.debug('tesla_get_live_status ')

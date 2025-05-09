@@ -277,6 +277,9 @@ class teslaEVAccess(object):
             logging.error(f'teslaEV_get_vehicles Exception : {e}')
 
 
+
+        
+
     def tesla_get_energy_products(self):
         #power_walls= {}
         logging.debug('tesla_get_energy_products ')

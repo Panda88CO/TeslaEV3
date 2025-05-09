@@ -71,10 +71,10 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             'site_ctrl' : 3 }
         self.TOU_MODES = ["economics", "balanced"]
         self.gridstatus = {'on_grid':0, 'islanded_ready':1, 'islanded':2, 'transition ot grid':3}
-
+        code, vehicles = self.TEVcloud.teslaEV_get_vehicles()
         logging.info('_init_ Tesla Charge Node COMPLETE')
         logging.debug(f'drivers ; {self.drivers}')
-
+        
         
     def start(self):                
         logging.info(f'Start Tesla EV power share Node: {self.EVid}')  
@@ -89,6 +89,7 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             self.TPWcloud.teslaUpdateCloudData(self.PWid, 'critical') 
         elif mode == 'all':
             self.TPWcloud.teslaUpdateCloudData(self.PWid, 'all') 
+
         self.updateISYPWdrivers()
 
     def node_ready (self):
@@ -157,6 +158,9 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             self.update_time()
             #if self.TEVcloud.teslaEV_GetCarState(self.EVid) in ['online']:    
             self.EV_setDriver('ST', self.TEVcloud.teslaEV_PowershareHoursLeft(self.EVid) , 20)
+            ev_name = self.TPWcloud.tesla_powershare_connected_ev(self.PWid)
+            logging.debug(f'Connected ev {ev_name}')
+            self.poly.setDriver('GV0', ev_name)
             self.EV_setDriver('GV1', self.TEVcloud.teslaEV_PowershareInstantaneousPowerKW(self.EVid), 33)
             self.EV_setDriver('GV2', self.ps_state[self.TEVcloud.teslaEV_PowershareStatus(self.EVid)],25)
             self.EV_setDriver('GV3', self.ps_stop_reason[self.TEVcloud.teslaEV_PowershareStopReason(self.EVid)],25)
@@ -294,9 +298,6 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             {'driver': 'GV23', 'value': 0, 'uom': 58},
             {'driver': 'GV24', 'value': 0, 'uom': 0}, 
             {'driver': 'GV25', 'value': 0, 'uom': 58}, 
-            {'driver': 'GV26', 'value': 99, 'uom': 25},
-            {'driver': 'GV28', 'value': 99, 'uom': 58}, 
-            {'driver': 'GV27', 'value': 99, 'uom': 25},
             {'driver': 'GV19', 'value': 0, 'uom': 151},  #PowerShare Typ   
             {'driver': 'GV29', 'value': 0, 'uom': 151},  #PowerShare Typ   
 

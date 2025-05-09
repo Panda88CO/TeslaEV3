@@ -337,9 +337,11 @@ PSTYPE-3=Home
 PSTYPE-97=Data Invalid
 PSTYPE-99=Unknown
 
-
+ST-nlspwrshare-GV5-NAME = Operation Mode
+ST-nlspwrshare-GV6-NAME = Grid Status
+ST-nlspwrshare-GV7-NAME = Live Grid Service Active
 ST-nlspwrshare-GV8-NAME = Home Total Use Today
-ST-nlspwrshare-GV9-NAME = Solar Export Today
+
 ST-nlspwrshare-GV10-NAME = Battery Export Today
 ST-nlspwrshare-GV11-NAME = Battery Import Today
 ST-nlspwrshare-GV12-NAME = Grid Export Today
