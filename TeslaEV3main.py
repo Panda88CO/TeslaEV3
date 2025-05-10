@@ -155,7 +155,7 @@ class TeslaEVController(udi_interface.Node):
             logging.debug(f'Custom Data portal: {self.portalID} {self.portalSecret}')
 
         self.tesla_api.customNsHandler(key, data)
-        self.customNsDoneV =self.tesla_api.customNsDone()
+        self.customNsDone =self.tesla_api.customNsDone()
     #def customDataHandler(self, Data):
     #    logging.debug('customDataHandler')
     #    self.customData.load(Data)

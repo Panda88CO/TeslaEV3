@@ -322,7 +322,12 @@ def period2ISY(self, period):
             return (99) 
     else:
         return(99)
-
+def to_KW(self, power):
+    if isinstance(power, int) or  isinstance(power, float) :
+        return(round(power/1000), 2)   
+    else:
+        return(power)
+    
 def EV_setDriver(self, key, value, Unit=None):
     logging.debug(f'EV_setDriver : {key} {value} {Unit}')
     try:

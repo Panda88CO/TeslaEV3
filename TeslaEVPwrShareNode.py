@@ -12,7 +12,7 @@ import time
 
 class teslaEV_PwrShareNode(udi_interface.Node):
     #from  udiLib import node_queue, wait_for_node_done, mask2key, latch2ISY, cond2ISY, heartbeat, state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
-    from  udiLib import node_queue, command_res2ISY, wait_for_node_done, tempUnitAdjust, latch2ISY, chargeState2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat,  code2ISY, state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
+    from  udiLib import node_queue, to_KW, command_res2ISY, wait_for_node_done, tempUnitAdjust, latch2ISY, chargeState2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat,  code2ISY, state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
 
     def __init__(self, polyglot, parent, address, name, evid,  pwid, TEVcloud, TPWcloud):
         super(teslaEV_PwrShareNode, self).__init__(polyglot, parent, address, name)
@@ -218,24 +218,25 @@ class teslaEV_PwrShareNode(udi_interface.Node):
                 self.EV_setDriver('GV6', None)
 
             self.EV_setDriver('GV7', self.TPWcloud.tesla_live_grid_service_active(self.PWid))
-            self.EV_setDriver('GV8', self.TPWcloud.tesla_home_energy_total(self.PWid, 'today'), 33)
 
-            self.EV_setDriver('GV10', self.TPWcloud.tesla_battery_energy_export(self.PWid, 'today'), 33)       
-            self.EV_setDriver('GV11', self.TPWcloud.tesla_battery_energy_import(self.PWid, 'today'), 33)
-            exportPwr = self.TPWcloud.tesla_grid_energy_export(self.PWid, 'today')
+            self.EV_setDriver('GV8', self.to_KW(self.TPWcloud.tesla_home_energy_total(self.PWid, 'today')), 33)
+
+            self.EV_setDriver('GV10', self.to_KW(self.TPWcloud.tesla_battery_energy_export(self.PWid, 'today')), 33)       
+            self.EV_setDriver('GV11', self.to_KW(self.TPWcloud.tesla_battery_energy_import(self.PWid, 'today')), 33)
+            exportPwr = self.to_KW(self.TPWcloud.tesla_grid_energy_export(self.PWid, 'today'))
             self.EV_setDriver('GV12', exportPwr, 33) 
-            importPwr =  self.TPWcloud.tesla_grid_energy_import(self.PWid, 'today')
+            importPwr =  self.to_KW(self.TPWcloud.tesla_grid_energy_import(self.PWid, 'today'))
             self.EV_setDriver('GV13',importPwr, 33)
             if importPwr is not None and exportPwr is not None:
                 self.EV_setDriver('GV14', exportPwr- importPwr, 33)
             else:
                 self.EV_setDriver('GV14', 99, 25)
-            self.EV_setDriver('GV15', self.TPWcloud.tesla_home_energy_total(self.PWid, 'yesterday'), 33)
-            self.EV_setDriver('GV17', self.TPWcloud.tesla_battery_energy_export(self.PWid, 'yesterday'), 33)       
-            self.EV_setDriver('GV18', self.TPWcloud.tesla_battery_energy_import(self.PWid, 'yesterday'), 33)
-            exportPwr = self.TPWcloud.tesla_grid_energy_export(self.PWid, 'yesterday')
+            self.EV_setDriver('GV15', self.to_KW(self.TPWcloud.tesla_home_energy_total(self.PWid, 'yesterday'), 33))
+            self.EV_setDriver('GV17', self.to_KW(self.TPWcloud.tesla_battery_energy_export(self.PWid, 'yesterday'), 33))      
+            self.EV_setDriver('GV18', self.to_KW(self.TPWcloud.tesla_battery_energy_import(self.PWid, 'yesterday'), 33))
+            exportPwr = self.to_KW(self.TPWcloud.tesla_grid_energy_export(self.PWid, 'yesterday'))
             self.EV_setDriver('GV20', exportPwr, 33) 
-            importPwr =  self.TPWcloud.tesla_grid_energy_import(self.PWid, 'yesterday')
+            importPwr =  self.to_KW(self.TPWcloud.tesla_grid_energy_import(self.PWid, 'yesterday'))
             self.EV_setDriver('GV21',importPwr, 33)
             if importPwr is not None and exportPwr is not None:
                 self.EV_setDriver('GV22', exportPwr- importPwr, 33)

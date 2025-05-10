@@ -304,7 +304,7 @@ CMD-nlsevcharge-BATPERCENT-NAME=Set Battery Charge Target
 CMD-nlsevcharge-CHARGEAMPS-NAME=Set Max Charge Current
 
 ND-pwrshare-NAME=EV power share
-ND-pwrshare-ICON=TElectricity
+ND-pwrshare-ICON=Electricity
 ST-nlspwrshare-ST-NAME=Hours Remaining
 ST-nlspwrshare-GV0-NAME=Connected EV
 ST-nlspwrshare-GV1-NAME=Instant Power
