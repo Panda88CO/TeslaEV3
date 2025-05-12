@@ -46,7 +46,7 @@
                <p id="" editor="SENMODE" /> 
             </cmd >
             <cmd id="DOORS" > 
-               <p id="" editor="LOCKUNLOCK" init="GV3" /> 
+               <p id="" editor="setLOCKUNLOCK" init="GV3" /> 
             </cmd>
             <cmd id="SUNROOF" > 
                <p id="" editor="SUNROOFCTRL"  /> 

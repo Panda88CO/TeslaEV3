@@ -2,7 +2,7 @@ ND-controller-NAME=Tesla EV Info
 ND-controller-ICON=EnergyMonitor
 CMD-nlscontroller-UPDATE-NAME=Update System Data
 ST-nlscontroller-ST-NAME=Controller Connected
-STATUS-0=Disonnected
+STATUS-0=Disconnected
 STATUS-1=Connected
 STATUS-2=Failed
 STATUS-3=Connected
@@ -138,6 +138,7 @@ CMD-nlsevstatus-DOORS-NAME=Control Doors
 LOCKUNLOCK-0=Unlocked
 LOCKUNLOCK-1=Locked 
 LOCKUNLOCK-97=Data Invalid
+
 LOCKUNLOCK-99=Unknown 
 CMD-nlsevstatus-SUNROOF-NAME=Sunroof Control
 SUNROOFCTRL-0=Close

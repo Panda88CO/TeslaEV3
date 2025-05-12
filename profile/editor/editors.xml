@@ -62,7 +62,11 @@
   </editor>
 
   <editor id="LOCKUNLOCK" > 
-     <range  uom="25" subset="0,1,97,98,99" nls="LOCKUNLOCK" />
+     <range  uom="25" subset="0,1,97,99" nls="LOCKUNLOCK" />
+  </editor>
+
+  <editor id="setLOCKUNLOCK" > 
+     <range  uom="25" subset="0,1" nls="LOCKUNLOCK" />
   </editor>
 
   <editor id="SUNROOFCTRL" > 

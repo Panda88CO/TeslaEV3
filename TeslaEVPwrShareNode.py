@@ -231,9 +231,9 @@ class teslaEV_PwrShareNode(udi_interface.Node):
                 self.EV_setDriver('GV14', exportPwr- importPwr, 33)
             else:
                 self.EV_setDriver('GV14', 99, 25)
-            self.EV_setDriver('GV15', self.to_KW(self.TPWcloud.tesla_home_energy_total(self.PWid, 'yesterday'), 33))
-            self.EV_setDriver('GV17', self.to_KW(self.TPWcloud.tesla_battery_energy_export(self.PWid, 'yesterday'), 33))      
-            self.EV_setDriver('GV18', self.to_KW(self.TPWcloud.tesla_battery_energy_import(self.PWid, 'yesterday'), 33))
+            self.EV_setDriver('GV15', self.to_KW(self.TPWcloud.tesla_home_energy_total(self.PWid, 'yesterday')), 33)
+            self.EV_setDriver('GV17', self.to_KW(self.TPWcloud.tesla_battery_energy_export(self.PWid, 'yesterday')), 33)
+            self.EV_setDriver('GV18', self.to_KW(self.TPWcloud.tesla_battery_energy_import(self.PWid, 'yesterday')), 33)
             exportPwr = self.to_KW(self.TPWcloud.tesla_grid_energy_export(self.PWid, 'yesterday'))
             self.EV_setDriver('GV20', exportPwr, 33) 
             importPwr =  self.to_KW(self.TPWcloud.tesla_grid_energy_import(self.PWid, 'yesterday'))
