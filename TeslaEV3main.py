@@ -50,8 +50,6 @@ class TeslaEVController(udi_interface.Node):
         self.TEVcloud = teslaEVAccess(self.poly, self.tesla_api)
         self.TPWcloud = teslaPWAccess(self.poly, self.tesla_api)
         self.power_share_node = None
-        
-        
         self.ISYforced = False
         self.CELCIUS = 0
         self.FARENHEIT = 1 
@@ -70,8 +68,6 @@ class TeslaEVController(udi_interface.Node):
         self.name = name
         self.webhookTestTimeoutSeconds = 5
         self.n_queue = []
-        self.TEVcloud = teslaEVAccess(self.poly, self.tesla_api)
-        self.TPWcloud = teslaPWAccess(self.poly, self.tesla_api)
         polyglot.subscribe(polyglot.STOP, self.stop)
         polyglot.subscribe(polyglot.CUSTOMPARAMS, self.customParamsHandler)
         polyglot.subscribe(polyglot.CONFIGDONE, self.configDoneHandler)
