@@ -88,7 +88,7 @@ class TeslaEVController(udi_interface.Node):
         self.hb = 0
         self.connected = False
         self.nodeDefineDone = False
-        self.customNsDoneV = False
+        self.customNsDone = False
         self.portalReady = False
         self.poly.updateProfile()
         self.poly.ready()
@@ -335,9 +335,9 @@ class TeslaEVController(udi_interface.Node):
 
         #self.poly.setCustomParamsDoc()
 
-        while not self.customParam_done or not self.customNsDoneV or not self.config_done or not self.portalReady:
+        while not self.customParam_done or not self.customNsDone or not self.config_done or not self.portalReady:
         #while not self.config_done and not self.portalReady :
-            logging.info(f'Waiting for node to initialize {self.customParam_done} {self.customNsDoneV} {self.config_done} {self.portalReady}')
+            logging.info(f'Waiting for node to initialize {self.customParam_done} {self.customNsDone} {self.config_done} {self.portalReady}')
             #logging.debug(f' 1 2 3: {} {} {} {}'.format(self.customParam_done, , self.config_done))
             time.sleep(1)
         self.tesla_api.initializePortal(self.portalID, self.portalSecret)

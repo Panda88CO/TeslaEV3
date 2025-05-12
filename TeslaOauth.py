@@ -97,9 +97,9 @@ class teslaAccess(OAuth):
         #    logging.debug(f'Waiting for customNsHandler to complete')
         #    time.sleep(1)
         #self.updateOauthConfig()
-        super().customNsHandler(key, data)
-        logging.debug(f'customerNSHandler results: {super().customNsHandler(key, data)}')
-        if key == 'oauthTokens': # stored oauthToken values processed
+        temp = super().customNsHandler(key, data)
+        logging.debug(f'customerNSHandler results: {temp}')
+        if key == 'oauthTokens' or temp is None: # stored oauthToken values processed or none exist
             self.customNsHandlerDone = True
         logging.debug(f'customNsHandler Finished')
 
