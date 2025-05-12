@@ -60,7 +60,6 @@ class TeslaEVController(udi_interface.Node):
         self.customParameters = Custom(self.poly, 'customparams')
         self.portalData = Custom(self.poly, 'customNSdata')
         self.Notices = Custom(polyglot, 'notices')
-        self.ISYforced = False
         self.initialized = False
         self.STATE_UPDATE_MIN = 15
         self.primary = primary
