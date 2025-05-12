@@ -537,6 +537,7 @@ class TeslaEVController(udi_interface.Node):
         self.climateNode = teslaEV_ClimateNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.TEVcloud )
         time.sleep(2)
         self.node_addresses.append(nodeAdr)
+        
         nodeAdr = 'charge'+str(self.EVid)[-10:]
         nodeName = self.poly.getValidName('Charging Info')
         nodeAdr = self.poly.getValidAddress(nodeAdr)
