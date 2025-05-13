@@ -148,7 +148,7 @@ class teslaApiAccess(teslaAccess):
             elif self.stream_cert['expectedRenewal'] <= time.time():
                 self.stream_cert = cert
                 logging.info('Updating Streaming configuration')
-                code, res = self.teslaEV_streaming_create_config(EV_vin, cert_ca)
+                code, res = self.teslaEV_streaming_create_config([EV_vin], cert_ca)
     
             return(self.stream_cert is not {})
         except ValueError:  #First time - we need to create config

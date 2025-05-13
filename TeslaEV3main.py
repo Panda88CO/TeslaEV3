@@ -23,7 +23,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVapi import teslaAccess
 
 
-VERSION = '0.1.27'
+VERSION = '0.1.28'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -336,7 +336,7 @@ class TeslaEVController(udi_interface.Node):
             #logging.debug(f' 1 2 3: {} {} {} {}'.format(self.customParam_done, , self.config_done))
             time.sleep(1)
         self.tesla_api.initializePortal(self.portalID, self.portalSecret)
-        logging.debug(f'Portal Credentials: {self.portalID} {self.portalSecret}')
+        #logging.debug(f'Portal Credentials: {self.portalID} {self.portalSecret}')
         #self.tesla_api.initializePortal(self.portalID, self.portalSecret)
         while not self.tesla_api.portal_ready():
             time.sleep(5)
@@ -390,12 +390,12 @@ class TeslaEVController(udi_interface.Node):
         time.sleep(1)
         self.poly.Notices.delete('products')
         self.createSubNodes()
-        logging.debug(f'climate drivers1 {self.climateNode.drivers}')
+        #logging.debug(f'climate drivers1 {self.climateNode.drivers}')
         while not (self.subnodesReady()):
             logging.debug(f'Subnodes {self.subnodesReady()} ')
             logging.debug('waiting for nodes to be created')
             time.sleep(5)
-        logging.debug(f'climate drivers2 {self.climateNode.drivers}')
+        #logging.debug(f'climate drivers2 {self.climateNode.drivers}')
 
         # force creation of new config - assume this will enable retransmit of all data 
         self.poly.Notices['subscribe1'] = 'Subscribing to datastream from EV'
@@ -404,7 +404,7 @@ class TeslaEVController(udi_interface.Node):
             self.poly.Notices['SYNC']=f'{EVname} ERROR failed to connect to streaming server - EV may be too old'
             #self.stop()
             sys.exit()
-        logging.debug(f'climate drivers3 {self.climateNode.drivers}')
+        #logging.debug(f'climate drivers3 {self.climateNode.drivers}')
             
         code, state = self.TEVcloud._teslaEV_wake_ev(self.EVid)
         logging.debug(f'Wake EV {code} {state}')
@@ -413,13 +413,13 @@ class TeslaEVController(udi_interface.Node):
             #self.stop()
             #sys.exit()
         #sync_status = False
-        logging.debug(f'climate drivers4 {self.climateNode.drivers}')
+        #logging.debug(f'climate drivers4 {self.climateNode.drivers}')
         while not self.tesla_api.teslaEV_streaming_synched(self.EVid):
             self.poly.Notices['subscribe2'] = 'Waiting for EV to synchronize datastream - this may take some time '
             time.sleep(3)
 
         self.EV_setDriver('ST', 1, 25)  # EV is synched so online 
-        logging.debug(f'climate drivers5 {self.climateNode.drivers}')                    
+        #logging.debug(f'climate drivers5 {self.climateNode.drivers}')                    
         logging.debug(f'Scanning db for extra nodes : {assigned_addresses} - {self.node_addresses}')
 
         for indx, node  in enumerate(self.nodes_in_db):
@@ -432,7 +432,7 @@ class TeslaEVController(udi_interface.Node):
                 logging.debug('Removing node : {} {}'.format(node['name'], node))
                 self.poly.delNode(node['address'])
         
-        logging.debug(f'climate drivers6 {self.climateNode.drivers}')
+        #logging.debug(f'climate drivers6 {self.climateNode.drivers}')
               
         self.update_all_drivers()
 
@@ -554,7 +554,7 @@ class TeslaEVController(udi_interface.Node):
             logging.info(f'Creating pwrshare: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.PW_siteid}')
             self.power_share_node = teslaEV_PwrShareNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.PW_siteid, self.TEVcloud, self.TPWcloud )
             self.node_addresses.append(nodeAdr)
-        logging.debug(f'climate drivers0 {self.climateNode.drivers}')
+        #logging.debug(f'climate drivers0 {self.climateNode.drivers}')
         time.sleep(2)
 
     def subnodesReady(self):
