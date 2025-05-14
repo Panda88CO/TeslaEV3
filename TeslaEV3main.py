@@ -23,7 +23,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVapi import teslaAccess
 
 
-VERSION = '0.1.33'
+VERSION = '0.1.34'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -396,7 +396,11 @@ class TeslaEVController(udi_interface.Node):
             logging.debug('waiting for nodes to be created')
             time.sleep(5)
         #logging.debug(f'climate drivers2 {self.climateNode.drivers}')
-
+        self.initialized = True   
+        code, state = self.TEVcloud._teslaEV_wake_ev(self.EVid)
+        logging.debug(f'Wake EV {code} {state}')
+        if state not in ['online']:
+            self.poly.Notices['NOTONLINE']=f'{EVname} appears offline - cannot continue with EV being online'
         # force creation of new config - assume this will enable retransmit of all data 
         self.poly.Notices['subscribe1'] = 'Subscribing to datastream from EV'
         if not self.tesla_api.teslaEV_streaming_check_certificate_update(self.EVid, True ): #We need to update streaming server credentials
@@ -405,11 +409,12 @@ class TeslaEVController(udi_interface.Node):
             #self.stop()
             sys.exit()
         #logging.debug(f'climate drivers3 {self.climateNode.drivers}')
-            
-        code, state = self.TEVcloud._teslaEV_wake_ev(self.EVid)
-        logging.debug(f'Wake EV {code} {state}')
-        if state not in ['online']:
-            self.poly.Notices['NOTONLINE']=f'{EVname} appears offline - cannot continue with EV being online'
+        time.sleep(2)      
+
+        while not self.tesla_api.teslaEV_streaming_synched(self.EVid):
+            self.poly.Notices['subscribe2'] = 'Waiting for EV to synchronize datastream - this may take some time '
+            time.sleep(5)       
+
             #self.stop()
             #sys.exit()
         #sync_status = False
@@ -431,10 +436,7 @@ class TeslaEVController(udi_interface.Node):
                 self.poly.delNode(node['address'])
         
         #logging.debug(f'climate drivers6 {self.climateNode.drivers}')
-        self.initialized = True   
-        while not self.tesla_api.teslaEV_streaming_synched(self.EVid):
-            self.poly.Notices['subscribe2'] = 'Waiting for EV to synchronize datastream - this may take some time '
-            time.sleep(3)   
+
         self.update_all_drivers()
         self.poly.Notices['done'] = 'Initialization process completed'
         time.sleep(2)

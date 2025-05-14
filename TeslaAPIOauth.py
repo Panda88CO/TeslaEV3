@@ -117,7 +117,9 @@ class teslaApiAccess(teslaAccess):
 
 
     def _teslaEV_retrieve_streaming_certificate(self):
+
         try:
+            logging.debug('_teslaEV_retrieve_streaming_certificate')
             response = requests.get('https://my.isy.io/api/certificate')
             #logging.debug(f'certificate - response {response}')
             cert = {}
@@ -153,7 +155,7 @@ class teslaApiAccess(teslaAccess):
 
     def teslaEV_streaming_check_certificate_update(self, EV_vin, force_reset = False):        
         try: 
-            logging.debug(f'teslaEV_update_streaming_certificate force rest {force_reset}')
+            logging.debug(f'teslaEV_update_streaming_certificate force reset {force_reset}')
             cert = self._teslaEV_get_streaming_certificate()
             logging.debug(f'cert = {cert}')
 
