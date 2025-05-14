@@ -123,6 +123,7 @@ class teslaApiAccess(teslaAccess):
         cert = {}
         if response.status_code == 200:
             res = response.json()
+            logging.debug(f'renew response: {res}')
             if res['successful']:
                 cert['issuedAt'] = int(self.datestr_to_epoch(str(res['data']['issuedAt'])))
                 cert['expiry'] = int(self.datestr_to_epoch(str((res['data']['expiry']))))
