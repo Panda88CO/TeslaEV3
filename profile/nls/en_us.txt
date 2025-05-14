@@ -340,7 +340,7 @@ PSTYPE-99=Unknown
 
 ST-nlspwrshare-GV5-NAME = Operation Mode
 ST-nlspwrshare-GV6-NAME = Grid Status
-ST-nlspwrshare-GV7-NAME = Live Grid Service Active
+ST-nlspwrshare-GV7-NAME = Storm Mode Status
 ST-nlspwrshare-GV8-NAME = Home Total Use Today
 
 ST-nlspwrshare-GV10-NAME = Battery Export Today
@@ -357,11 +357,7 @@ ST-nlspwrshare-GV20-NAME = Grid Export Yesterday
 ST-nlspwrshare-GV21-NAME = Grid Import Yesterday
 ST-nlspwrshare-GV22-NAME = Grid/House Net Use Yesterday
 ST-nlspwrshare-GV23-NAME = Backup Percentage
-ST-nlspwrshare-GV24-NAME = Operation Mode 
-ST-nlspwrshare-GV25-NAME = Storm Mode
-#ST-nlspwrshare-GV26-NAME = GV26
-#ST-nlspwrshare-GV27-NAME = GV27
-#ST-nlspwrshare-GV28-NAME = GV28
+
 ST-nlspwrshare-GV19-NAME = Last EV update
 ST-nlspwrshare-GV29-NAME = Last PowerShare update
 
@@ -387,7 +383,7 @@ EN_GRID_STATUS-1=islanded ready
 EN_GRID_STATUS-2=islanded
 EN_GRID_STATUS-3=transition to grid
 EN_GRID_STATUS-97=Invalid Data
-EN_GRID_STATUS-99=Unknown code 
+EN_GRID_STATUS-99=Unknown
 
 EN_TOGGLE-0=Disabled
 EN_TOGGLE-1=Enabled

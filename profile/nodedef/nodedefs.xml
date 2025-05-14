@@ -76,7 +76,7 @@
 
          <st id="GV5" editor="OP_MODE" />
          <st id="GV6" editor="GRID_ST" />
-         <st id="GV7" editor="GRID_MODE" />
+         <st id="GV7" editor="EN_TOGGLE" /><!--StormMode-->
         
          <st id="GV8" editor="KWH" />
 
@@ -91,9 +91,7 @@
          <st id="GV20" editor="KWH" />
          <st id="GV21" editor="KWH" />
          <st id="GV22" editor="KWH" />
-         <st id="GV23" editor="PERCENT" />
-         <st id="GV24" editor="OP_MODE" />
-         <st id="GV25" editor="TOGGLE" />
+
          <st id="GV19" editor="unixtime" />
          <st id="GV29" editor="unixtime" />
       </sts>
@@ -119,7 +117,7 @@
                <p id="export" editor="setGRID_EXP_MODE" init="GV27" /> 
             </cmd> 
             <cmd id="EV_CHRG_MODE" > 
-               <p id="" editor="PERCENT" init="GV28" /> 
+               <p id="" editor="setPERCENT" init="GV28" /> 
             </cmd> 
          </accepts>
       </cmds>

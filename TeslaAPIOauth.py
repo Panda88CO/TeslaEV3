@@ -116,60 +116,64 @@ class teslaApiAccess(teslaAccess):
         self.customDataHandlerDone = True
 
 
+    def _teslaEV_retrieve_streaming_certificate(self):
+        try:
+            response = requests.get('https://my.isy.io/api/certificate')
+            #logging.debug(f'certificate - response {response}')
+            cert = {}
+            if response.status_code == 200:
+                res = response.json()
+                logging.debug(f'renew response: {res}')
+                if res['successful']:
+                    cert['issuedAt'] = int(self.datestr_to_epoch(str(res['data']['issuedAt'])))
+
+                    cert['expiry'] = int(self.datestr_to_epoch(str((res['data']['expiry']))))
+                    cert['expectedRenewal'] = int(self.datestr_to_epoch(str((res['data']['expectedRenewal']))))
+                    cert['ca'] = str(res['data']['ca'])
+                    self.stream_cert = cert
+                logging.debug(f'cert = {cert}')
+        except Exception as e:
+            logging.error(f'_teslaEV_retrieve_streaming_certificate - response {e}')  
+
     
     def _teslaEV_get_streaming_certificate(self):
-        response = requests.get('https://my.isy.io/api/certificate')
-        #logging.debug(f'certificate - response {response}')
-        cert = {}
-        if response.status_code == 200:
-            res = response.json()
-            logging.debug(f'renew response: {res}')
-            if res['successful']:
-                cert['issuedAt'] = int(self.datestr_to_epoch(str(res['data']['issuedAt'])))
+        logging.debug('_teslaEV_get_streaming_certificate')
+        try:
+            if self.stream_cert:
+                if 'expectedRenewal' in self.stream_cert:
+                    if self.stream_cert['expectedRenewal'] <= time.time():
+                        self._teslaEV_retrieve_streaming_certificate()
+                else:
+                    self._teslaEV_retrieve_streaming_certificate()
+            return (self.stream_cert)
+        except Exception as e:
+            logging.error(f'_teslaEV_get_streaming_certificate - response {e}')
+            return(None)
 
-                cert['expiry'] = int(self.datestr_to_epoch(str((res['data']['expiry']))))
-                cert['expectedRenewal'] = int(self.datestr_to_epoch(str((res['data']['expectedRenewal']))))
-                cert['ca'] = str(res['data']['ca'])
-                #self.stream_cert = cert
-            logging.debug(f'cert = {cert}')
-            return (cert)
-    
 
     def teslaEV_streaming_check_certificate_update(self, EV_vin, force_reset = False):        
         try: 
             logging.debug(f'teslaEV_update_streaming_certificate force rest {force_reset}')
             cert = self._teslaEV_get_streaming_certificate()
             logging.debug(f'cert = {cert}')
-            self.stream_cert = cert
-            cert_ca = cert['ca']
-            del cert['ca']
+
             if force_reset:
                 logging.debug('Forced config reset')
-                self.stream_cert = cert
                 code, res = self.teslaEV_streaming_delete_config(EV_vin)
                 time.sleep(1)
-                cert = self._teslaEV_get_streaming_certificate()
-                code, res = self.teslaEV_streaming_create_config([EV_vin], cert_ca)
-            elif self.stream_cert['expectedRenewal'] <= time.time():
+                #cert = self._teslaEV_get_streaming_certificate()
+                code, res = self.teslaEV_streaming_create_config([EV_vin], cert['ca'])
+                time.sleep(2) # give car chance to sync
+            if 'expectedRenewal' in cert and cert['expectedRenewal'] <= time.time():
                 self.stream_cert = cert
                 logging.info('Updating Streaming configuration')
-                code, res = self.teslaEV_streaming_create_config([EV_vin], cert_ca)
-    
-            return(self.stream_cert is not {})
-        except ValueError:  #First time - we need to create config
-            logging.debug('teslaEV_update_streaming_certificate creating config')
-            cert = self._teslaEV_get_streaming_certificate()
-            cert_ca = cert['ca']
-            del cert['ca']
-            self.stream_cert = cert
-            if self.stream_cert is not {}:
-                code, res = self.teslaEV_streaming_delete_config(EV_vin)
-                time.sleep(1)
-            code, res = self.teslaEV_streaming_create_config([EV_vin], cert_ca)
-            time.sleep(2) # give car chance to sync
-            
-            self.stream_cert = cert
-            return(code == 'ok')
+                code, res = self.teslaEV_streaming_create_config([EV_vin], cert['ca'])
+                time.sleep(2) # give car chance to sync
+
+            return(cert is not {})
+        except ValueError as e:  #First time - we need to create config
+            logging.error(f'ERROR teslaEV_update_streaming_certificate creating config : {e}')
+ 
         
     
     def datestr_to_epoch(self, datestr):
@@ -341,15 +345,15 @@ class teslaApiAccess(teslaAccess):
                         'PowershareType':{ 'interval_seconds': 60 },  
                         }
 
-        #if  int(self.stream_cert['expiry']) >= (time.time() + 31449600) : #31449600 = 66*60*24*264 (1 day less that a year)
-        #    exp = time.time() + 31449600 
-        #else:
-        #    exp = int(self.stream_cert['expiry'])
+        if  int(self.stream_cert['expiry']) >= (time.time() + 31449600) : #31449600 = 66*60*24*264 (1 day less that a year)
+            exp = int(time.time() + 31449600 )
+        else:
+            exp = int(self.stream_cert['expiry'])
         cfg = {'vins': vin_list ,
                'config': { 'prefer_typed': True,
                     'port': 443,
                     "delivery_policy": "latest",
-                    #'exp': int(exp),
+                    'exp': exp,
                     'alert_types': [ 'service' ],
                     'fields': stream_fields | location_field | powershare_fields, 
                     'ca' : Cert_CA,

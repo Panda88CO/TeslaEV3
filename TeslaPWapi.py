@@ -137,22 +137,22 @@ class teslaPWAccess(object):
             logging.error('tesla_get_energy_products Exception : {}'.format(e))
             return(site_id, self.wall_connector)
      
-    def tesla_get_vehicle_name(self, vin):
-        try:
-            logging.debug(f'tesla_get_vehicle_name {vin}')
-            name = self.carInfo[vin]['display_name']
-            return(str(name))
-        except Exception:
-            return(str(vin))
+    #def tesla_get_vehicle_name(self, vin):
+    #    try:
+    #        logging.debug(f'tesla_get_vehicle_name {vin}')
+    #        name = self.carInfo[vin]['display_name']
+    #        return(str(name))
+    #    except Exception:
+    #        return(str(vin))
         
 
-    def tesla_powershare_connected_ev(self, site_id):
-        try:
-            logging.debug('tesla_powershare_connected_ev ')
-            vin = self.site_live_info[site_id]['wall_connectors']['vin']
-            return(self.tesla_get_vehicle_name(vin))
-        except Exception:
-            return('No EV connected')
+    #def tesla_powershare_connected_ev(self, site_id):
+    #    try:
+    #        logging.debug('tesla_powershare_connected_ev ')
+    #        vin = self.site_live_info[site_id]['wall_connectors']['vin']
+    #        return(self.tesla_get_vehicle_name(vin))
+    #    except Exception:
+    #        return('No EV connected')
 
     def tesla_get_live_status(self, site_id) -> None:
         logging.debug('tesla_get_live_status ')
@@ -638,8 +638,8 @@ class teslaPWAccess(object):
         
     def tesla_grid_staus(self, site_id):
         try:
-            logging.debug(f'tesla_grid_staus {site_id} {self.site_live_info}')
-            return(self.site_live_info[site_id]['grid_status'])
+            logging.debug(f'tesla_island_staus {site_id} {self.site_live_info}')
+            return(self.site_live_info[site_id]['island_status'])
         except KeyError:
             return(None)    
         

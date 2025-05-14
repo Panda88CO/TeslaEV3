@@ -217,12 +217,12 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             except KeyError:
                 self.EV_setDriver('GV5', None)
             try: 
-                self.EV_setDriver('GV6', self.gridstatus[self.TPWcloud.tesla_grid_staus(self.PWid)])
+                self.EV_setDriver('GV6', self.gridstatus[self.TPWcloud.tesla_island_staus(self.PWid)])
             except KeyError:
                 self.EV_setDriver('GV6', None)
 
-            self.EV_setDriver('GV7', self.TPWcloud.tesla_live_grid_service_active(self.PWid))
-
+            #self.EV_setDriver('GV7', self.TPWcloud.tesla_live_grid_service_active(self.PWid))
+            self.EV_setDriver('GV7', self.bool2ISY(self.TPWcloud.teslaExtractStormMode(self.PWid)))
             self.EV_setDriver('GV8', self.to_KW(self.TPWcloud.tesla_home_energy_total(self.PWid, 'today')), 33)
 
             self.EV_setDriver('GV10', self.to_KW(self.TPWcloud.tesla_battery_energy_export(self.PWid, 'today')), 33)       
@@ -246,9 +246,7 @@ class teslaEV_PwrShareNode(udi_interface.Node):
                 self.EV_setDriver('GV22', exportPwr- importPwr, 33)
             else:
                 self.EV_setDriver('GV22', 99, 25)
-            self.EV_setDriver('GV23', self.TPWcloud.teslaExtractBackupPercent(self.PWid))
-            self.EV_setDriver('GV24', self.TPWcloud.teslaExtractOperationMode(self.PWid))
-            self.EV_setDriver('GV25', self.TPWcloud.teslaExtractStormMode(self.PWid))
+  
         except Exception as e:
             logging.error(f'updateISYPWdrivers charge node failed: nodes may not be 100% ready {e}')
 
@@ -273,17 +271,16 @@ class teslaEV_PwrShareNode(udi_interface.Node):
 
     drivers = [
             {'driver': 'ST', 'value': 99, 'uom': 25},  #hours left-
-            {'driver': 'GV0', 'value': 'None', 'uom': 145},      
+            #{'driver': 'GV0', 'value': 'None', 'uom': 145},      
             {'driver': 'GV1', 'value': 99, 'uom': 25},  #InstantaneousPowerKW
             {'driver': 'GV2', 'value': 99, 'uom': 25},  #Status
             {'driver': 'GV3', 'value': 99, 'uom': 25},  #charge_port_latch
             {'driver': 'GV4', 'value': 99, 'uom': 25}, #Stop Reason
             {'driver': 'GV5', 'value': 99, 'uom': 25},  
             {'driver': 'GV6', 'value': 99, 'uom': 25},  
-            {'driver': 'GV7', 'value': 99, 'uom': 25},  
-            #{'driver': 'GV29', 'value': 99, 'uom': 25}, 
-            {'driver': 'GV8', 'value': 99, 'uom': 25}, 
+            {'driver': 'GV7', 'value': 99, 'uom': 25},  #Storm mode
 
+            {'driver': 'GV8', 'value': 99, 'uom': 25}, 
             #{'driver': 'GV9', 'value': 0, 'uom': 33}, 
             {'driver': 'GV10', 'value': 0, 'uom': 33},  
             {'driver': 'GV11', 'value': 0, 'uom': 33},  
@@ -297,12 +294,9 @@ class teslaEV_PwrShareNode(udi_interface.Node):
 
             {'driver': 'GV20', 'value': 0, 'uom': 33}, 
             {'driver': 'GV21', 'value': 0, 'uom': 33},
-
-
             {'driver': 'GV22', 'value': 0, 'uom': 0},
-            {'driver': 'GV23', 'value': 0, 'uom': 58},
-            {'driver': 'GV24', 'value': 0, 'uom': 0}, 
-            {'driver': 'GV25', 'value': 0, 'uom': 58}, 
+
+
             {'driver': 'GV19', 'value': 0, 'uom': 151},  #PowerShare Typ   
             {'driver': 'GV29', 'value': 0, 'uom': 151},  #PowerShare Typ   
 
