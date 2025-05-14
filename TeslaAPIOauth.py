@@ -341,15 +341,15 @@ class teslaApiAccess(teslaAccess):
                         'PowershareType':{ 'interval_seconds': 60 },  
                         }
 
-        if  int(self.stream_cert['expiry']) >= (time.time() + 31449600) : #31449600 = 66*60*24*264 (1 day less that a year)
-            exp = time.time() + 31449600 
-        else:
-            exp = int(self.stream_cert['expiry'])
+        #if  int(self.stream_cert['expiry']) >= (time.time() + 31449600) : #31449600 = 66*60*24*264 (1 day less that a year)
+        #    exp = time.time() + 31449600 
+        #else:
+        #    exp = int(self.stream_cert['expiry'])
         cfg = {'vins': vin_list ,
                'config': { 'prefer_typed': True,
                     'port': 443,
                     "delivery_policy": "latest",
-                    'exp': int(exp),
+                    #'exp': int(exp),
                     'alert_types': [ 'service' ],
                     'fields': stream_fields | location_field | powershare_fields, 
                     'ca' : Cert_CA,
