@@ -129,7 +129,7 @@ class teslaApiAccess(teslaAccess):
                 cert['expectedRenewal'] = int(self.datestr_to_epoch(str((res['data']['expectedRenewal']))))
                 cert['ca'] = str(res['data']['ca'])
                 #self.stream_cert = cert
-
+            logging.debug(f'cert = {cert}')
             return (cert)
     
 
@@ -137,6 +137,8 @@ class teslaApiAccess(teslaAccess):
         try: 
             logging.debug(f'teslaEV_update_streaming_certificate force rest {force_reset}')
             cert = self._teslaEV_get_streaming_certificate()
+            logging.debug(f'cert = {cert}')
+            self.stream_cert = cert
             cert_ca = cert['ca']
             del cert['ca']
             if force_reset:
@@ -144,6 +146,7 @@ class teslaApiAccess(teslaAccess):
                 self.stream_cert = cert
                 code, res = self.teslaEV_streaming_delete_config(EV_vin)
                 time.sleep(1)
+                cert = self._teslaEV_get_streaming_certificate()
                 code, res = self.teslaEV_streaming_create_config([EV_vin], cert_ca)
             elif self.stream_cert['expectedRenewal'] <= time.time():
                 self.stream_cert = cert
@@ -337,6 +340,7 @@ class teslaApiAccess(teslaAccess):
         cfg = {'vins': vin_list ,
                'config': { 'prefer_typed': True,
                     'port': 443,
+                    "delivery_policy": "latest",
                     'exp': int(self.stream_cert['expiry']),
                     'alert_types': [ 'service' ],
                     'fields': stream_fields | location_field | powershare_fields, 
