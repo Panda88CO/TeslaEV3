@@ -44,6 +44,7 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             'PowershareStateEnabled':4,
             'PowershareStateEnabledReconnectingSoon':5,
             'PowershareStateStopped':6,
+            'invalid':97,
             None:99,
         }
         self.ps_stop_reason= {
@@ -55,6 +56,7 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             'PowershareStopReasonStatusUser':5,
             'PowershareStopReasonStatusReconnecting':6,
             'PowershareStopReasonStatusAuthentication':7,
+            'invalid':97,         
             None:99}
         
         self.ps_type = {
@@ -62,15 +64,17 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             'PowershareTypeStatusNone':1,
             'PowershareTypeStatusLoad':2,
             'PowershareTypeStatusHome':3,
+            'invalid':97,                
             None:99}
 
         self.operationMode = {  
             'backup':0 ,
             'self_consumption' : 1 , 
             'autonomous' : 2, 
-            'site_ctrl' : 3 }
+            'site_ctrl' : 3,
+            'invalid':97,    }
         self.TOU_MODES = ["economics", "balanced"]
-        self.gridstatus = {'on_grid':0, 'islanded_ready':1, 'islanded':2, 'transition ot grid':3}
+        self.gridstatus = {'on_grid':0, 'islanded_ready':1, 'islanded':2, 'transition ot grid':3, 'invalid':97, }
         code, vehicles = self.TEVcloud.teslaEV_get_vehicles()
         logging.info('_init_ Tesla Charge Node COMPLETE')
         logging.debug(f'drivers ; {self.drivers}')
