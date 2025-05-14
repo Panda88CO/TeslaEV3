@@ -158,9 +158,9 @@ class teslaEV_PwrShareNode(udi_interface.Node):
             self.update_time()
             #if self.TEVcloud.teslaEV_GetCarState(self.EVid) in ['online']:    
             self.EV_setDriver('ST', self.TEVcloud.teslaEV_PowershareHoursLeft(self.EVid) , 20)
-            ev_name = self.TPWcloud.tesla_powershare_connected_ev(self.PWid)
-            logging.debug(f'Connected ev {ev_name}')
-            self.poly.setDriver('GV0', ev_name)
+            #ev_name = self.TPWcloud.tesla_powershare_connected_ev(self.PWid)
+            #logging.debug(f'Connected ev {ev_name}')
+            #self.poly.setDriver('GV0', ev_name)
             self.EV_setDriver('GV1', self.TEVcloud.teslaEV_PowershareInstantaneousPowerKW(self.EVid), 33)
             self.EV_setDriver('GV2', self.ps_state[self.TEVcloud.teslaEV_PowershareStatus(self.EVid)],25)
             self.EV_setDriver('GV3', self.ps_stop_reason[self.TEVcloud.teslaEV_PowershareStopReason(self.EVid)],25)

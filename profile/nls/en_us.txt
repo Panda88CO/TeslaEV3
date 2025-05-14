@@ -250,7 +250,7 @@ STEERINGW-3=High
 
 ND-evcharge-NAME=EV charging Data
 ND-evcharge-ICON=Electricity
-# ST-nlsevcharge-ST-NAME=Node Connected
+ST-nlsevcharge-ST-NAME=Node Connected
 ST-nlsevcharge-GV1-NAME=Fast Charger
 PRESENT-0=No 
 PRESENT-1=Yes

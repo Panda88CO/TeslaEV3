@@ -23,7 +23,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVapi import teslaAccess
 
 
-VERSION = '0.1.30'
+VERSION = '0.1.31'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -414,9 +414,7 @@ class TeslaEVController(udi_interface.Node):
             #sys.exit()
         #sync_status = False
         #logging.debug(f'climate drivers4 {self.climateNode.drivers}')
-        while not self.tesla_api.teslaEV_streaming_synched(self.EVid):
-            self.poly.Notices['subscribe2'] = 'Waiting for EV to synchronize datastream - this may take some time '
-            time.sleep(3)
+
 
         self.EV_setDriver('ST', 1, 25)  # EV is synched so online 
         #logging.debug(f'climate drivers5 {self.climateNode.drivers}')                    
@@ -433,14 +431,15 @@ class TeslaEVController(udi_interface.Node):
                 self.poly.delNode(node['address'])
         
         #logging.debug(f'climate drivers6 {self.climateNode.drivers}')
-              
+        self.initialized = True   
+        while not self.tesla_api.teslaEV_streaming_synched(self.EVid):
+            self.poly.Notices['subscribe2'] = 'Waiting for EV to synchronize datastream - this may take some time '
+            time.sleep(3)   
         self.update_all_drivers()
-
         self.poly.Notices['done'] = 'Initialization process completed'
-        self.initialized = True
         time.sleep(2)
         self.poly.Notices.clear()
-        logging.debug(f'climate drivers7 {self.climateNode.drivers}')
+        #logging.debug(f'climate drivers7 {self.climateNode.drivers}')
 
     def validate_params(self):
         logging.debug('validate_params: {}'.format(self.Parameters.dump()))
@@ -469,6 +468,7 @@ class TeslaEVController(udi_interface.Node):
     def systemPoll(self, pollList):
         logging.debug(f'systemPoll - {pollList}')
         if self.TEVcloud:
+            logging.debug(f'systemPoll {self.tesla_api.authenticated()} {self.initialized}')
             if self.tesla_api.authenticated() and self.initialized:
                 time_n = int(time.time())
                 last_time = self.TEVcloud.teslaEV_GetTimestamp(self.EVid)

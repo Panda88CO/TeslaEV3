@@ -67,7 +67,7 @@
       <editors />
       <sts>
          <st id="ST" editor="HOURS" /> <!--hours left-->
-         <st id="GV0" editor="TEXT" /> <!--InstantaneousPowerKW-->
+         <!--<st id="GV0" editor="TEXT" /> InstantaneousPowerKW-->
       
          <st id="GV1" editor="KW" /> <!--InstantaneousPowerKW-->
          <st id="GV2" editor="PSSTATUS" /><!--Status-->
