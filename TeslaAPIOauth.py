@@ -126,6 +126,7 @@ class teslaApiAccess(teslaAccess):
             logging.debug(f'renew response: {res}')
             if res['successful']:
                 cert['issuedAt'] = int(self.datestr_to_epoch(str(res['data']['issuedAt'])))
+
                 cert['expiry'] = int(self.datestr_to_epoch(str((res['data']['expiry']))))
                 cert['expectedRenewal'] = int(self.datestr_to_epoch(str((res['data']['expectedRenewal']))))
                 cert['ca'] = str(res['data']['ca'])
@@ -337,12 +338,15 @@ class teslaApiAccess(teslaAccess):
                         'PowershareStopReason':{ 'interval_seconds': 60 },     
                         'PowershareType':{ 'interval_seconds': 60 },  
                         }
-            
+        if  int(self.stream_cert['expiry']) >= (time.time() + 60*26*24*364) :
+            exp = time.time() + 60*26*24*364 
+        else:
+            exp = int(self.stream_cert['expiry'])
         cfg = {'vins': vin_list ,
                'config': { 'prefer_typed': True,
                     'port': 443,
                     "delivery_policy": "latest",
-                    'exp': int(self.stream_cert['expiry']),
+                    'exp': int(exp),
                     'alert_types': [ 'service' ],
                     'fields': stream_fields | location_field | powershare_fields, 
                     'ca' : Cert_CA,
