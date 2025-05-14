@@ -378,3 +378,7 @@ CMD-nlspwrshare-GRID_MODE-NAME = Grid Operation
 CMD-nlspwrshare-EV_CHRG_MODE-NAME = EV offgrid charge reserve
 CMDP-export-NAME = Export mode to grid
 CMDP-import-NAME = Charging from grid w. solar
+
+NODATA-97=Data Invalid
+NODATA-98=Not supported
+NODATA-99=Unknown
