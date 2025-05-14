@@ -103,7 +103,7 @@
          <accepts>         
             <cmd id="UPDATE" /> 
             <cmd id="BACKUP_PCT" > 
-               <p id="" editor="PERCENT" init="GV21" /> 
+               <p id="" editor="setPERCENT" init="GV21" /> 
             </cmd> 
             <cmd id="OP_MODE" > 
                <p id="" editor="setOP_MODE" init="GV24" /> 
@@ -214,10 +214,10 @@
                    <p id="" editor="CHARGECTRL" init="GV6" /> 
             </cmd >
             <cmd id="BATPERCENT" >
-                  <p id="" editor="PERCENTINP" init="GV9" /> 
+                  <p id="" editor="setPERCENT" init="GV9" /> 
             </cmd >
             <cmd id="CHARGEAMPS" >
-                   <p id="" editor="AMPSINP" init="GV5" /> 
+                   <p id="" editor="setAMPS" init="GV5" /> 
             </cmd >
          </accepts>
       </cmds>

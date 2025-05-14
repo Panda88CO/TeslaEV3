@@ -78,7 +78,7 @@
      <range uom="25" subset="0,1, 97,98,99" nls="OPENCLOSE"/>
   </editor>
   
-   <editor id="PERCENTINP" > 
+   <editor id="setPERCENT" > 
      <range uom="51" min="0" max="100" prec="1" />
   </editor>
   
@@ -138,7 +138,7 @@
      <range  uom="25" subset="0,1,97,98,99" nls="UNKNOWN"  />
    </editor>
 
-   <editor id="AMPSINP" > 
+   <editor id="setAMPS" > 
      <range  uom="1" min="0" max="300" prec="1" />
    </editor>
 
