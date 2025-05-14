@@ -147,6 +147,8 @@ class teslaApiAccess(teslaAccess):
                         self._teslaEV_retrieve_streaming_certificate()
                 else:
                     self._teslaEV_retrieve_streaming_certificate()
+            else:
+                self._teslaEV_retrieve_streaming_certificate()
             return (self.stream_cert)
         except Exception as e:
             logging.error(f'_teslaEV_get_streaming_certificate - response {e}')
