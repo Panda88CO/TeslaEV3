@@ -382,3 +382,14 @@ CMDP-import-NAME = Charging from grid w. solar
 NODATA-97=Data Invalid
 NODATA-98=Not supported
 NODATA-99=Unknown
+EN_GRID_STATUS-0=on grid
+EN_GRID_STATUS-1=islanded ready
+EN_GRID_STATUS-2=islanded
+EN_GRID_STATUS-3=transition to grid
+EN_GRID_STATUS-97=Invalid Data
+EN_GRID_STATUS-99=Unknown code 
+
+EN_TOGGLE-0=Disabled
+EN_TOGGLE-1=Enabled
+EN_TOGGLE-97=Invalid Data
+EN_TOGGLE-99=Unknown
