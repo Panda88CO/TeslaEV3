@@ -243,6 +243,9 @@
   <editor id = "TOGGLE" > 
      <range  uom="25" subset="0,1, 97,98,99" nls="EN_TOGGLE" />
   </editor>
+  <editor id = "setTOGGLE" > 
+     <range  uom="25" subset="0,1" nls="EN_TOGGLE" />
+  </editor>  
 <editor id = "GRID_MODE" > 
      <range  uom="25" subset="0,1,97,98,99" nls="EN_TOGGLE" />
   </editor>
