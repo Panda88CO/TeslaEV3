@@ -16,11 +16,12 @@
          <!--<st id="GV10" editor="PERCENT" />-->
          <st id="GV11" editor="OPENCLOSE" />
          <st id="GV12" editor="OPENCLOSE" />
-         <!-- <st id="GV13" editor="CARSTATE" /> -->
-         <!-- <st id="GV16" editor="IDEADIST" /> !-->
+         <st id="GV15" editor="BOOLSTATE" />
+         <st id="GV16" editor="BOOLSTATE" /> 
          <st id="GV17" editor="LONGITUDE" />         
          <st id="GV18" editor="LATITUDE" />  
-         <!--<st id="GV20" editor="MINU" />    -->
+
+  
 
          <st id="GV23" editor="psi" />  
          <st id="GV24" editor="psi" />  

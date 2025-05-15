@@ -337,7 +337,9 @@ class teslaApiAccess(teslaAccess):
                         }
         if self.locationEn:
             location_field = {
-                                   'Location' : { 'interval_seconds': 60 },
+                                    'LocatedAtHome' : { 'interval_seconds': 60 },
+                                    'LocatedAtFavorite' : { 'interval_seconds': 60 },
+                                    'Location' : { 'interval_seconds': 60 },                                    
                         }
         
         if self.powerShareEn:  # there are wall connector / power share

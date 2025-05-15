@@ -1475,6 +1475,15 @@ class teslaEVAccess(object):
             return(timeNow - self.update_time[EVid]['status'])
     '''
 
+
+    def teslaEV_LocatedAtHome(self, EVid):
+        #logging.debug(f'teslaEV_HomeLinkNearby: for {EVid}')
+        return(self._stream_return_data(EVid, 'LocatedAtHome'))
+    
+    def teslaEV_LocatedAtFavorite(self, EVid):
+        #logging.debug(f'teslaEV_HomeLinkNearby: for {EVid}')
+        return(self._stream_return_data(EVid, 'LocatedAtFavorite'))    
+
     def teslaEV_HomeLinkNearby(self, EVid):
         #logging.debug(f'teslaEV_HomeLinkNearby: for {EVid}')
         return(self._stream_return_data(EVid, 'HomelinkNearby'))

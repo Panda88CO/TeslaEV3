@@ -23,7 +23,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVapi import teslaAccess
 
 
-VERSION = '0.1.36'
+VERSION = '0.1.37'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -678,6 +678,11 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV25', tire_psi['tmpsRr'], 138)
             self.EV_setDriver('GV26', tire_psi['tmpsRl'], 138)
             #if self.TEVcloud.location_enabled():
+
+            self.EV_setDriver('GV15', self.bool2ISY(self.TEVcloud.teslaEV_LocatedAtHome(self.EVid)), 25)
+            self.EV_setDriver('GV16', self.bool2ISY(self.TEVcloud.teslaEV_LocatedAtFavorite(self.EVid)), 25)
+
+
             location = self.TEVcloud.teslaEV_GetLocation(self.EVid)
             logging.debug(f'teslaEV_GetLocation {location}')
             if location['longitude']:
@@ -962,8 +967,8 @@ class TeslaEVController(udi_interface.Node):
 
             #{'driver': 'GV13', 'value': 0, 'uom': 25}, #door
             #{'driver': 'GV14', 'value': 0, 'uom': 25}, #door
-            #{'driver': 'GV15', 'value': 0, 'uom': 25}, #door
-            #{'driver': 'GV16', 'value': 0, 'uom': 25}, #door            
+            {'driver': 'GV15', 'value': 0, 'uom': 25}, #Located at home
+            {'driver': 'GV16', 'value': 0, 'uom': 25}, #Located at favorite   
 
             {'driver': 'GV17', 'value': 99, 'uom': 56}, #longitude
             {'driver': 'GV18', 'value': 99, 'uom': 56}, #latitude
