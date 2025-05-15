@@ -389,3 +389,14 @@ EN_TOGGLE-0=Disabled
 EN_TOGGLE-1=Enabled
 EN_TOGGLE-97=Invalid Data
 EN_TOGGLE-99=Unknown
+
+GRID_IMP_MODE-0=Allowed   
+GRID_IMP_MODE-1=Not Allowed
+GRID_IMP_MODE-97=Invalid Data
+GRID_IMP_MODE-99=Unknown
+
+GRID_EXP_MODE-0=PV-only
+GRID_EXP_MODE-1=Battery-ok
+GRID_EXP_MODE-2=Never
+GRID_EXP_MODE-97=Invalid Data
+GRID_EXP_MODE-99=Unknown
