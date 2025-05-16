@@ -645,13 +645,13 @@ class TeslaEVController(udi_interface.Node):
             else:
                 self.EV_setDriver('GV4', int(self.TEVcloud.teslaEV_GetOdometer(self.EVid)*1.6), 83)
             temp = self.TEVcloud.teslaEV_GetSentryState(self.EVid)
-            logging.debug(f'teslaEV_GetSentryState {temp}')
+            #logging.debug(f'teslaEV_GetSentryState {temp}')
             temp_val = self.sentry2ISY(temp)
-            logging.debug(f'teslaEV_GetSentryState ISY {temp_val}')
+            #logging.debug(f'teslaEV_GetSentryState ISY {temp_val}')
             self.EV_setDriver('GV5', temp_val, 25)
             
             windows  = self.TEVcloud.teslaEV_GetWindowStates(self.EVid)
-            logging.debug(f'teslaEV_GetSientryState ISY {windows}')
+            #logging.debug(f'teslaEV_GetSientryState ISY {windows}')
             if 'FrontLeft' not in windows:
                 windows['FrontLeft'] = None
             if 'FrontRight' not in windows:
@@ -684,7 +684,7 @@ class TeslaEVController(udi_interface.Node):
 
 
             location = self.TEVcloud.teslaEV_GetLocation(self.EVid)
-            logging.debug(f'teslaEV_GetLocation {location}')
+            #logging.debug(f'teslaEV_GetLocation {location}')
             if location['longitude']:
                 logging.debug('GV17: {}'.format(round(location['longitude'], 2)))
                 self.EV_setDriver('GV17', round(location['longitude'], 3), 56)

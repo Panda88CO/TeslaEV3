@@ -111,7 +111,7 @@ class teslaEVAccess(object):
         try:
             temp = json.loads(data)
             #d_type = type(data)
-            logging.debug(f'teslaEV_stream_process_data  {temp}')
+            #logging.debug(f'teslaEV_stream_process_data  {temp}')
             #t_type = type(temp)
             #logging.debug(f'data types data {type(data)} - temp {type(temp)}')
             EVid = temp['stream']['deviceId']
@@ -119,9 +119,10 @@ class teslaEVAccess(object):
                 self.stream_data[EVid] = {}
             if 'data' in temp['payload']:
                 for item in temp['payload']['data']:
-                    logging.debug(f'item : {item}')
+                    #logging.debug(f'item : {item}')
                     if 'key' in item:
                         self.stream_data[EVid][item['key']] = item['value']
+                        logging.debug('Data: {}: {}'.format(item['key'], item['value']))
                         if item['key'] in ['SettingDistanceUnit']:
                             if item['value']['distanceUnitValue'] == 'DistanceUnitMiles':
                                 self.teslaEV_SetDistUnit(1)
@@ -134,7 +135,7 @@ class teslaEVAccess(object):
                                 self.teslaEV_SetTempUnit(0)
 
                 self.stream_data[EVid]['created_at'] = temp['stream']['createdAt']
-            logging.debug(f'stream_data {self.stream_data}')
+            #logging.debug(f'stream_data {self.stream_data}')
 
         except Exception as e:
             logging.error(f'Exception processing data {data} {self.stream_data} {e}')
@@ -157,7 +158,7 @@ class teslaEVAccess(object):
 
     def _stream_return_data(self, EVid, dataKey):
         try:
-            logging.debug(f'_stream_return_data {dataKey} {self.stream_data[EVid]} ')
+            #logging.debug(f'_stream_return_data {dataKey} {self.stream_data[EVid]} ')
  
             ret_val = None
             if dataKey in self.stream_data[EVid]:
@@ -169,7 +170,7 @@ class teslaEVAccess(object):
                     #logging.debug(f'{key} {type(key)}')
                     #val =  self.stream_data[EVid][dataKey][key] 
                     val =  self.stream_data[EVid][dataKey][key] 
-                    logging.debug(f'Items {key} {val}')
+                    #logging.debug(f'Items {key} {val}')
                     if  key in ['intValue',]:
                         logging.debug('intValue {}'.format(int(val)))
                         ret_val = int(val)
@@ -202,7 +203,7 @@ class teslaEVAccess(object):
 
 
     def teslaEV_stream_get_id(self, data):
-        logging.debug(f'teslaEV_stream_get_id :{data}')
+        logging.debug(f'teslaEV_stream_get_id :')
         try:
             temp = json.loads(data)
             #d_type = type(data)
