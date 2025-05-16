@@ -1045,7 +1045,7 @@ class TeslaEVController(udi_interface.Node):
 
 if __name__ == "__main__":
     try:
-        logging.info('Starting TeslaEV Controller')
+        logging.info(f'Starting TeslaEV Controller {VERSION}')
         polyglot = udi_interface.Interface([],{ "enableWebhook": True })
 
         #TeslaEVController(polyglot, 'controller', 'controller', 'Tesla EVs')
