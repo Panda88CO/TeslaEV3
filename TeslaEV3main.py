@@ -66,7 +66,7 @@ class TeslaEVController(udi_interface.Node):
         self.address = address
         self.name = name
         self.webhookTestTimeoutSeconds = 5
-        self.n_queue = []
+
         polyglot.subscribe(polyglot.STOP, self.stop)
         polyglot.subscribe(polyglot.CUSTOMPARAMS, self.customParamsHandler)
         polyglot.subscribe(polyglot.CONFIGDONE, self.configDoneHandler)
