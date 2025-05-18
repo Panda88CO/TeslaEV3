@@ -351,8 +351,8 @@ class teslaApiAccess(teslaAccess):
                         'PowershareType':{ 'interval_seconds': 60 },  
                         }
 
-        if  int(self.stream_cert['expiry']) >= (time.time() + 31449600) : #31449600 = 66*60*24*264 (1 day less that a year)
-            exp = int(time.time() + 31449600 )
+        if  int(self.stream_cert['expiry']) >= (time.time() + 22809600) : #22809600 = 60*60*24*264 (1 day less that a year)
+            exp = int(time.time() + 22809600 )
         else:
             exp = int(self.stream_cert['expiry'])
         cfg = {'vins': vin_list ,
