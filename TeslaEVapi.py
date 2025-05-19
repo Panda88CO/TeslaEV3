@@ -288,7 +288,7 @@ class teslaEVAccess(object):
             site_id = ''
             code, temp = self.tesla_api._callApi('GET','/products' )
             logging.debug('products: {} '.format(temp))
-            if 'response' in temp:
+            if code == 'ok':
                 for indx, site  in enumerate(temp['response']):
                     #site = temp['response'][indx]
                     logging.debug(f'site: {site}')
