@@ -411,7 +411,7 @@ class TeslaEVController(udi_interface.Node):
         #logging.debug(f'climate drivers3 {self.climateNode.drivers}')
         time.sleep(2)      
 
-        while not self.tesla_api.teslaEV_streaming_synched(self.EVid):
+        while not self.tesla_api.teslaEV_streaming_synched(self.EVid) or self.data_flowing:
             self.poly.Notices['subscribe2'] = 'Waiting for EV to synchronize datastream - this may take some time '
             time.sleep(5)       
 
