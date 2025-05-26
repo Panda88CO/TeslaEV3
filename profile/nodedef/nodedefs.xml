@@ -1,10 +1,8 @@
 <nodeDefs> 
-
-
    <nodeDef id="controller" nls="nlsevstatus">
       <editors />
       <sts>
-         <st id="ST" editor="CARSTATE" />
+         <st id="ST" editor="NODEST" />
          <st id="GV1" editor="CONSOLE" />
          <st id="GV2" editor="BOOLSTATE" />
          <st id="GV0" editor="NUMBER" />
@@ -18,11 +16,12 @@
          <!--<st id="GV10" editor="PERCENT" />-->
          <st id="GV11" editor="OPENCLOSE" />
          <st id="GV12" editor="OPENCLOSE" />
-         <!-- <st id="GV13" editor="CARSTATE" /> -->
-         <!-- <st id="GV16" editor="IDEADIST" /> !-->
+         <st id="GV15" editor="BOOLSTATE" />
+         <st id="GV16" editor="BOOLSTATE" /> 
          <st id="GV17" editor="LONGITUDE" />         
          <st id="GV18" editor="LATITUDE" />  
-         <!--<st id="GV20" editor="MINU" />    -->
+
+  
 
          <st id="GV23" editor="psi" />  
          <st id="GV24" editor="psi" />  
@@ -48,7 +47,7 @@
                <p id="" editor="SENMODE" /> 
             </cmd >
             <cmd id="DOORS" > 
-               <p id="" editor="LOCKUNLOCK" init="GV3" /> 
+               <p id="" editor="setLOCKUNLOCK" init="GV3" /> 
             </cmd>
             <cmd id="SUNROOF" > 
                <p id="" editor="SUNROOFCTRL"  /> 
@@ -64,11 +63,71 @@
       </cmds>
    </nodeDef> 
 
+
+     <nodeDef id="pwrshare" nls="nlspwrshare">
+      <editors />
+      <sts>
+         <st id="ST" editor="HOURS" /> <!--hours left-->
+         <!--<st id="GV0" editor="TEXT" /> InstantaneousPowerKW-->
+      
+         <st id="GV1" editor="KW" /> <!--InstantaneousPowerKW-->
+         <st id="GV2" editor="PSSTATUS" /><!--Status-->
+         <st id="GV3" editor="PSSTOP" /><!--Stop Reason-->
+         <st id="GV4" editor="PSTYPE" /><!--PowerShare Type-->
+
+         <st id="GV5" editor="OP_MODE" />
+         <st id="GV6" editor="GRID_ST" />
+         <st id="GV7" editor="TOGGLE" /><!--StormMode-->
+        
+         <st id="GV8" editor="KWH" />
+
+         <st id="GV10" editor="KWH" />
+         <st id="GV11" editor="KWH" />
+         <st id="GV12" editor="KWH" />
+         <st id="GV13" editor="KWH" />
+         <st id="GV14" editor="KWH" />
+         <st id="GV15" editor="KWH" />
+         <st id="GV17" editor="KWH" />
+         <st id="GV18" editor="KWH" />
+         <st id="GV20" editor="KWH" />
+         <st id="GV21" editor="KWH" />
+         <st id="GV22" editor="KWH" />
+
+         <st id="GV19" editor="unixtime" />
+         <st id="GV29" editor="unixtime" />
+      </sts>
+      <cmds>
+         <sends>
+         </sends>
+         <accepts>         
+            <cmd id="UPDATE" /> 
+            <cmd id="BACKUP_PCT" > 
+               <p id="" editor="setPERCENT" init="GV21" /> 
+            </cmd> 
+            <cmd id="OP_MODE" > 
+               <p id="" editor="setOP_MODE" init="GV24" /> 
+            </cmd> 
+            <cmd id="STORM_MODE" > 
+               <p id="" editor="setTOGGLE" init="GV25" /> 
+            </cmd> 
+            <!--<cmd id="TOU_MODE" > 
+               <p id="" editor="setTOU_MODE" init="GV4" /> 
+            </cmd> -->
+            <cmd id="GRID_MODE" > 
+               <p id="import" editor="setGRID_IMP_MODE" init="GV26" /> 
+               <p id="export" editor="setGRID_EXP_MODE" init="GV27" /> 
+            </cmd> 
+            <cmd id="EV_CHRG_MODE" > 
+               <p id="" editor="setPERCENT" init="GV28" /> 
+            </cmd> 
+         </accepts>
+      </cmds>
+   </nodeDef> 
+   
    <nodeDef id="evclimate" nls="nlsevclimate">
       <editors />
       <sts>
          <st id="ST" editor="TEMP"/>
-         <!--<st id="GV1"  />-->
          <st id="GV2" editor="TEMP" />
          <st id="GV3" editor="TEMP" />
          <st id="GV4" editor="TEMP" />
@@ -81,19 +140,14 @@
          <st id="GV16" editor="HEATLVL" />
          <st id="GV10" editor="PRECSTATUS" />
          <st id="GV11" editor="PRECSTATUS" />
-         <!--<st id="GV12" editor="TEMP" />
-         <st id="GV13" editor="TEMP" />-->
          <st id="GV14" editor="HEAT" />
-
          <st id="GV19" editor="unixtime" />
-         <!--<st id="GV20" editor="MINU" />    -->
          <st id="GV21" editor="LASTCMD" />  
       </sts>
       <cmds>
          <sends>
          </sends>
          <accepts>
-
             <cmd id="SUNROOF" > 
                   <p id="" editor="SUNROOFCTRL" init="0" /> 
             </cmd>
@@ -107,7 +161,6 @@
                   <p id="driver" editor="CABINTEMP" init="GV3" />
                   <p id="passenger" editor="CABINTEMP" init="GV4" /> 
             </cmd>            
-  
             <cmd id="DEFROST" > 
                   <p id="" editor="DEFROST" init="GV1" /> 
             </cmd >    
@@ -115,7 +168,6 @@
                   <p id="seat" editor="SEATSEL" init="0" /> 
                   <p id="heatlvl" editor="HEAT" init="GV5" /> 
             </cmd > 
-                
             <cmd id="STEERINGW" > 
                   <p id="" editor="HEAT" init="GV1" /> 
             </cmd >
@@ -154,7 +206,6 @@
          <sends>
          </sends>
          <accepts>
-
             <cmd id="CHARGEPORT" >
                    <p id="" editor="CHARGEPORT" init="GV3" /> 
             </cmd >
@@ -162,15 +213,12 @@
                    <p id="" editor="CHARGECTRL" init="GV6" /> 
             </cmd >
             <cmd id="BATPERCENT" >
-                  <p id="" editor="PERCENTINP" init="GV9" /> 
+                  <p id="" editor="setPERCENT" init="GV9" /> 
             </cmd >
             <cmd id="CHARGEAMPS" >
-                   <p id="" editor="AMPSINP" init="GV5" /> 
+                   <p id="" editor="setAMPS" init="GV5" /> 
             </cmd >
-
          </accepts>
       </cmds>
    </nodeDef> 
-
-  
 </nodeDefs> 

@@ -59,7 +59,7 @@ class teslaAccess(OAuth):
         self.region = ''
         #self.handleCustomParamsDone = False
         #self.customerDataHandlerDone = False
-        self.customNsHandlerDone = True
+        self.customNsHandlerDone = False
         self.oauthHandlerCalled = False
         self.customDataHandlerDone = False
         self.authendication_done = False
@@ -97,9 +97,9 @@ class teslaAccess(OAuth):
         #    logging.debug(f'Waiting for customNsHandler to complete')
         #    time.sleep(1)
         #self.updateOauthConfig()
-        super().customNsHandler(key, data)
-        logging.debug(f'customerNSHandler results: {super().customNsHandler(key, data)}')
-        if key == 'oauthTokens': # stored oauthToken values processed
+        temp = super().customNsHandler(key, data)
+        logging.debug(f'customerNSHandler results: {temp}')
+        if key == 'oauthTokens' or temp is None: # stored oauthToken values processed or none exist
             self.customNsHandlerDone = True
         logging.debug(f'customNsHandler Finished')
 
@@ -125,7 +125,9 @@ class teslaAccess(OAuth):
         return(self.customDataHandlerDone )
 
 
-
+    def append_scope(self, scope_str):
+        logging.debug(f'Appending {scope_str} to scope {self.scope}')
+        self.scope = self.scope+' '+str(scope_str)
                 
     def cloud_set_region(self, region):
         #self.customParameters.load(userParams)
@@ -136,7 +138,7 @@ class teslaAccess(OAuth):
         oauthSettingsUpdate['token_parameters'] = {}
         # Example for a boolean field
 
-        logging.debug(f'region {self.region}')
+        logging.debug(f'region {self.region} {self.scope}')
         oauthSettingsUpdate['scope'] = self.scope 
         oauthSettingsUpdate['auth_endpoint'] = 'https://auth.tesla.com/oauth2/v3/authorize'
         oauthSettingsUpdate['token_endpoint'] = 'https://auth.tesla.com/oauth2/v3/token'

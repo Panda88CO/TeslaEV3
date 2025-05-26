@@ -35,6 +35,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
         self.node = self.poly.getNode(address)
         self.nodeReady = True
         logging.info('_init_ Tesla ClimateNode Status Node COMPLETE')
+        logging.debug(f'drivers ; {self.drivers}')
 
     def start(self):                
         logging.debug('Start TeslaEV Climate Node')  
@@ -86,7 +87,8 @@ class teslaEV_ClimateNode(udi_interface.Node):
     def updateISYdrivers(self):
         try:
 
-            logging.info(f'Climate updateISYdrivers {self.EVid}')
+            logging.info(f'Climate updateISYdrivers {self.EVid}: {self.drivers}')
+            
             self.update_time()
             self.setDriverTemp('ST', self.TEVcloud.teslaEV_GetCabinTemp(self.EVid))
             self.setDriverTemp('GV2', self.TEVcloud.teslaEV_GetOutdoorTemp(self.EVid))
@@ -383,20 +385,11 @@ class teslaEV_ClimateNode(udi_interface.Node):
                  'CABINTEMP' : evSetCabinTemp,
                  'DEFROST' : evDefrostMax,   
                  'SEAT'  :evSetSeatHeat,   
-                 #'SEAT0' :evSetSeat0Heat,
-                 #'SEAT1' :evSetSeat1Heat,
-                 #'SEAT2' :evSetSeat2Heat,
-                 #'SEAT4' :evSetSeat4Heat,
-                 #'SEAT5' :evSetSeat5Heat,
-
                  'STEERINGW' : evSteeringWheelHeat,   
-
                 }
 
     drivers = [
-            #{'driver': 'ST', 'value': 0, 'uom': 2},
             {'driver': 'ST', 'value': 0, 'uom': 4},  #inside_temp
-            #{'driver': 'GV1', 'value': 0, 'uom': 4},  #inside_temp
             {'driver': 'GV2', 'value': 0, 'uom': 4},  #outside_temp
             {'driver': 'GV3', 'value': 0, 'uom': 4},  #driver_temp_setting
             {'driver': 'GV4', 'value': 0, 'uom': 4},  #passenger_temp_setting
@@ -407,14 +400,10 @@ class teslaEV_ClimateNode(udi_interface.Node):
             {'driver': 'GV9', 'value': 0, 'uom': 25},  #seat_heater_rear_right
             {'driver': 'GV15', 'value': 0, 'uom': 25},  #seat_heater_third_left
             {'driver': 'GV16', 'value': 0, 'uom': 25},  #seat_heater_third_right
-
             {'driver': 'GV10', 'value': 0, 'uom': 25}, #is_preconditioning
             {'driver': 'GV11', 'value': 0, 'uom': 25}, #is_preconditioning
-            #{'driver': 'GV12', 'value': 0, 'uom': 4}, #max_avail_temp
-            #{'driver': 'GV13', 'value': 0, 'uom': 4}, #min_avail_temp   
             {'driver': 'GV14', 'value': 99, 'uom': 25}, #Steering Wheel Heat
             {'driver': 'GV19', 'value': 0, 'uom': 151},  #Last combined update Hours           
-            #{'driver': 'GV20', 'value': 0, 'uom': 20},  #Last update Hours          
             {'driver': 'GV21', 'value': 99, 'uom': 25}, #Last Command status
             ]
 

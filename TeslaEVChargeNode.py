@@ -29,6 +29,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
 
         self.n_queue = []
         self.poly.subscribe(self.poly.ADDNODEDONE, self.node_queue)
+        
         self.poly.subscribe(self.poly.START, self.start, address)
 
         self.poly.ready()
@@ -83,7 +84,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
     def updateISYdrivers(self):
         try:
 
-            logging.info(f'ChargeNode updateISYdrivers {self.EVid}')
+            logging.info(f'ChargeNode updateISYdrivers {self.EVid} {self.drivers}')
             self.update_time()
             #if self.TEVcloud.teslaEV_GetCarState(self.EVid) in ['online']:                
             self.EV_setDriver('GV1', self.bool2ISY(self.TEVcloud.teslaEV_FastChargerPresent(self.EVid)), 25)
@@ -111,9 +112,14 @@ class teslaEV_ChargeNode(udi_interface.Node):
             self.EV_setDriver('GV11', self.TEVcloud.teslaEV_charge_current_request(self.EVid),1 )
             self.EV_setDriver('GV12', self.TEVcloud.teslaEV_charger_actual_current(self.EVid), 1)
             t_estimate = self.TEVcloud.teslaEV_time_to_full_charge(self.EVid)
-            if t_estimate:
+            if isinstance(t_estimate, str):
+                self.EV_setDriver('GV14', t_estimate, 25)
+            elif t_estimate:
                 t_estimate = round(t_estimate*60, 1)
-            self.EV_setDriver('GV14', t_estimate, 44)
+                self.EV_setDriver('GV14', t_estimate, 44)
+            else:
+                self.EV_setDriver('GV14', 99, 25)
+                
             self.EV_setDriver('GV15', self.TEVcloud.teslaEV_charge_energy_added(self.EVid), 33)
             #if self.TEVcloud.teslaEV_GetDistUnit() == 1:
             #    self.EV_setDriver('GV16', self.TEVcloud.teslaEV_charge_miles_added_rated(self.EVid), 116)
