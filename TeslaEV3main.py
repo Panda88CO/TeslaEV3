@@ -2,7 +2,8 @@
 
 import sys
 import time 
-
+from queue import Queue
+from threading import Thread, Event, Lock
 try:
     import udi_interface
     logging = udi_interface.LOGGER
@@ -12,24 +13,31 @@ except ImportError:
     logging.basicConfig(level=20)
 import threading
 import json
-from TeslaEVOauth import teslaEVAccess
+from TeslaEVapi import teslaEVAccess
+from TeslaPWapi import teslaPWAccess
+from TeslaAPIOauth import teslaApiAccess
 #from TeslaEVStatusNode import teslaEV_StatusNode
 from TeslaEVClimateNode import teslaEV_ClimateNode
 from TeslaEVChargeNode import teslaEV_ChargeNode
-from TeslaEVOauth import teslaAccess
+from TeslaEVPwrShareNode import teslaEV_PwrShareNode
+from TeslaEVapi import teslaAccess
 
 
-VERSION = '0.0.23'
+VERSION = '0.1.39'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
 
-    def __init__(self, polyglot, primary, address, name, ev_cloud_access):
+    def __init__(self, polyglot, primary, address, name, tesla_api ):
         super(TeslaEVController, self).__init__(polyglot, primary, address, name)
-        logging.info('_init_ Tesla EV Controller ')
+        logging.info(f'_init_ Tesla EV Controller {VERSION}')
         logging.setLevel(10)
-        
-        
+        logging.debug('Init Message system')
+        self.messageQueue = Queue()
+        self.background_thread = threading.Thread(target=self.process_message)
+        self.background_thread.daemon = True  # Daemonize thread
+        self.background_thread.start()
+
         self.poly = polyglot
         self.node = None
         self.portalID = None
@@ -38,36 +46,40 @@ class TeslaEVController(udi_interface.Node):
         self.vehicleList = []
         self.vin_list = [] # needed for streaming server
         #self.stream_cert = {}
-        self.TEVcloud = ev_cloud_access
-        
-        
+        self.tesla_api = tesla_api
+        self.TEVcloud = teslaEVAccess(self.poly, self.tesla_api)
+        self.TPWcloud = teslaPWAccess(self.poly, self.tesla_api)
+        self.power_share_node = None
         self.ISYforced = False
-        self.name = name
-        self.primary = primary
-        self.address = address
-        #self.tokenPassword = ""
-        self.n_queue = []
         self.CELCIUS = 0
         self.FARENHEIT = 1 
         self.KM = 0
         self.MILES = 1
-        #self.dUnit = self.MILES #  Miles = 1, Kilometer = 0
-        #self.tUnit = self.FARENHEIT  #  C = 0, F=1,
         self.supportedParams = ['DIST_UNIT', 'TEMP_UNIT']
         self.paramsProcessed = False
         self.customParameters = Custom(self.poly, 'customparams')
         self.portalData = Custom(self.poly, 'customNSdata')
         self.Notices = Custom(polyglot, 'notices')
-        self.ISYforced = False
-
+        self.initialized = False
+        self.STATE_UPDATE_MIN = 15
         self.primary = primary
         self.address = address
         self.name = name
         self.webhookTestTimeoutSeconds = 5
-        self.n_queue = []
-        self.poly.subscribe(self.poly.ADDNODEDONE, self.node_queue)
-        #self.poly.subscribe(polyglot.START, self.start, 'controller')
-        #self.poly.subscribe(self.poly.WEBHOOK, self.webhook)
+
+        polyglot.subscribe(polyglot.STOP, self.stop)
+        polyglot.subscribe(polyglot.CUSTOMPARAMS, self.customParamsHandler)
+        polyglot.subscribe(polyglot.CONFIGDONE, self.configDoneHandler)
+        #polyglot.subscribe(polyglot.ADDNODEDONE, TEV.node_queue)        
+        polyglot.subscribe(polyglot.LOGLEVEL, self.handleLevelChange)
+        polyglot.subscribe(polyglot.NOTICES, self.handleNotices)
+        polyglot.subscribe(polyglot.POLL, self.systemPoll)        
+        polyglot.subscribe(polyglot.WEBHOOK, self.webhook)
+        logging.debug('Calling start')
+        polyglot.subscribe(polyglot.START, self.start, 'controller')
+        polyglot.subscribe(polyglot.CUSTOMNS, self.customNSHandler)
+        polyglot.subscribe(polyglot.OAUTH, self.oauthHandler)
+        polyglot.subscribe(polyglot.ADDNODEDONE, self.node_queue)
         self.hb = 0
         self.connected = False
         self.nodeDefineDone = False
@@ -83,16 +95,17 @@ class TeslaEVController(udi_interface.Node):
         self.poly.addNode(self, conn_status = None, rename = False)
         #self.poly.addNode(self)
         self.wait_for_node_done()
-       
         self.node = self.poly.getNode(self.address)
         self.EVid = None
         self.data_flowing = False
-        #self.t_last = time.time()
+        self.nbr_wall_conn = 0
+
         logging.info('Controller init DONE')
+        logging.debug(f'drivers ; {self.drivers}')
 
     def check_config(self):
         self.nodes_in_db = self.poly.getNodesFromDb()
-        self.config_done= True
+        #self.config_done= True
 
 
     def configDoneHandler(self):
@@ -102,7 +115,7 @@ class TeslaEVController(udi_interface.Node):
         self.nodes_in_db = self.poly.getNodesFromDb()
         self.config_done= True
         try:
-            self.TEVcloud.getAccessToken()
+            self.tesla_api.getAccessToken()
         except ValueError:
             logging.warning('Access token is not yet available. Please authenticate.')
             self.poly.Notices['auth'] = 'Please initiate authentication'
@@ -110,7 +123,7 @@ class TeslaEVController(udi_interface.Node):
 
     def oauthHandler(self, token):
         # When user just authorized, pass this to your service, which will pass it to the OAuth handler
-        self.TEVcloud.oauthHandler(token)
+        self.tesla_api.oauthHandler(token)
         # Then proceed with device discovery
         self.configDoneHandler()
 
@@ -126,25 +139,18 @@ class TeslaEVController(udi_interface.Node):
         #stream_cert = {}
         logging.debug(f'customNSHandler : key:{key}  data:{data}')
         if key == 'nsdata':
+
             if 'portalID' in data:
                 self.portalID = data['portalID']
-                #self.customNsDone = True
+
             if 'PortalSecret' in data:
                 self.portalSecret = data['PortalSecret']
-                #self.customNsDone = True
-            if self.TEVcloud.initializePortal(self.portalID, self.portalSecret):
-                self.portalReady = True
+            self.portalReady = True
 
-            #if 'issuedAt' in data:
-            #    stream_cert = {}
-            #    stream_cert['issuedAt'] = data['issuedAt']
-            #    stream_cert['expiry'] = data['expiry']
-            #    stream_cert['expectedRenewal'] = data['expectedRenewal']
-            #    stream_cert['ca'] = data['ca']
-            #    self.TEVcloud.stream_cert  = stream_cert
             logging.debug(f'Custom Data portal: {self.portalID} {self.portalSecret}')
-        self.TEVcloud.customNsHandler(key, data)
-        
+
+        self.tesla_api.customNsHandler(key, data)
+        self.customNsDone =self.tesla_api.customNsDone()
     #def customDataHandler(self, Data):
     #    logging.debug('customDataHandler')
     #    self.customData.load(Data)
@@ -167,7 +173,7 @@ class TeslaEVController(udi_interface.Node):
                     logging.error(f'Unsupported region {region}')
                     self.poly.Notices['REGION'] = 'Unknown Region specified (NA = North America + Asia (-China), EU = Europe. middle East, Africa, CN = China)'
                 else:
-                    self.TEVcloud.cloud_set_region(region)
+                    self.tesla_api.cloud_set_region(region)
         else:
             logging.warning('No region found')
             self.customParameters['REGION'] = 'Input region NA, EU, CN'
@@ -226,7 +232,9 @@ class TeslaEVController(udi_interface.Node):
                     logging.error(f'Unsupported Location Setting {self.locationEn}')
                     self.poly.Notices['location'] = 'Unknown Location setting '
                 else:
-                    self.TEVcloud.teslaEV_set_location_enabled(self.locationEn)
+                    self.tesla_api.teslaEV_set_location_enabled(self.locationEn)
+                    if self.locationEn.upper() == 'TRUE':
+                        self.tesla_api.append_scope('vehicle_location')
                     
         else:
             logging.warning('No LOCATION')
@@ -234,7 +242,40 @@ class TeslaEVController(udi_interface.Node):
         self.customParam_done = True
 
         logging.debug('customParamsHandler finish ')
+        
+    def process_message(self):
+        logging.debug('Stating proccess_mnessage thread')
+        while True:
+            try:
+      
+                data = self.messageQueue.get(timeout = 10) 
+                logging.debug('Received message - Q size={}'.format(self.messageQueue.qsize()))
 
+                evID = self.TEVcloud.teslaEV_stream_get_id(data)
+                logging.debug(f'EVid in data = {evID}')
+                if evID == self.EVid:
+                    self.TEVcloud.teslaEV_stream_process_data(data)
+                    if self.subnodesReady():            
+                        self.update_all_drivers()
+                        self.EV_setDriver('ST', 1, 25) # Car must be online to stream data 
+                time.sleep(1)
+
+            except Exception as e:
+                logging.debug('message processing timeout - no new commands')
+                pass
+
+        #@measure_time
+    def insert_message(self, msg):
+        logging.debug('insert_message: {}'.format(msg))
+        self.messageQueue.put(msg)
+        qsize = self.messageQueue.qsize()
+        logging.debug('Message received and put in queue (size : {})'.format(qsize))
+        #logging.debug('Creating threads to handle the received messages')
+        #threads = []
+        ##for idx in range(0, qsize):
+        #    threads.append(Thread(target = self.process_message ))
+        #[t.start() for t in threads]
+        #logging.debug('{} on_message threads starting'.format(qsize))
 
     def init_webhook(self, EVid):
         EV = str(EVid)
@@ -245,8 +286,6 @@ class TeslaEVController(udi_interface.Node):
         tmp['id'] = str(EVid)
         init_w['assets'].append(tmp)
         init_w = {"assets":[{"id":EV}], "name":"Tesla"}
-        #init_w = {"assets":[{"id":"5YJ3E1EA5RF721953"}], "name":"Tesla" }
-        #init_w = {"name":"Tesla", "assets":[{"id":"test"}]}
         logging.debug(f'EVid {type(EVid)} {type(str(EVid))}')
         logging.debug(f'webhook_init {init_w}')        
         self.poly.webhookStart(init_w)
@@ -265,9 +304,20 @@ class TeslaEVController(udi_interface.Node):
                     self.activate()
             else:
                 self.data_flowing = True
+                self.insert_message(data)
+                qsize = self.messageQueue.qsize()
+                while qsize != 0:
+                    time.sleep(1)
+                #if self.subnodesReady():            
+                #    self.update_all_drivers()
+                '''
+                evID = self.TEVcloud.teslaEV_stream_get_id(data)
+                logging.debug(f'EVid in data = {evID}')
+                #if evID in self.EVid:
                 self.TEVcloud.teslaEV_stream_process_data(data)
-                vehicleID = self.TEVcloud.teslaEV_stream_get_id(data)
-                self.update_all_drivers()
+                if self.subnodesReady():            
+                    self.update_all_drivers()
+                '''
         except Exception as e:
             logging.error(f'Exception webhook {e}')
 
@@ -280,23 +330,29 @@ class TeslaEVController(udi_interface.Node):
 
         #self.poly.setCustomParamsDoc()
 
-        #while not self.customParam_done or not self.customNsDone and not self.config_done:
-        while not self.config_done and not self.portalReady:
-            logging.info('Waiting for node to initialize')
-            logging.debug(' 1 2 3: {} {} {}'.format(self.customParam_done, self.TEVcloud.customNsDone(), self.config_done))
+        while not self.customParam_done or not self.customNsDone or not self.config_done or not self.portalReady:
+        #while not self.config_done and not self.portalReady :
+            logging.info(f'Waiting for node to initialize {self.customParam_done} {self.customNsDone} {self.config_done} {self.portalReady}')
+            #logging.debug(f' 1 2 3: {} {} {} {}'.format(self.customParam_done, , self.config_done))
             time.sleep(1)
-
-        logging.debug(f'Portal Credentials: {self.portalID} {self.portalSecret}')
-        #self.TEVcloud.initializePortal(self.portalID, self.portalSecret)
-        while not self.TEVcloud.portal_ready():
+        self.tesla_api.initializePortal(self.portalID, self.portalSecret)
+        #logging.debug(f'Portal Credentials: {self.portalID} {self.portalSecret}')
+        #self.tesla_api.initializePortal(self.portalID, self.portalSecret)
+        while not self.tesla_api.portal_ready():
             time.sleep(5)
             logging.debug('Waiting for portal connection')
-        while not self.TEVcloud.authenticated():
+        while not self.tesla_api.authenticated():
             logging.info('Waiting to authenticate to complete - press authenticate button')
             self.poly.Notices['auth'] = 'Please initiate authentication'
             time.sleep(5)
 
-        assigned_addresses =['controller']
+        assigned_addresses =[self.id]
+        self.node_addresses = [self.id]
+        self.poly.Notices['products'] = 'Acquiring supported products'
+        self.PW_siteid, self.nbr_wall_conn = self.TPWcloud.tesla_get_energy_products()
+        logging.debug(f'Nbr Wall Cons main {self.nbr_wall_conn}')
+        self.tesla_api.teslaEV_set_power_share_enabled(self.nbr_wall_conn > 0)
+               
         code, vehicles = self.TEVcloud.teslaEV_get_vehicles()
         if code in ['ok']:
             self.vehicleList = self.TEVcloud.teslaEV_get_vehicle_list()
@@ -314,13 +370,14 @@ class TeslaEVController(udi_interface.Node):
         elif len(self.vehicleList) == 0:
             self.poly.Notices['VIN2']="Then restart"
 
-        if self.EVid is None:
+        if self.EVid is None or self.EVid == '':
             self.EVid = str(self.vehicleList[0])
             self.customParameters['VIN'] = self.EVid
-
+        logging.debug(f'EVid {self.EVid}')
         EVname = self.TEVcloud.teslaEV_GetName(self.EVid)
 
-        logging.debug(f'EVname {EVname}')        
+        logging.debug(f'EVname {EVname}') 
+        self.init_webhook(self.EVid)       
         #self.EV_setDriver('GV0', self.bool2ISY(self.EVid is not None), 25)            
         if EVname == None or EVname == '':
             # should not happen but just in case or user has not given name to EV
@@ -329,42 +386,62 @@ class TeslaEVController(udi_interface.Node):
         nodeName = self.poly.getValidName(EVname)
         self.node.rename(nodeName)
         assigned_addresses.append(self.address)
+        self.poly.Notices['subnotes'] = 'Creating sub-notes - 2 or 3 depending on powershare support'
+        time.sleep(1)
+        self.poly.Notices.delete('products')
         self.createSubNodes()
+        #logging.debug(f'climate drivers1 {self.climateNode.drivers}')
         while not (self.subnodesReady()):
             logging.debug(f'Subnodes {self.subnodesReady()} ')
             logging.debug('waiting for nodes to be created')
             time.sleep(5)
-
-        self.init_webhook(self.EVid)
-
-        # force creation of new config - assume this will enable retransmit of all data 
-        if not self.TEVcloud.teslaEV_streaming_check_certificate_update(self.EVid, True ): #We need to update streaming server credentials
-            logging.info('')
-            self.poly.Notices['SYNC']=f'{EVname} ERROR failed to connect to streaming server - EV may be too old'
-            #self.stop()
-            sys.exit()
-            
+        #logging.debug(f'climate drivers2 {self.climateNode.drivers}')
+        self.initialized = True   
         code, state = self.TEVcloud._teslaEV_wake_ev(self.EVid)
         logging.debug(f'Wake EV {code} {state}')
         if state not in ['online']:
             self.poly.Notices['NOTONLINE']=f'{EVname} appears offline - cannot continue with EV being online'
+        # force creation of new config - assume this will enable retransmit of all data 
+        self.poly.Notices['subscribe1'] = 'Subscribing to datastream from EV'
+        if not self.tesla_api.teslaEV_streaming_check_certificate_update(self.EVid, True ): #We need to update streaming server credentials
+            logging.info('')
+            self.poly.Notices['SYNC']=f'{EVname} ERROR failed to connect to streaming server - EV may be too old'
+            #self.stop()
+            sys.exit()
+        #logging.debug(f'climate drivers3 {self.climateNode.drivers}')
+        time.sleep(2)      
+
+        while not self.tesla_api.teslaEV_streaming_synched(self.EVid) or self.data_flowing:
+            self.poly.Notices['subscribe2'] = 'Waiting for EV to synchronize datastream - this may take some time '
+            time.sleep(5)       
+
             #self.stop()
             #sys.exit()
-        sync_status = False
-        while not self.TEVcloud.teslaEV_streaming_synched(self.EVid):
-            time.sleep(3)
+        #sync_status = False
+        #logging.debug(f'climate drivers4 {self.climateNode.drivers}')
 
-                    
-        logging.debug(f'Scanning db for extra nodes : {assigned_addresses}')
+
+        self.EV_setDriver('ST', 1, 25)  # EV is synched so online 
+        #logging.debug(f'climate drivers5 {self.climateNode.drivers}')                    
+        logging.debug(f'Scanning db for extra nodes : {assigned_addresses} - {self.node_addresses}')
+
         for indx, node  in enumerate(self.nodes_in_db):
             #node = self.nodes_in_db[nde]
             logging.debug(f'Scanning db for node : {node}')
             if node['primaryNode'] not in assigned_addresses:
                 logging.debug('Removing node : {} {}'.format(node['name'], node))
                 self.poly.delNode(node['address'])
-        self.update_all_drivers()
-        self.initialized = True
+            if node['address'] not in self.node_addresses:
+                logging.debug('Removing node : {} {}'.format(node['name'], node))
+                self.poly.delNode(node['address'])
+        
+        #logging.debug(f'climate drivers6 {self.climateNode.drivers}')
 
+        self.update_all_drivers()
+        self.poly.Notices['done'] = 'Initialization process completed'
+        time.sleep(2)
+        self.poly.Notices.clear()
+        #logging.debug(f'climate drivers7 {self.climateNode.drivers}')
 
     def validate_params(self):
         logging.debug('validate_params: {}'.format(self.Parameters.dump()))
@@ -373,12 +450,14 @@ class TeslaEVController(udi_interface.Node):
 
     def stop(self):
         self.Notices.clear()
+        #self.background_thread.stop()
         #if self.TEV:
-        self.TEVcloud.teslaEV_streaming_delete_config(self.EVid)
+        self.tesla_api.teslaEV_streaming_delete_config(self.EVid)
         self.EV_setDriver('ST', 0, 25 )
         logging.debug('stop - Cleaning up')
         #self.scheduler.shutdown()
         self.poly.stop()
+        sys.exit() # kill running threads
 
 
 
@@ -386,48 +465,68 @@ class TeslaEVController(udi_interface.Node):
         logging.debug(f'portal_initialize {portalId} {portalSecret}')
         #portalId = None
         #portalSecret = None
-        self.TEVcloud.initializePortal(portalId, portalSecret)
+        self.tesla_api.initializePortal(portalId, portalSecret)
 
     def systemPoll(self, pollList):
         logging.debug(f'systemPoll - {pollList}')
         if self.TEVcloud:
-            if self.TEVcloud.authenticated():
-                code, state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-                if state:
-                    self.EV_setDriver('ST', self.state2ISY(state), 25)
-                    self.poly.Notices.delete('offline')
-                else:
-                    self.poly.Notices['offline']='API connection Failure - please re-authenticate'
-                    self.EV_setDriver('ST', 98, 25)
-                    #self.TEVcloud.teslaEV_get_vehicles()
+            logging.debug(f'systemPoll {self.tesla_api.authenticated()} {self.initialized}')
+            if self.tesla_api.authenticated() and self.initialized:
+                time_n = int(time.time())
+                last_time = self.TEVcloud.teslaEV_GetTimestamp(self.EVid)
+                logging.debug(f'tine now {time_n} , last_time {last_time}')
+                if last_time is None:
+                    code, state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+                    if state:
+                        self.EV_setDriver('ST', self.state2ISY(state), 25)
+                        self.poly.Notices.delete('offline')
+                    else:
+                        self.poly.Notices['offline']='API connection Failure - please re-authenticate'
+                        self.EV_setDriver('ST', 98, 25)
+                            #self.TEVcloud.teslaEV_get_vehicles()
+                elif isinstance(time_n, int) and isinstance(last_time, int):
+                    if (time_n - last_time) > self.STATE_UPDATE_MIN * 60:
+                        code, state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+                        if state:
+                            self.EV_setDriver('ST', self.state2ISY(state), 25)
+                            self.poly.Notices.delete('offline')
+                        else:
+                            self.poly.Notices['offline']='API connection Failure - please re-authenticate'
+                            self.EV_setDriver('ST', 98, 25)
+                            #self.TEVcloud.teslaEV_get_vehicles()
                 if 'longPoll' in pollList: 
                     self.longPoll()
                     if 'shortPoll' in pollList: #send short polls heart beat as shortpoll is not executed
                         self.heartbeat()
+                if self.nbr_wall_conn != 0:
+                        self.power_share_node.poll('all')
                 if 'shortPoll' in pollList:
                     self.shortPoll()
+                    if self.nbr_wall_conn != 0:
+                        self.power_share_node.poll('critical')
             else:
                 logging.info('Waiting for system/nodes to initialize')
 
     def shortPoll(self):
-        logging.info('Tesla EV Controller shortPoll(HeartBeat)')
-        self.heartbeat()
-        
-        #try:
-        #    logging.debug(f'short poll list - heart beat')
-        #except Exception:
-        #    logging.info('Not all nodes ready:')
-
-    def longPoll(self):
-        logging.info('Tesla EV  Controller longPoll - connected = {}'.format(self.TEVcloud.authenticated()))
-
         try:
-            logging.debug(f'long poll list - checking for token update required')
-            self.TEVcloud.teslaEV_streaming_check_certificate_update(self.EVid) #We need to check if we need to update streaming server credentials
+            logging.info('Tesla EV Controller shortPoll(HeartBeat)')
+            self.heartbeat()
+            if self.nbr_wall_conn != 0:
+                self.power_share_node.poll('critical')
+
 
         except Exception:
-            logging.info(f'Not all nodes ready:')
+            logging.info('Not all nodes ready:')
 
+    def longPoll(self):
+        try:
+            logging.info('Tesla EV  Controller longPoll - connected = {}'.format(self.tesla_api.authenticated()))
+            logging.debug(f'long poll list - checking for token update required')
+            self.tesla_api.teslaEV_streaming_check_certificate_update(self.EVid) #We need to check if we need to update streaming server credentials
+            if self.nbr_wall_conn != 0:
+                self.power_share_node.poll('critical')
+        except Exception:
+            logging.info(f'Not all nodes ready:')
 
 
     def createSubNodes(self):
@@ -436,22 +535,41 @@ class TeslaEVController(udi_interface.Node):
         nodeName = self.poly.getValidName('Climate Info')
         nodeAdr = self.poly.getValidAddress(nodeAdr)
         #if not self.poly.getNode(nodeAdr):
-        logging.info(f'Creating ClimateNode: {nodeAdr} - {self.address} {nodeAdr} {nodeName} {self.EVid}')
-        self.climateNode = teslaEV_ClimateNode(self.poly, self.address, nodeAdr, nodeName, self.EVid, self.TEVcloud )
+        logging.info(f'Creating ClimateNode: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.EVid}')
+        self.climateNode = teslaEV_ClimateNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.TEVcloud )
+        time.sleep(2)
+        self.node_addresses.append(nodeAdr)
 
         nodeAdr = 'charge'+str(self.EVid)[-10:]
         nodeName = self.poly.getValidName('Charging Info')
         nodeAdr = self.poly.getValidAddress(nodeAdr)
+        self.node_addresses.append(nodeAdr)
         #if not self.poly.getNode(nodeAdr):
-        logging.info(f'Creating ChargingNode: {nodeAdr} - {self.address} {nodeAdr} {nodeName} {self.EVid}')
-        self.chargeNode = teslaEV_ChargeNode(self.poly, self.address, nodeAdr, nodeName, self.EVid, self.TEVcloud )
-
+        logging.info(f'Creating ChargingNode: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.EVid}')
+        self.chargeNode = teslaEV_ChargeNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.TEVcloud )
+        time.sleep(2)
+        logging.debug(f'Nbr Wall Cons create: {self.nbr_wall_conn}')
+        if self.nbr_wall_conn != 0: 
+            nodeAdr = 'pwrshare'+str(self.EVid)[-8:]
+            nodeName = self.poly.getValidName('Powershare Info')
+            nodeAdr = self.poly.getValidAddress(nodeAdr)
+            logging.info(f'Creating pwrshare: {nodeAdr} - {self.primary} {nodeAdr} {nodeName} {self.PW_siteid}')
+            self.power_share_node = teslaEV_PwrShareNode(self.poly, self.primary, nodeAdr, nodeName, self.EVid, self.PW_siteid, self.TEVcloud, self.TPWcloud )
+            self.node_addresses.append(nodeAdr)
+        #logging.debug(f'climate drivers0 {self.climateNode.drivers}')
+        time.sleep(2)
 
     def subnodesReady(self):
-        return(self.climateNode.nodeReady and self.chargeNode.nodeReady )
+        if self.power_share_node is None:
+            return(self.climateNode.nodeReady and self.chargeNode.nodeReady)
+        else:
+            return(self.climateNode.nodeReady and self.chargeNode.nodeReady and self.power_share_node.nodeReady)
 
     def ready(self):
-        return(self.climateNode.nodeReady and self.chargeNode.nodeReady )
+        if self.power_share_node is None:
+            return(self.climateNode.nodeReady and self.chargeNode.nodeReady)
+        else:
+            return(self.climateNode.nodeReady and self.chargeNode.nodeReady and self.power_share_node.nodeReady)
 
     def update_time(self):
         logging.debug('update_time')
@@ -500,19 +618,21 @@ class TeslaEVController(udi_interface.Node):
                 logging.debug(f'charge updateISYdrivers {self.chargeNode.node_ready()}')                
                 if self.chargeNode.node_ready():
                     self.chargeNode.updateISYdrivers()
+                    
+                if self.nbr_wall_conn != 0: 
+                    logging.debug(f'power share updateISYdrivers {self.power_share_node.node_ready()}')   
+                    if self.power_share_node.node_ready():
+                        self.power_share_node.updateISYdrivers()
         except Exception as e:
             logging.debug(f'All nodes may not be ready yet {e}')
 
 
     def updateISYdrivers(self):
         try:
-            logging.debug('Update main node')
+            logging.debug(f'Update main node {self.drivers}')
             self.update_time()
-            #state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            #logging.debug(f' state : {state}')
-            #code, state = self.TEVcloud.teslaEV_update_connection_status(self.EVid)
-            #self.EV_setDriver('ST', self.state2ISY(state), 25)
-            self.EV_setDriver('GV29', self.sync_state2ISY(self.TEVcloud.stream_synched), 25)
+
+            self.EV_setDriver('GV29', self.sync_state2ISY(self.tesla_api.stream_synched), 25)
 
             logging.info(f'updateISYdrivers - Status for {self.EVid}')
             self.EV_setDriver('GV1',self.display2ISY(self.TEVcloud.teslaEV_GetCenterDisplay(self.EVid)), 25)
@@ -524,10 +644,14 @@ class TeslaEVController(udi_interface.Node):
                 self.EV_setDriver('GV4', self.TEVcloud.teslaEV_GetOdometer(self.EVid), 116)
             else:
                 self.EV_setDriver('GV4', int(self.TEVcloud.teslaEV_GetOdometer(self.EVid)*1.6), 83)
-
-            self.EV_setDriver('GV5', self.sentry2ISY(self.TEVcloud.teslaEV_GetSentryState(self.EVid)),25)
+            temp = self.TEVcloud.teslaEV_GetSentryState(self.EVid)
+            #logging.debug(f'teslaEV_GetSentryState {temp}')
+            temp_val = self.sentry2ISY(temp)
+            #logging.debug(f'teslaEV_GetSentryState ISY {temp_val}')
+            self.EV_setDriver('GV5', temp_val, 25)
             
             windows  = self.TEVcloud.teslaEV_GetWindowStates(self.EVid)
+            #logging.debug(f'teslaEV_GetSientryState ISY {windows}')
             if 'FrontLeft' not in windows:
                 windows['FrontLeft'] = None
             if 'FrontRight' not in windows:
@@ -554,8 +678,13 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV25', tire_psi['tmpsRr'], 138)
             self.EV_setDriver('GV26', tire_psi['tmpsRl'], 138)
             #if self.TEVcloud.location_enabled():
+
+            self.EV_setDriver('GV15', self.bool2ISY(self.TEVcloud.teslaEV_LocatedAtHome(self.EVid)), 25)
+            self.EV_setDriver('GV16', self.bool2ISY(self.TEVcloud.teslaEV_LocatedAtFavorite(self.EVid)), 25)
+
+
             location = self.TEVcloud.teslaEV_GetLocation(self.EVid)
-            logging.debug(f'teslaEV_GetLocation {location}')
+            #logging.debug(f'teslaEV_GetLocation {location}')
             if location['longitude']:
                 logging.debug('GV17: {}'.format(round(location['longitude'], 2)))
                 self.EV_setDriver('GV17', round(location['longitude'], 3), 56)
@@ -635,7 +764,7 @@ class TeslaEVController(udi_interface.Node):
  
         doorCtrl = int(float(command.get('value')))
         if doorCtrl == 1:
-            cmd = 'unlock'
+            cmd = 'lock'
             #code, red =  self.TEVcloud.teslaEV_Doors(self.EVid, 'unlock')
             #self.EV_setDriver('GV3', doorCtrl )
         elif doorCtrl == 0:
@@ -838,8 +967,8 @@ class TeslaEVController(udi_interface.Node):
 
             #{'driver': 'GV13', 'value': 0, 'uom': 25}, #door
             #{'driver': 'GV14', 'value': 0, 'uom': 25}, #door
-            #{'driver': 'GV15', 'value': 0, 'uom': 25}, #door
-            #{'driver': 'GV16', 'value': 0, 'uom': 25}, #door            
+            {'driver': 'GV15', 'value': 0, 'uom': 25}, #Located at home
+            {'driver': 'GV16', 'value': 0, 'uom': 25}, #Located at favorite   
 
             {'driver': 'GV17', 'value': 99, 'uom': 56}, #longitude
             {'driver': 'GV18', 'value': 99, 'uom': 56}, #latitude
@@ -916,7 +1045,7 @@ class TeslaEVController(udi_interface.Node):
 
 if __name__ == "__main__":
     try:
-        logging.info('Starting TeslaEV Controller')
+        logging.info(f'Starting TeslaEV Controller {VERSION}')
         polyglot = udi_interface.Interface([],{ "enableWebhook": True })
 
         #TeslaEVController(polyglot, 'controller', 'controller', 'Tesla EVs')
@@ -924,31 +1053,29 @@ if __name__ == "__main__":
         #polyglot.updateProfile()
         polyglot.setCustomParamsDoc()
 
-        TEV_cloud = teslaEVAccess(polyglot, 'energy_device_data energy_cmds vehicle_device_data vehicle_cmds vehicle_charging_cmds open_id offline_access')
+        TeslaApi = teslaApiAccess(polyglot,'energy_device_data energy_cmds vehicle_device_data vehicle_cmds vehicle_charging_cmds open_id offline_access')
         #TEV_cloud = teslaEVAccess(polyglot, 'energy_device_data energy_cmds open_id offline_access')
         #TEV_cloud = teslaEVAccess(polyglot, 'open_id vehicle_device_data vehicle_cmds  vehicle_charging_cmds offline_access')
-        logging.debug(f'TEV_Cloud {TEV_cloud}')
-        TEV =TeslaEVController(polyglot, 'controller', 'controller', 'Tesla EV Status', TEV_cloud)
-        
+        logging.debug(f'TeslaAPI {TeslaApi}')
+
+        TEV =TeslaEVController(polyglot, 'controller', 'controller', 'Tesla EV Status', TeslaApi)
         logging.debug('before subscribe')
-        polyglot.subscribe(polyglot.STOP, TEV.stop)
-        polyglot.subscribe(polyglot.CUSTOMPARAMS, TEV.customParamsHandler)
-        polyglot.subscribe(polyglot.CONFIGDONE, TEV.configDoneHandler)
+        #polyglot.subscribe(polyglot.STOP, TEV.stop)
+        #polyglot.subscribe(polyglot.CUSTOMPARAMS, TEV.customParamsHandler)
+        #polyglot.subscribe(polyglot.CONFIGDONE, TEV.configDoneHandler)
         #polyglot.subscribe(polyglot.ADDNODEDONE, TEV.node_queue)        
-        polyglot.subscribe(polyglot.LOGLEVEL, TEV.handleLevelChange)
-        polyglot.subscribe(polyglot.NOTICES, TEV.handleNotices)
-        polyglot.subscribe(polyglot.POLL, TEV.systemPoll)        
-        polyglot.subscribe(polyglot.WEBHOOK, TEV.webhook)
-        logging.debug('Calling start')
-        polyglot.subscribe(polyglot.START, TEV.start, 'controller')
-        polyglot.subscribe(polyglot.CUSTOMNS, TEV.customNSHandler)
-        polyglot.subscribe(polyglot.OAUTH, TEV.oauthHandler)
+        #polyglot.subscribe(polyglot.LOGLEVEL, TEV.handleLevelChange)
+        ##polyglot.subscribe(polyglot.NOTICES, TEV.handleNotices)
+        #polyglot.subscribe(polyglot.POLL, TEV.systemPoll)        
+        #polyglot.subscribe(polyglot.WEBHOOK, TEV.webhook)
+        #logging.debug('Calling start')
+        #polyglot.subscribe(polyglot.START, TEV.start, 'controller')
+        #polyglot.subscribe(polyglot.CUSTOMNS, TEV.customNSHandler)
+        #polyglot.subscribe(polyglot.OAUTH, TEV.oauthHandler)
         
         logging.debug('after subscribe')
         polyglot.ready()
         polyglot.runForever()
 
-        polyglot.setCustomParamsDoc()
-        polyglot.runForever()
     except (KeyboardInterrupt, SystemExit):
         sys.exit(0)
