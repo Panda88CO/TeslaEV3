@@ -15,13 +15,15 @@ FOR PERSONAL USE - not commercial
 
 ## Installation
 Requires PG3x
+The vehicle must not be a pre-2021 Model S or Model X.
+Vehicles must be running firmware version 2024.26 or later
 OBS!!!!!! 
 To use the node server, one must install an electronic key on the car
 On your mobile device open  https://tesla.com/_ak/my.isy.io. It should open the tesla app where you can approve the key-install - Older EVs may not support the virtual key.
 Note, currently only supports NA EVs
  
 Additionally, one must open external access on the eISY/Polisy.
-got to https://my.isy.io/index.htm and log in 
+Go to https://my.isy.io/index.htm and log in 
 Select PG3->Remote Connections on the eISY/Polisy
 Make sure that Remote Connection is ACTIVE
 To validate if the connection works, there is a TEST button/command on the main page on the node (result shown in the last field in the main page).

@@ -76,6 +76,8 @@ def state2Nbr(self, val):
         return(0)
     elif val == 'alert':
         return(1)
+    elif val == 'aleinvalidrt':
+        return(97)    
     else:
         return(99)
 
@@ -121,23 +123,29 @@ def season2ISY(self, season):
 
 def state2ISY(self, state):
     logging.debug(f'state2ISY : state {state}')
+    res = 99
     if state is not None:
         if state.lower() == 'offline':
-            return(0)
+            res = 0
         elif state.lower() == 'online':
-            return(1)
+            res = 1
         elif state.lower() == 'asleep':
-            return(2) 
+            res = 2 
         elif state.lower() == 'overload':
-            return(4)
+            res = 4
         elif state.lower() == 'error':
-            return(5)
+            res = 5
+        elif state.lower() == 'invalid':
+            res = 97           
         else:          
             logging.error(f'Unknown state passed {state}')
-            return(99)
+            res = 99
     else:
-        return(99)
-    
+        res = 99
+    logging.debug(f'state2ISY {res} - {state}')
+    return (res)
+
+
 def sync_state2ISY(self, state):
     logging.debug(f'sync_state2ISY : state {state}')
     if state is not None:
@@ -175,8 +183,9 @@ def display2ISY(self,state):
         elif state == 'DisplayStateDog':
             return(9)
         elif state == 'DisplayStateEntertainment':
-            return(10)
-                                                                          
+            return(10)     
+        elif state == 'invalid':
+            return(97)                                                                                  
         else:          
             logging.error('Unknown state passed {state}')
             return(99)
@@ -194,6 +203,8 @@ def code2ISY(self, state):
             return(4)
         elif state.lower() == 'error':
             return(5)
+        elif state.lower() == 'invalid':
+            return(97)       
         else:
             logging.error('Unknown state passed {state}')
             return(99)
@@ -243,30 +254,39 @@ def latch2ISY(self, state):
             return(0)
         elif state in ['ChargePortLatchSNA']:
             return(4)
+        elif state in ['invalid']:
+            return(97)
         else:
             return(99)
     else:
         return(99)
 
-def sentry2ISY(self, state):
-    if state is not None:
-        if state in ['SentryModeStateOff']:
-            return(1)
-        elif state() == ['SentryModeStateIdle']:
-            return(2)
-        elif state() == ['SentryModeStateArmed']:
-            return(0)
-        elif state() == ['SentryModeStateAware']:
-            return(4)
-        elif state() == ['SentryModeStatePanic']:
-            return(5)
-        elif state() == ['SentryModeStateQuiet']:
-            return(6)      
+def sentry2ISY(self, state) -> int:
+    try:
+        if state is not None:
+            if state == 'SentryModeStateOff':
+                res = 1
+            elif state == 'SentryModeStateIdle':
+                res = 2
+            elif state == 'SentryModeStateArmed':
+                res = 3
+            elif state == 'SentryModeStateAware':
+                res = 4
+            elif state == 'SentryModeStatePanic':
+                res = 5
+            elif state == 'SentryModeStateQuiet':
+                res = 6    
+            elif state == 'invalid':
+                res = 97                   
+            else:
+                res = 99
         else:
-            return(99)
-    else:
+            res = 99
+        logging.debug(f'sentry2ISY = {res}')
+        return (res)
+    except Exception as e:
+        logging.debug(f'Error sentry2ISY {state}:  {e} ')
         return(99)
-
 
 def chargeState2ISY(self, state):
     if state is not None:
@@ -282,6 +302,8 @@ def chargeState2ISY(self, state):
             return(4)
         elif state in ['complete','ChargeStateComplete', 'DetailedChargeStateComplete']:
             return(5)
+        elif state in ['invalid',]:
+            return(97)        
         else:
             return(99) 
     else:
@@ -300,13 +322,20 @@ def period2ISY(self, period):
             return (99) 
     else:
         return(99)
-
+def to_KW(self, power):
+    if isinstance(power, int) or  isinstance(power, float) :
+        return(round(power/1000,2))   
+    else:
+        return(power)
+    
 def EV_setDriver(self, key, value, Unit=None):
     logging.debug(f'EV_setDriver : {key} {value} {Unit}')
     try:
         if value is None:
             #logging.debug('None value passed = seting 99, UOM 25')
             self.node.setDriver(key, 99, True, True, 25)
+        elif isinstance(value, str) and value == 'invalid':
+            self.node.setDriver(key, 97, True, True, 25)
         else:
             if Unit:
                 self.node.setDriver(key, value, True, True, Unit)
