@@ -23,7 +23,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVapi import teslaAccess
 
 
-VERSION = '0.1.40'
+VERSION = '0.1.41'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -408,17 +408,13 @@ class TeslaEVController(udi_interface.Node):
             self.poly.Notices['SYNC']=f'{EVname} ERROR failed to connect to streaming server - EV may be too old'
             #self.stop()
             sys.exit()
-        #logging.debug(f'climate drivers3 {self.climateNode.drivers}')
+        
         time.sleep(2)      
-
+        self.poly.Notices['subscribe2'] = 'Waiting for EV to synchronize datastream - this may take some time '
         while not self.tesla_api.teslaEV_streaming_synched(self.EVid) or self.data_flowing:
-            self.poly.Notices['subscribe2'] = 'Waiting for EV to synchronize datastream - this may take some time '
             time.sleep(5)       
 
-            #self.stop()
-            #sys.exit()
-        #sync_status = False
-        #logging.debug(f'climate drivers4 {self.climateNode.drivers}')
+        self.poly.Notices.delete('subscribe2')
 
 
         self.EV_setDriver('ST', 1, 25)  # EV is synched so online 

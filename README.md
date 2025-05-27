@@ -5,6 +5,7 @@ Each node will have a main node and 2 subnodes - for climate and charging info
 Main gives an overview and allow some generic control
 Climate controls Climate settings as well as Windows
 Charging control Charging settings 
+In the case a powerShare charger is installed a 3rd node will appear enabling some "powerwall" capablility if EV supports reverse charging (cybertruck).  It should also give some enegrgy consumption data even if EV does not support reverse charging 
 
 The node subscribes to data from the EV.  Data will be updated automatically when data changes.  Therefore, there is no need poll data from the server - Data updates when data changes.
 
