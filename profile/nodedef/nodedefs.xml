@@ -107,9 +107,9 @@
             <cmd id="OP_MODE" > 
                <p id="" editor="setOP_MODE" init="GV24" /> 
             </cmd> 
-            <cmd id="STORM_MODE" > 
+            <!--<cmd id="STORM_MODE" > 
                <p id="" editor="setTOGGLE" init="GV25" /> 
-            </cmd> 
+            </cmd>--> 
             <!--<cmd id="TOU_MODE" > 
                <p id="" editor="setTOU_MODE" init="GV4" /> 
             </cmd> -->
