@@ -23,7 +23,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVapi import teslaAccess
 
 
-VERSION = '0.1.42'
+VERSION = '0.1.43'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -412,9 +412,17 @@ class TeslaEVController(udi_interface.Node):
         
         time.sleep(2)      
         self.poly.Notices['subscribe2'] = 'Waiting for EV to synchronize datastream - this may take some time '
+        
+        count = 0
         while not self.tesla_api.teslaEV_streaming_synched(self.EVid) or self.data_flowing:
-            time.sleep(5)       
-
+            count += 1
+            if count <= 12:
+                time.sleep(10)
+            elif count <= 24:
+                time.sleep(300)
+            else:
+                self.poly.Notices['subscribe3'] = 'Not able to synchronize to server - enable debug under log try again and send log to developer'
+                sys.exit()
         self.poly.Notices.delete('subscribe2')
 
 
