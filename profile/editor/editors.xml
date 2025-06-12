@@ -211,11 +211,11 @@
   </editor>
    <editor id="unixtime"> 
      <range uom="151" min="1737400000" max="9999999999" prec="0" />
-     <range uom="25" subset="0,97,98,99" nls="error" />
+     <range uom="25" subset="99" nls="timeerror" />
    </editor> 
       <editor id="psi"> 
-     <range uom="138" min="0" max="20" prec="2" />
-     <range uom="25" subset="0,97,98,99" nls="error" />
+     <range uom="138" min="0" max="145" prec="2" />
+     <range uom="25" subset="98,99" nls="psierror" />
    </editor> 
    <editor id="SENTRYSTATE" > 
      <range  uom="25" subset="1,2,3,4,5,6,97,98,99" nls="SENTRYSTATE"  />  
