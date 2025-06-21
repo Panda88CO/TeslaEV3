@@ -23,7 +23,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVapi import teslaAccess
 
 
-VERSION = '0.1.43'
+VERSION = '0.1.44'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -166,20 +166,7 @@ class TeslaEVController(udi_interface.Node):
         oauthSettingsUpdate['token_parameters'] = {}
         # Example for a boolean field
 
-        if 'REGION' in userParams:
-            if self.customParameters['REGION'] != 'Input region NA, EU, CN':
-                region = str(self.customParameters['REGION'])
-                if region.upper() not in ['NA', 'EU', 'CN']:
-                    logging.error(f'Unsupported region {region}')
-                    self.poly.Notices['REGION'] = 'Unknown Region specified (NA = North America + Asia (-China), EU = Europe. middle East, Africa, CN = China)'
-                else:
-                    self.tesla_api.cloud_set_region(region)
-        else:
-            logging.warning('No region found')
-            self.customParameters['REGION'] = 'Input region NA, EU, CN'
-            region = None
-            self.poly.Notices['region'] = 'Region not specified (NA = Nort America + Asia (-China), EU = Europe. middle East, Africa, CN = China)'
-   
+ 
         if 'DIST_UNIT' in userParams:
             if self.customParameters['DIST_UNIT'] != 'Km or Miless':
                 dist_unit = str(self.customParameters['DIST_UNIT'])
@@ -233,14 +220,29 @@ class TeslaEVController(udi_interface.Node):
                     self.poly.Notices['location'] = 'Unknown Location setting '
                 else:
                     self.tesla_api.teslaEV_set_location_enabled(self.locationEn)
-                    if self.locationEn.upper() == 'TRUE':
-                        self.tesla_api.append_scope('vehicle_location')
+                    if self.locationEn.upper() != 'TRUE':
+                        self.tesla_api.remove_scope('vehicle_location')
                     
         else:
             logging.warning('No LOCATION')
             self.customParameters['LOCATION_EN'] = 'True or False'   
         self.customParam_done = True
 
+
+        if 'REGION' in userParams:
+            if self.customParameters['REGION'] != 'Input region NA, EU, CN':
+                region = str(self.customParameters['REGION'])
+                if region.upper() not in ['NA', 'EU', 'CN']:
+                    logging.error(f'Unsupported region {region}')
+                    self.poly.Notices['REGION'] = 'Unknown Region specified (NA = North America + Asia (-China), EU = Europe. middle East, Africa, CN = China)'
+                else:
+                    self.tesla_api.cloud_set_region(region)
+        else:
+            logging.warning('No region found')
+            self.customParameters['REGION'] = 'Input region NA, EU, CN'
+            region = None
+            self.poly.Notices['region'] = 'Region not specified (NA = Nort America + Asia (-China), EU = Europe. middle East, Africa, CN = China)'
+   
         logging.debug('customParamsHandler finish ')
         
     def process_message(self):
@@ -1058,7 +1060,7 @@ if __name__ == "__main__":
         #polyglot.updateProfile()
         polyglot.setCustomParamsDoc()
 
-        TeslaApi = teslaApiAccess(polyglot,'energy_device_data energy_cmds vehicle_device_data vehicle_cmds vehicle_charging_cmds open_id offline_access')
+        TeslaApi = teslaApiAccess(polyglot,'energy_device_data energy_cmds vehicle_device_data vehicle_cmds vehicle_charging_cmds open_id offline_access vehicle_location')
         #TEV_cloud = teslaEVAccess(polyglot, 'energy_device_data energy_cmds open_id offline_access')
         #TEV_cloud = teslaEVAccess(polyglot, 'open_id vehicle_device_data vehicle_cmds  vehicle_charging_cmds offline_access')
         logging.debug(f'TeslaAPI {TeslaApi}')

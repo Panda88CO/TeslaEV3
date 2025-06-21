@@ -46,7 +46,7 @@ class teslaAccess(OAuth):
         logging.info(f'OAuth initializing')
   
         self.poly = polyglot
-        self.scope = scope
+        self.scope = str(scope)
         self.EndpointNA= 'https://fleet-api.prd.na.vn.cloud.tesla.com'
         self.EndpointEU= 'https://fleet-api.prd.eu.vn.cloud.tesla.com'
         self.EndpointCN= 'https://fleet-api.prd.cn.vn.cloud.tesla.cn'
@@ -124,6 +124,12 @@ class teslaAccess(OAuth):
     def customDateDone(self):
         return(self.customDataHandlerDone )
 
+    def remove_scope(self, scope_str):
+        try:
+            logging.debug(f'removing  {scope_str} from scope {self.scope}')
+            self.scope.replace(scope_str, '')
+        except Exception as e:
+            logging.debug(f'NOT ABLE TO REMOVE {scope_str} from {self.scope}')
 
     def append_scope(self, scope_str):
         logging.debug(f'Appending {scope_str} to scope {self.scope}')
