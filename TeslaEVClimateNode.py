@@ -170,6 +170,11 @@ class teslaEV_ClimateNode(udi_interface.Node):
             res = f'Wrong command for evWndows: {windowCtrl}'
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)    
+            self.poly.Notices.delete('overload')
+        elif code in ['overload']:
+            self.poly.Notices['overload'] = 'Too many api calls'
+            self.EV_setDriver('GV21', self.code2ISY(code),25)
+
         else:
             logging.info('Not able to send command - EV is not online')
             self.EV_setDriver('GV21', self.code2ISY(code), 25)
@@ -191,6 +196,11 @@ class teslaEV_ClimateNode(udi_interface.Node):
             res = f'Wrong command for evSunroof: {sunroofCtrl}'
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)    
+            self.poly.Notices.delete('overload')
+        elif code in ['overload']:
+            self.poly.Notices['overload'] = 'Too many api calls'
+            self.EV_setDriver('GV21', self.code2ISY(code),25)
+
         else:
             logging.info('Not able to send command - EV is not online')
             self.EV_setDriver('GV21', self.code2ISY(code), 25)      
@@ -211,6 +221,11 @@ class teslaEV_ClimateNode(udi_interface.Node):
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.EV_setDriver('GV10',autoCond, 25 )
+            self.poly.Notices.delete('overload')
+        elif code in ['overload']:
+            self.poly.Notices['overload'] = 'Too many api calls'
+            self.EV_setDriver('GV21', self.code2ISY(code),25)
+
         else:
             logging.info('Not able to send command - EV is not online')
             self.EV_setDriver('GV21', self.code2ISY(code), 25)
@@ -233,6 +248,11 @@ class teslaEV_ClimateNode(udi_interface.Node):
             res = f'Wrong command for evDefrostMax: {defrost}'
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
+            self.poly.Notices.delete('overload')
+        elif code in ['overload']:
+            self.poly.Notices['overload'] = 'Too many api calls'
+            self.EV_setDriver('GV21', self.code2ISY(code),25)
+
         else:
             logging.info('Not able to send command - EV is not online')
             self.EV_setDriver('GV21', self.code2ISY(code), 25)
@@ -257,6 +277,11 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.setDriverTemp( 'GV3', driverTemp )
             self.setDriverTemp( 'GV4', passengerTemp)
+            self.poly.Notices.delete('overload')
+        elif code in ['overload']:
+            self.poly.Notices['overload'] = 'Too many api calls'
+            self.EV_setDriver('GV21', self.code2ISY(code),25)
+
         else:
             logging.info('Not able to send command - EV is not online')
             self.EV_setDriver('GV21', self.code2ISY(code), 25)
@@ -286,6 +311,11 @@ class teslaEV_ClimateNode(udi_interface.Node):
                 else:
                     GVstr ='GV'+str(seat_select+4)
                 self.setDriverTemp(GVstr, seatTemp )
+            self.poly.Notices.delete('overload')
+        elif code in ['overload']:
+            self.poly.Notices['overload'] = 'Too many api calls'
+            self.EV_setDriver('GV21', self.code2ISY(code),25)
+
         else:
             logging.info('Not able to send command - EV is not online')
             self.EV_setDriver('GV21', self.code2ISY(code), 25)
@@ -300,6 +330,11 @@ class teslaEV_ClimateNode(udi_interface.Node):
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.EV_setDriver('GV5', seatTemp, 25)
+            self.poly.Notices.delete('overload')
+        elif code in ['overload']:
+            self.poly.Notices['overload'] = 'Too many api calls'
+            self.EV_setDriver('GV21', self.code2ISY(code),25)
+
         else:
             logging.info('Not able to send command - EV is not online')
             self.EV_setDriver('GV21', self.code2ISY(code), 25)
@@ -315,6 +350,11 @@ class teslaEV_ClimateNode(udi_interface.Node):
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.EV_setDriver('GV6', seatTemp, 25)
+            self.poly.Notices.delete('overload')
+        elif code in ['overload']:
+            self.poly.Notices['overload'] = 'Too many api calls'
+            self.EV_setDriver('GV21', self.code2ISY(code),25)
+
         else:
             logging.info('Not able to send command - EV is not online')
             self.EV_setDriver('GV21', self.code2ISY(code), 25)
@@ -329,6 +369,11 @@ class teslaEV_ClimateNode(udi_interface.Node):
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.EV_setDriver('GV7', seatTemp, 25)
+            self.poly.Notices.delete('overload')
+        elif code in ['overload']:
+            self.poly.Notices['overload'] = 'Too many api calls'
+            self.EV_setDriver('GV21', self.code2ISY(code),25)
+
         else:
             logging.info('Not able to send command - EV is not online')
             self.EV_setDriver('GV21', self.code2ISY(code), 25)
@@ -343,6 +388,11 @@ class teslaEV_ClimateNode(udi_interface.Node):
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.EV_setDriver('GV8', seatTemp, 25)
+            self.poly.Notices.delete('overload')
+        elif code in ['overload']:
+            self.poly.Notices['overload'] = 'Too many api calls'
+            self.EV_setDriver('GV21', self.code2ISY(code),25)
+
         else:
             logging.info('Not able to send command - EV is not online')
             self.EV_setDriver('GV21', self.code2ISY(code), 25)
@@ -356,6 +406,11 @@ class teslaEV_ClimateNode(udi_interface.Node):
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.EV_setDriver('GV9', seatTemp, 25)
+            self.poly.Notices.delete('overload')
+        elif code in ['overload']:
+            self.poly.Notices['overload'] = 'Too many api calls'
+            self.EV_setDriver('GV21', self.code2ISY(code),25)
+
         else:
             logging.info('Not able to send command - EV is not online')
             self.EV_setDriver('GV21', self.code2ISY(code), 25)
@@ -373,6 +428,11 @@ class teslaEV_ClimateNode(udi_interface.Node):
             res = f'Wrong command for evDefrostMax: {wheel}'
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res),25)
+            self.poly.Notices.delete('overload')
+        elif code in ['overload']:
+            self.poly.Notices['overload'] = 'Too many api calls'
+            self.EV_setDriver('GV21', self.code2ISY(code),25)
+
         else:
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 

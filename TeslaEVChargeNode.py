@@ -153,6 +153,11 @@ class teslaEV_ChargeNode(udi_interface.Node):
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.EV_setDriver('GV2', chargePort, 25)  
+            self.poly.Notices.delete('overload')
+        elif code in ['overload']:
+            self.poly.Notices['overload'] = 'Too many api calls'
+            self.EV_setDriver('GV21', self.code2ISY(code),25)
+
         else:
             logging.info('Not able to send command - EV is not online')
             self.EV_setDriver('GV21', self.code2ISY(code), 25)      
@@ -177,6 +182,11 @@ class teslaEV_ChargeNode(udi_interface.Node):
             if code in ['ok']:
                 self.EV_setDriver('GV6', 4, 25)
                 self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
+                self.poly.Notices.delete('overload')
+            elif code in ['overload']:
+                self.poly.Notices['overload'] = 'Too many api calls'
+                self.EV_setDriver('GV21', self.code2ISY(code),25)
+
             else:
                 logging.info('Not able to send command - EV is not online')
                 self.EV_setDriver('GV21', self.code2ISY(code), 25)      
@@ -194,6 +204,11 @@ class teslaEV_ChargeNode(udi_interface.Node):
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.EV_setDriver('GV9', batLimitPercent, 51) 
+            self.poly.Notices.delete('overload')
+        elif code in ['overload']:
+            self.poly.Notices['overload'] = 'Too many api calls'
+            self.EV_setDriver('GV21', self.code2ISY(code),25)
+
         else:
             logging.info('Not able to send command - EV is not online')
             self.EV_setDriver('GV21', self.code2ISY(code), 25)      
@@ -210,6 +225,11 @@ class teslaEV_ChargeNode(udi_interface.Node):
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.EV_setDriver('CHARGEAMPS', ampLimit, 1)
+            self.poly.Notices.delete('overload')
+        elif code in ['overload']:
+            self.poly.Notices['overload'] = 'Too many api calls'
+            self.EV_setDriver('GV21', self.code2ISY(code),25)
+        
         else:
             logging.info('Not able to send command - EV is not online')
             self.EV_setDriver('GV21', self.code2ISY(code), 25)      
