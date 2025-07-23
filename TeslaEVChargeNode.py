@@ -155,7 +155,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
             self.EV_setDriver('GV2', chargePort, 25)  
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
@@ -184,7 +184,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
                 self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
                 self.poly.Notices.delete('overload')
             elif code in ['overload']:
-                self.poly.Notices['overload'] = 'Too many api calls'
+                self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
                 self.EV_setDriver('GV21', self.code2ISY(code),25)
 
             else:
@@ -206,7 +206,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
             self.EV_setDriver('GV9', batLimitPercent, 51) 
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
@@ -227,7 +227,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
             self.EV_setDriver('CHARGEAMPS', ampLimit, 1)
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
         
         else:

@@ -172,7 +172,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)    
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
@@ -198,7 +198,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)    
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
@@ -223,7 +223,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.EV_setDriver('GV10',autoCond, 25 )
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
@@ -250,7 +250,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
@@ -279,7 +279,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.setDriverTemp( 'GV4', passengerTemp)
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
@@ -313,7 +313,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
                 self.setDriverTemp(GVstr, seatTemp )
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
@@ -332,7 +332,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.EV_setDriver('GV5', seatTemp, 25)
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
@@ -352,7 +352,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.EV_setDriver('GV6', seatTemp, 25)
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
@@ -371,7 +371,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.EV_setDriver('GV7', seatTemp, 25)
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
@@ -390,7 +390,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.EV_setDriver('GV8', seatTemp, 25)
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
@@ -408,7 +408,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.EV_setDriver('GV9', seatTemp, 25)
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
@@ -430,7 +430,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.EV_setDriver('GV21', self.command_res2ISY(res),25)
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:

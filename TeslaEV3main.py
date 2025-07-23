@@ -733,7 +733,7 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('ST', self.state2ISY(res), 25)
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-             self.poly.Notices['overload'] = 'Too many api calls'
+             self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
              self.EV_setDriver('GV21', self.code2ISY(code),25)
         else:
             self.EV_setDriver('GV21', self.code2ISY(code),25)
@@ -750,7 +750,7 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('ST', 1, 25)
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
@@ -768,7 +768,7 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV21', self.command_res2ISY(res),25)
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
@@ -802,7 +802,7 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV21', self.command_res2ISY(res),25)
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
@@ -822,7 +822,7 @@ class TeslaEVController(udi_interface.Node):
                 self.EV_setDriver('GV21', self.command_res2ISY(res),25)
                 self.poly.Notices.delete('overload')
             elif code in ['overload']:
-                self.poly.Notices['overload'] = 'Too many api calls'
+                self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
                 self.EV_setDriver('GV21', self.code2ISY(code),25)
             
             else:
@@ -840,7 +840,7 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV21', self.command_res2ISY(res),25)
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
@@ -868,7 +868,7 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
@@ -887,7 +887,7 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
         
         else:
@@ -907,7 +907,7 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)    
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
@@ -925,7 +925,7 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls'
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
         else:
