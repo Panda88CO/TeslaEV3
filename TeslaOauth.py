@@ -40,18 +40,19 @@ except ImportError:
 # It inherits the OAuth class
 class teslaAccess(OAuth):
     #yourApiEndpoint = 'https://fleet-api.prd.na.vn.cloud.tesla.com'
-    yourApiEndpoint = 'https://my.isy.io/api/tesla'
+
     def __init__(self, polyglot, scope):
         super().__init__(polyglot)
         logging.info(f'OAuth initializing')
-  
+        #self.yourApiEndpoint = 'https://my.isy.io/api/tesla'
+        self.yourApiEndpoint = 'https://my.isy.io/api/tesla-limit'
         self.poly = polyglot
         self.scope = str(scope)
         self.EndpointNA= 'https://fleet-api.prd.na.vn.cloud.tesla.com'
         self.EndpointEU= 'https://fleet-api.prd.eu.vn.cloud.tesla.com'
         self.EndpointCN= 'https://fleet-api.prd.cn.vn.cloud.tesla.cn'
         self.api  = '/api/1'
-        self.yourPortalEndpoint = 'https://my.isy.io/api/tesla'+self.api
+        self.yourPortalEndpoint = self.yourApiEndpoint'+self.api
         self.token_info = {}
         self.portal_connected = False
         self.cloud_access_enabled = False
