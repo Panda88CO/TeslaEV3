@@ -52,7 +52,7 @@ class teslaAccess(OAuth):
         self.EndpointEU= 'https://fleet-api.prd.eu.vn.cloud.tesla.com'
         self.EndpointCN= 'https://fleet-api.prd.cn.vn.cloud.tesla.cn'
         self.api  = '/api/1'
-        self.yourPortalEndpoint = self.yourApiEndpoint'+self.api
+        self.yourPortalEndpoint = self.yourApiEndpoint + self.api
         self.token_info = {}
         self.portal_connected = False
         self.cloud_access_enabled = False
