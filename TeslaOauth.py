@@ -152,6 +152,9 @@ class teslaAccess(OAuth):
         #oauthSettingsUpdate['redirect_uri'] = 'https://my.isy.io/api/cloudlink/redirect'
         #oauthSettingsUpdate['cloudlink'] = True
         oauthSettingsUpdate['addRedirect'] = True
+        oauthSettingsUpdate['require_requested_scopes'] = True  #added 08/22/25
+        oauthSettingsUpdate['prompt_missing_scopes'] = True     #added 08/22/25     
+
         #oauthSettingsUpdate['state'] = self.state
         if region.upper() == 'NA':
             endpoint = self.EndpointNA
