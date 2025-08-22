@@ -406,7 +406,7 @@ class TeslaEVController(udi_interface.Node):
             self.poly.Notices['NOTONLINE']=f'{EVname} appears offline - cannot continue with EV being online'
         # force creation of new config - assume this will enable retransmit of all data 
         self.poly.Notices['subscribe1'] = 'Subscribing to datastream from EV'
-        if not self.tesla_api.teslaEV_streaming_check_certificate_update(self.EVid, True ): #We need to update streaming server credentials
+        if not self.tesla_api.teslaEV_streaming_check_certificate_update(self.EVid, False): #We need to update streaming server credentials
             logging.info('')
             self.poly.Notices['SYNC']=f'{EVname} ERROR failed to connect to streaming server - EV may be too old'
             #self.stop()
