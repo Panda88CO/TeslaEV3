@@ -451,11 +451,7 @@ class TeslaEVController(udi_interface.Node):
         self.poly.Notices.clear()
         #logging.debug(f'climate drivers7 {self.climateNode.drivers}')
 
-        for wake in range (0,5):
-            code, res  = self.tesla_api._callApi('POST','/vehicles/'+str(self.EVid) +'/wake_up')
-            logging.debug(f'Wake attempt {wake} {code} {res}')
-            time.sleep(2)
-        
+      
 
 
     def validate_params(self):

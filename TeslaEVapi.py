@@ -325,13 +325,12 @@ class teslaEVAccess(object):
                                 time.sleep(15)
                                 code, state = self.teslaEV_update_connection_status(EVid)
                                 logging.debug(f'wake_ev while loop {trys} {code} {state}')
-                        if code in ['overload']:
-                            delay = self.extract_needed_delay(res)
-                            self.next_wake_call = timeNow + int(delay)
+                        #if code in ['overload']:
+                        #    delay = self.extract_needed_delay(res)
+                        #    self.next_wake_call = timeNow + int(delay)
                     return(code, state)
-                else:          
-                    logging.warning(f'Too many calls to wake API - need to wait {delay} secods')
-                    return(code, state)
+            else:          
+                return(code, state)
         except Exception as e:
             logging.error(f'_teslaEV_wake_ev Exception : {e}')
 
@@ -357,11 +356,8 @@ class teslaEVAccess(object):
             time.sleep(5)
             code, res = self.tesla_api._callApi('POST','/vehicles/'+str(EVid) +'/command'+str(command),  payload ) 
             logging.debug(f'_teslaEV_send_ev_command {code} - {res}')
-                    
-        if code in ['overload']:
-            return(code, self.get_delay(res))
-        else:
-           return(code, res) 
+
+        return(code, res) 
 
     def get_delay(self, string):
         numbers = [int(word) for word in string.split() if word.isdigit()]
@@ -384,9 +380,6 @@ class teslaEVAccess(object):
                         return(self.teslaEV_GetCarState(EVid))
                     else:
                         return(code, state)            
-            elif code == 'overload':
-                delay = self.next_wake_call - time.time()
-                return(code, state)
             else:
                 return(code, state)
             
@@ -396,24 +389,21 @@ class teslaEVAccess(object):
             return('error', e)
 
     def teslaEV_UpdateCloudInfoAwake(self, EVid, online_known = False):
-            logging.debug(f'teslaEV_UpdateCloudInfoAwake: {EVid}')
-            try:
-                code, state = self.teslaEV_update_connection_status(EVid)
-                if code == 'ok' and state in ['online']:
-                    code, res = self._teslaEV_get_ev_data(EVid)
-                    if code == 'ok':
-                        self.carInfo[EVid] = self.process_EV_data(res)
-                        return(self.teslaEV_GetCarState(EVid))
-                    else:
-                        return(code, state)
-                elif code == 'overload':
-                    delay = self.next_wake_call - time.time()
-                    return(code, delay)
+        logging.debug(f'teslaEV_UpdateCloudInfoAwake: {EVid}')
+        try:
+            code, state = self.teslaEV_update_connection_status(EVid)
+            if code == 'ok' and state in ['online']:
+                code, res = self._teslaEV_get_ev_data(EVid)
+                if code == 'ok':
+                    self.carInfo[EVid] = self.process_EV_data(res)
+                    return(self.teslaEV_GetCarState(EVid))
                 else:
                     return(code, state)
-            except Exception as e:
-                logging.debug(f'Exception teslaEV_UpdateCloudInfo: {e}')
-                return('error', 'error')
+            else:
+                return(code, state)
+        except Exception as e:
+            logging.debug(f'Exception teslaEV_UpdateCloudInfo: {e}')
+            return('error', 'error')
    
     '''
     def extract_gui_info(self, EVid):
