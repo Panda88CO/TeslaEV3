@@ -142,7 +142,7 @@ class teslaApiAccess(teslaAccess):
         logging.debug('_teslaEV_get_streaming_certificate ')
         try:
             if self.stream_cert:
-                if 'expectedRenewal' in self.stream_cert:
+                if 'expectedRenewal' in self.stream_cert :
                     if self.stream_cert['expectedRenewal'] <= time.time():
                         self._teslaEV_retrieve_streaming_certificate()
                 else:
