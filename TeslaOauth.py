@@ -304,7 +304,7 @@ class teslaAccess(OAuth):
 
             logging.debug(f'request response: {response}, {response.status_code }, {response.text}')
             
-            response.raise_for_status()
+            #response.raise_for_status()
             if response.status_code == 200:
                 try:
                     return 'ok', response.json()
