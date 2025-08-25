@@ -1724,7 +1724,7 @@ class teslaEVAccess(object):
                 state = self._teslaEV_wake_ev(EVid)
             if state in ['online']:   
                 code, temp = self._teslaEV_send_ev_command(EVid, '/flash_lights')  
-                logging.debug(f'temp {temp}')
+                logging.debug(f'temp  {code} {temp}')
             #temp = r.json()
                 if  code in ['ok']:
                     temp['response']['result']

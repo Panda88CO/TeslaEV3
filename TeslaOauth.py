@@ -301,9 +301,10 @@ class teslaAccess(OAuth):
                 response = requests.post(completeUrl, headers=headers, json=payload)
             elif method == 'PUT':
                 response = requests.put(completeUrl, headers=headers)
-            logging.debug(f'request response: {response}')
 
-            
+            logging.debug(f'request response: {response}')
+            logging.debug(f'request response: {response.status_code } ')
+            logging.debug(f'request response: {response.text}')
             
             response.raise_for_status()
             if response.status_code == 200:
