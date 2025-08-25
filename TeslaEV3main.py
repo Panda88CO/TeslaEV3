@@ -23,7 +23,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVapi import teslaAccess
 
 
-VERSION = '0.2.3'
+VERSION = '0.2.4'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
