@@ -302,16 +302,9 @@ class teslaAccess(OAuth):
             elif method == 'PUT':
                 response = requests.put(completeUrl, headers=headers)
 
-            logging.debug(f'request response: {response}')
-            logging.debug(f'request response: {response.status_code } ')
-            logging.debug(f'request response: {response.text}')
+            logging.debug(f'request response: {response}, {response.status_code }, {response.text}')
             
             response.raise_for_status()
-            logging.debug(f'request response: {response}')
-            logging.debug(f'request response: {response.status_code } ')
-            logging.debug(f'request response: {response.text}')
-            
-
             if response.status_code == 200:
                 try:
                     return 'ok', response.json()
@@ -332,6 +325,8 @@ class teslaAccess(OAuth):
             #self.apiLock.release()
             if response.status_code == 400:
                 return('error', response.text)
+            if response.status_code == 429:
+                return('overload', response.text)
             else:
                 return ('unknown', response.text)
             
