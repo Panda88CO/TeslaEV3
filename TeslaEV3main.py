@@ -404,7 +404,7 @@ class TeslaEVController(udi_interface.Node):
         code, state = self.TEVcloud._teslaEV_wake_ev(self.EVid)
         logging.debug(f'Wake EV {code} {state}')
         if state not in ['online']:
-            self.poly.Notices['NOTONLINE']=f'{EVname} appears offline - cannot continue with EV being online'
+            self.poly.Notices['NOTONLINE']=f'{EVname} appears offline - cannot continue without EV being online'
         # force creation of new config - assume this will enable retransmit of all data 
         self.poly.Notices['subscribe1'] = 'Subscribing to datastream from EV'
         if not self.tesla_api.teslaEV_streaming_check_certificate_update(self.EVid, True): #We need to update streaming server credentials
