@@ -694,23 +694,24 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV16', self.bool2ISY(self.TEVcloud.teslaEV_LocatedAtFavorite(self.EVid)), 25)
 
 
-            location = self.TEVcloud.teslaEV_GetLocation(self.EVid)
-            #logging.debug(f'teslaEV_GetLocation {location}')
-            if location['longitude']:
-                logging.debug('GV17: {}'.format(round(location['longitude'], 2)))
-                self.EV_setDriver('GV17', round(location['longitude'], 3), 56)
+            if self.tesla_api.location_enabled():
+                location = self.TEVcloud.teslaEV_GetLocation(self.EVid)
+                #logging.debug(f'teslaEV_GetLocation {location}')
+                if location['longitude']:
+                    logging.debug('GV17: {}'.format(round(location['longitude'], 2)))
+                    self.EV_setDriver('GV17', round(location['longitude'], 3), 56)
+                else:
+                    logging.debug(f'GV17: NONE')
+                    self.EV_setDriver('GV17', None, 25)
+                if location['latitude']:
+                    logging.debug('GV18: {}'.format(round(location['latitude'], 2)))
+                    self.EV_setDriver('GV18', round(location['latitude'], 3), 56)
+                else:
+                    logging.debug('GV18: NONE')
+                    self.EV_setDriver('GV18', None, 25)
             else:
-                logging.debug(f'GV17: NONE')
-                self.EV_setDriver('GV17', None, 25)
-            if location['latitude']:
-                logging.debug('GV18: {}'.format(round(location['latitude'], 2)))
-                self.EV_setDriver('GV18', round(location['latitude'], 3), 56)
-            else:
-                logging.debug('GV18: NONE')
-                self.EV_setDriver('GV18', None, 25)
-            #else:
-            #    self.EV_setDriver('GV17', 98, 25)
-            #    self.EV_setDriver('GV18', 98, 25)
+                self.EV_setDriver('GV17', 98, 25)
+                self.EV_setDriver('GV18', 98, 25)
         except Exception as e:
             logging.error(f'updateISYdriver main node failed: node may not be 100% ready {e}')
 
