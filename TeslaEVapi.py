@@ -312,23 +312,22 @@ class teslaEVAccess(object):
         try:
             code, state = self.teslaEV_update_connection_status(EVid)
             if code == 'ok':
-                if timeNow >= self.next_wake_call:
-                    if state in ['asleep','offline']:
-                        code, res  = self.tesla_api._callApi('POST','/vehicles/'+str(EVid) +'/wake_up')
-                        logging.debug(f'wakeup: {code} - {res}')
-                        if code in  ['ok']:
-                            time.sleep(5)
+                if state in ['asleep','offline']:
+                    code, res  = self.tesla_api._callApi('POST','/vehicles/'+str(EVid) +'/wake_up')
+                    logging.debug(f'wakeup: {code} - {res}')
+                    if code in  ['ok']:
+                        time.sleep(5)
+                        code, state = self.teslaEV_update_connection_status(EVid)
+                        logging.debug(f'wake_ev while loop {code} - {state}')
+                        while code in ['ok'] and state not in ['online'] and trys < 5:
+                            trys += 1
+                            time.sleep(15)
                             code, state = self.teslaEV_update_connection_status(EVid)
-                            logging.debug(f'wake_ev while loop {code} - {state}')
-                            while code in ['ok'] and state not in ['online'] and trys < 5:
-                                trys += 1
-                                time.sleep(15)
-                                code, state = self.teslaEV_update_connection_status(EVid)
-                                logging.debug(f'wake_ev while loop {trys} {code} {state}')
-                        #if code in ['overload']:
-                        #    delay = self.extract_needed_delay(res)
-                        #    self.next_wake_call = timeNow + int(delay)
-                    return(code, state)
+                            logging.debug(f'wake_ev while loop {trys} {code} {state}')
+                    #if code in ['overload']:
+                    #    delay = self.extract_needed_delay(res)
+                    #    self.next_wake_call = timeNow + int(delay)
+                return(code, state)
             else:          
                 return(code, state)
         except Exception as e:
@@ -1715,13 +1714,14 @@ class teslaEVAccess(object):
 # Controls
 ################
     def teslaEV_FlashLights(self, EVid):
-        logging.debug(f'teslaEV_GetVehicleInfo: for {EVid}')       
+        logging.debug(f'teslaEV_FlashLights for {EVid}')       
 
         try:
 
             #code, state = self.teslaEV_update_connection_status(EVid) 
             #if state in ['asleep', 'offline']:             
-            state = self._teslaEV_wake_ev(EVid)
+            code, state = self._teslaEV_wake_ev(EVid)
+            logging.debug(f'teslaEV_FlashLights wake {code} {state}')
             if state in ['online']:   
                 code, temp = self._teslaEV_send_ev_command(EVid, '/flash_lights')  
                 logging.debug(f'temp  {code} {temp}')
@@ -1745,7 +1745,7 @@ class teslaEVAccess(object):
             #code, state = self.teslaEV_update_connection_status(EVid) 
             #logging.debug(f'teslaEV_HonkHorn {code} - {state}')
             #if state in ['asleep', 'offline']:             
-            state = self._teslaEV_wake_ev(EVid)
+            code, state = self._teslaEV_wake_ev(EVid)
             if state in ['online']:    
           
                 code, temp = self._teslaEV_send_ev_command(EVid, '/honk_horn')   
