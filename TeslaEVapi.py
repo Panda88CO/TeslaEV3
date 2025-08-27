@@ -1734,7 +1734,7 @@ class teslaEVAccess(object):
             else:
                 return(code, state)
         except Exception as e:
-            logging.debug(f'Exception teslaEV_FlashLight for vehicle id {EVid}: {e}')
+            logging.error(f'Exception teslaEV_FlashLight for vehicle id {EVid}: {e}')
             return('error', e)
 
 
