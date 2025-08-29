@@ -56,6 +56,7 @@ class TeslaEVController(udi_interface.Node):
         self.KM = 0
         self.MILES = 1
         self.supportedParams = ['DIST_UNIT', 'TEMP_UNIT']
+        self.STATUS_CODES=['offline','ok', 'overload', 'error','invalid' ]
         self.paramsProcessed = False
         self.customParameters = Custom(self.poly, 'customparams')
         self.portalData = Custom(self.poly, 'customNSdata')
@@ -294,16 +295,19 @@ class TeslaEVController(udi_interface.Node):
         time.sleep(2)
         #self.test()
 
-
     def webhook(self, data): 
         try:
             logging.info(f"Webhook received: { data }")  
             if 'body' in data:
-                logging.info(f'webhook test received')
+                logging.info(f'webhook local received')
                 eventInfo = json.loads(data['body'])
 
                 if  eventInfo['event'] == 'webhook-test':
                     self.activate()
+                elif eventInfo['event'] in self.STATUS_CODES:
+                    self.EV_setDriver('GV21', self.code2ISY(eventInfo['event'] ),25)
+                    self.climateNode.EV_setDriver('GV21', self.code2ISY(eventInfo['event'] ),25)
+                    self.chargeNode.EV_setDriver('GV21', self.code2ISY(eventInfo['event'] ),25)
             else:
                 self.data_flowing = True
                 self.insert_message(data)
@@ -954,6 +958,25 @@ class TeslaEVController(udi_interface.Node):
     #    if self.TEVcloud.authenticated():
     #        self.longPoll()
 
+    def _send_connection_status(self, status_code):
+        try:
+            if status_code in ['offline','ok', 'overload', 'error','invalid' ]:
+                body = {
+                    'event': status_code,
+                    'data': {'type':'test',
+                            'description' : 'weebhhok status_code'
+                            }
+                }
+
+            self.TEVcloud.testWebhook(body)
+            logging.info('Webhook test message sent successfully.')
+
+            self.webhookTimer = threading.Timer(self.webhookTestTimeoutSeconds, self.webhookTimeout)
+            self.webhookTimer.start()
+
+        except Exception as error:
+            logging.error(f"Test Webhook API call failed: { error }")
+            self.setDriver('GV30', 4, True, True) # 4=failure
 
     def webhookTimeout(self):
         if self.getDriver('GV30') == 1: # Test in progress
@@ -965,6 +988,8 @@ class TeslaEVController(udi_interface.Node):
             logging.info('Webhook test message received successfully.')
             self.webhookTimer.cancel()
             self.setDriver('GV30', 2, True, True) # 2=Success
+
+
 
     def test(self, param=None):
         try:
