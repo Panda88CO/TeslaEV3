@@ -26,7 +26,7 @@ from TeslaEVapi import teslaAccess
 VERSION = '0.2.6'
 
 class TeslaEVController(udi_interface.Node):
-    from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
+    from  udiLib import _send_connection_status, node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
 
     def __init__(self, polyglot, primary, address, name, tesla_api ):
         super(TeslaEVController, self).__init__(polyglot, primary, address, name)
@@ -301,13 +301,13 @@ class TeslaEVController(udi_interface.Node):
             if 'body' in data:
                 logging.info(f'webhook local received')
                 eventInfo = json.loads(data['body'])
-
+                logging.debug(f'webhook eventInfo {eventInfo}')
                 if  eventInfo['event'] == 'webhook-test':
                     self.activate()
-                elif eventInfo['event'] in self.STATUS_CODES:
-                    self.EV_setDriver('GV21', self.code2ISY(eventInfo['event'] ),25)
-                    self.climateNode.EV_setDriver('GV21', self.code2ISY(eventInfo['event'] ),25)
-                    self.chargeNode.EV_setDriver('GV21', self.code2ISY(eventInfo['event'] ),25)
+                elif eventInfo['event'] == 'status_change':
+                    self.EV_setDriver('GV21', self.code2ISY(eventInfo['data']['status'] ),25)
+                    self.climateNode.EV_setDriver('GV21', self.code2ISY(eventInfo['data']['status'] ),25)
+                    self.chargeNode.EV_setDriver('GV21', self.code2ISY(eventInfo['data']['status']  ),25)
             else:
                 self.data_flowing = True
                 self.insert_message(data)
@@ -751,8 +751,11 @@ class TeslaEVController(udi_interface.Node):
         logging.info(f'EVhonkHorn called')        
         code, res = self.TEVcloud.teslaEV_HonkHorn(self.EVid)
         logging.info(f'return  {code} - {res}')
-
-   
+        self._send_connection_status(code)
+        if code not in  ['ok', 'overload']:            
+            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+            self.EV_setDriver('ST', self.state2ISY(res), 25)
+        '''
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res),25)
             self.EV_setDriver('ST', 1, 25)
@@ -765,26 +768,28 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV21', self.code2ISY(code),25)
             code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
             self.EV_setDriver('ST', self.state2ISY(res), 25)
-
+        '''
 
     def evFlashLights (self, command):
         logging.info(f'EVflashLights called')
         code, res = self.TEVcloud.teslaEV_FlashLights(self.EVid)
         logging.info(f'return  {code} - {res}')
+        self._send_connection_status(code)
+        if code not in  ['ok', 'overload']:            
+            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+            self.EV_setDriver('ST', self.state2ISY(res), 25)
 
+        '''
         if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res),25)
             self.poly.Notices.delete('overload')
         elif code in ['overload']:
             self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
-
         else:
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
             code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
             self.EV_setDriver('ST', self.state2ISY(res), 25)
 
         #self.forceUpdateISYdrivers()
+        '''
 
     def evControlDoors (self, command):
         logging.info(f'EVctrlDoors called')
@@ -806,6 +811,11 @@ class TeslaEVController(udi_interface.Node):
         code, res =  self.TEVcloud.teslaEV_Doors(self.EVid, cmd)
         logging.info(f'return  {code} - {res}')
         self.EV_setDriver('GV3', doorCtrl, 25)
+        self._send_connection_status(code)
+        if code not in  ['ok', 'overload']:            
+            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+            self.EV_setDriver('ST', self.state2ISY(res), 25)
+        '''
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res),25)
             self.poly.Notices.delete('overload')
@@ -818,7 +828,7 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV3', None, 25)
         code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
         self.EV_setDriver('ST', self.state2ISY(res), 25)
-
+        '''
 
     def evPlaySound (self, command):
         logging.info(f'evPlaySound called')
@@ -826,6 +836,11 @@ class TeslaEVController(udi_interface.Node):
         sound = int(float(command.get('value')))
         if sound == 0 or sound == 2000: 
             code, res = self.TEVcloud.teslaEV_PlaySound(self.EVid, sound)
+            self._send_connection_status(code)
+            if code not in  ['ok', 'overload']:            
+                code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+                self.EV_setDriver('ST', self.state2ISY(res), 25)
+            '''
             if code in ['ok']:
                 self.EV_setDriver('GV21', self.command_res2ISY(res),25)
                 self.poly.Notices.delete('overload')
@@ -837,6 +852,7 @@ class TeslaEVController(udi_interface.Node):
                 self.EV_setDriver('GV21', self.code2ISY(code),25)
             code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
             self.EV_setDriver('ST', self.state2ISY(res), 25)
+            '''
 
     def evSentryMode (self, command):
         logging.info(f'evSentryMode called')
@@ -844,6 +860,11 @@ class TeslaEVController(udi_interface.Node):
         ctrl = int(float(command.get('value')))
      
         code, res = self.TEVcloud.teslaEV_SentryMode(self.EVid, ctrl)
+        self._send_connection_status(code)
+        if code not in  ['ok', 'overload']:            
+            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+            self.EV_setDriver('ST', self.state2ISY(res), 25)
+        '''    
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res),25)
             self.poly.Notices.delete('overload')
@@ -855,7 +876,7 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV21', self.code2ISY(code),25)
         code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
         self.EV_setDriver('ST', self.state2ISY(res), 25)
-
+        '''
     # needs update
     def evControlSunroof (self, command):
         logging.info(f'evControlSunroof called')
@@ -872,6 +893,11 @@ class TeslaEVController(udi_interface.Node):
         else:
             logging.error(f'Wrong command for evSunroof: {sunroofCtrl}')
             code = 'error'
+        self._send_connection_status(code)
+        if code not in  ['ok', 'overload']:            
+            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+            self.EV_setDriver('ST', self.state2ISY(res), 25)
+        '''
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.poly.Notices.delete('overload')
@@ -883,13 +909,24 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV21', self.code2ISY(code), 25)
         code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
         self.EV_setDriver('ST', self.state2ISY(res), 25)
-
+        '''
 
     def evOpenFrunk (self, command):
         logging.info(f'evOpenFrunk called')
         #self.TEVcloud.teslaEV_Wake(self.EVid)     
         code, res = self.TEVcloud.teslaEV_TrunkFrunk(self.EVid, 'Frunk')
         logging.debug(f'Frunk result {code} - {res}')
+        if code in ['ok']:
+            self.EV_setDriver('GV12', 1, 25)
+        else:
+            self.EV_setDriver('GV12', None, 25) 
+        self._send_connection_status(code)
+        if code not in  ['ok', 'overload']:            
+            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+            self.EV_setDriver('ST', self.state2ISY(res), 25)  
+
+
+        '''
         if code in ['ok']:
             self.EV_setDriver('GV12', 1, 25)
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
@@ -904,12 +941,22 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV12', None, 25)
         code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
         self.EV_setDriver('ST', self.state2ISY(res), 25)
-
+        '''
 
     def evOpenTrunk (self, command):
         logging.info('evOpenTrunk called')   
         code, res = self.TEVcloud.teslaEV_TrunkFrunk(self.EVid, 'Trunk')
         logging.debug(f'Trunk result {code} - {res}')
+        if code in ['ok']:
+            self.EV_setDriver('GV12', 1, 25)
+        else:
+            self.EV_setDriver('GV12', None, 25) 
+        self._send_connection_status(code)
+        if code not in  ['ok', 'overload']:            
+            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+            self.EV_setDriver('ST', self.state2ISY(res), 25)  
+
+        '''
         if code in ['ok']:
             self.EV_setDriver('GV11', 1, 25)
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)    
@@ -924,11 +971,17 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV11', None, 25)
         code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
         self.EV_setDriver('ST', self.state2ISY(res), 25)
-
+        '''
 
     def evHomelink (self, command):
         logging.info('evHomelink called')
         code, res = self.TEVcloud.teslaEV_HomeLink(self.EVid)
+
+        self._send_connection_status(code)
+        if code not in  ['ok', 'overload']:            
+            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+            self.EV_setDriver('ST', self.state2ISY(res), 25)  
+        '''        
         if code in ['ok']:
             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.poly.Notices.delete('overload')
@@ -940,7 +993,7 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV21', self.code2ISY(code), 25)
         code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
         self.EV_setDriver('ST', self.state2ISY(res), 25)
-
+        ''' 
 
 
     #def updateISYdrivers(self):
@@ -957,26 +1010,30 @@ class TeslaEVController(udi_interface.Node):
     #    logging.debug('ISY-update main node called')
     #    if self.TEVcloud.authenticated():
     #        self.longPoll()
-
+    '''
     def _send_connection_status(self, status_code):
         try:
             if status_code in ['offline','ok', 'overload', 'error','invalid' ]:
                 body = {
-                    'event': status_code,
-                    'data': {'type':'test',
+                    'event': 'status_change',
+                    'data': {'status':status_code,
                             'description' : 'weebhhok status_code'
                             }
                 }
-
             self.TEVcloud.testWebhook(body)
-            logging.info('Webhook test message sent successfully.')
+            logging.debug(f'Webhook status code {status_code} sent successfully.')
+            if status_code in ['ok']:
+                self.poly.Notices.delete('overload')
+            elif status_code in ['overload']:
+                self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
 
-            self.webhookTimer = threading.Timer(self.webhookTestTimeoutSeconds, self.webhookTimeout)
-            self.webhookTimer.start()
-
+                code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+            self.EV_setDriver('ST', self.state2ISY(res), 25)
         except Exception as error:
             logging.error(f"Test Webhook API call failed: { error }")
             self.setDriver('GV30', 4, True, True) # 4=failure
+    '''
+
 
     def webhookTimeout(self):
         if self.getDriver('GV30') == 1: # Test in progress

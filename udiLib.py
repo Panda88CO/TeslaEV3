@@ -413,3 +413,29 @@ def heartbeat(self):
 
 def handleLevelChange(self, level):
     logging.info('New log level: {level}')        
+
+
+def _send_connection_status(self, status_code):
+    try:
+        if status_code in ['offline','ok', 'overload', 'error','invalid' ]:
+            body = {
+                'event': 'status_change',
+                'data': {'status':status_code,
+                        'description' : 'weebhhok status_code'
+                        }
+            }
+
+        self.TEVcloud.testWebhook(body)
+        logging.debug(f'Webhook status code {status_code} sent successfully.')
+        if status_code in ['ok']:
+            self.poly.Notices.delete('overload')
+        elif status_code in ['overload']:
+            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
+
+            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+        self.EV_setDriver('ST', self.state2ISY(res), 25)
+        
+    except Exception as error:
+        logging.error(f"Local Status cmd failes: { error }")
+
+

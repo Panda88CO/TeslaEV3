@@ -12,7 +12,7 @@ import time
 
 class teslaEV_ChargeNode(udi_interface.Node):
     #from  udiLib import node_queue, wait_for_node_done, mask2key, latch2ISY, cond2ISY, heartbeat, state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
-    from  udiLib import node_queue, command_res2ISY, wait_for_node_done, tempUnitAdjust, latch2ISY, chargeState2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat,  code2ISY, state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
+    from  udiLib import _send_connection_status, node_queue, command_res2ISY, wait_for_node_done, tempUnitAdjust, latch2ISY, chargeState2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat,  code2ISY, state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
 
     def __init__(self, polyglot, parent, address, name, evid,  TEVcloud):
         super(teslaEV_ChargeNode, self).__init__(polyglot, parent, address, name)
@@ -151,18 +151,14 @@ class teslaEV_ChargeNode(udi_interface.Node):
             res = f'Wrong parameter passed to evChargePort : {chargePort}'
 
         if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.EV_setDriver('GV2', chargePort, 25)  
-            self.poly.Notices.delete('overload')
-        elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
-
-        else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)      
+        else: 
             self.EV_setDriver('GV2', None, 25)  
-
+            
+        self._send_connection_status(code)
+        if code not in  ['ok', 'overload']:            
+            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+            self.EV_setDriver('ST', self.state2ISY(res), 25)        
 
     def evChargeControl (self, command):
         logging.info('evChargeControl called')
@@ -172,28 +168,22 @@ class teslaEV_ChargeNode(udi_interface.Node):
             code, res =  self.TEVcloud.teslaEV_Charging(self.EVid, 'start')
             if code in ['ok']:
                 self.EV_setDriver('GV6', 3, 25)
-                self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             else:
-                logging.info('Not able to send command - EV is not online')
-                self.EV_setDriver('GV21', self.code2ISY(code), 25)      
                 self.EV_setDriver('GV6', None, 25)                       
         elif chargeCtrl == 0:
             code, res =  self.TEVcloud.teslaEV_Charging(self.EVid, 'stop')
             if code in ['ok']:
                 self.EV_setDriver('GV6', 4, 25)
-                self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
-                self.poly.Notices.delete('overload')
-            elif code in ['overload']:
-                self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
-                self.EV_setDriver('GV21', self.code2ISY(code),25)
-
             else:
-                logging.info('Not able to send command - EV is not online')
-                self.EV_setDriver('GV21', self.code2ISY(code), 25)      
-                self.EV_setDriver('GV6', None, 25)              
+                 self.EV_setDriver('GV6', None, 25)              
         else:
             logging.debug(f'Wrong parameter passed to evChargeControl : {chargeCtrl}')
             self.EV_setDriver('GV6', None, 25)
+
+        self._send_connection_status(code)
+        if code not in  ['ok', 'overload']:            
+            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+            self.EV_setDriver('ST', self.state2ISY(res), 25)        
 
 
 
@@ -202,18 +192,14 @@ class teslaEV_ChargeNode(udi_interface.Node):
         batLimitPercent = int(float(command.get('value')))
         code, res =  self.TEVcloud.teslaEV_SetChargeLimit(self.EVid, batLimitPercent)
         if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.EV_setDriver('GV9', batLimitPercent, 51) 
-            self.poly.Notices.delete('overload')
-        elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
-
         else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)      
             self.EV_setDriver('GV9', None, 25)              
 
+        self._send_connection_status(code)
+        if code not in  ['ok', 'overload']:            
+            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+            self.EV_setDriver('ST', self.state2ISY(res), 25)        
 
 
     def evSetCurrentChargeLimit (self, command):
@@ -223,18 +209,14 @@ class teslaEV_ChargeNode(udi_interface.Node):
 
         code, res = self.TEVcloud.teslaEV_SetChargeLimitAmps(self.EVid, ampLimit)
         if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.EV_setDriver('CHARGEAMPS', ampLimit, 1)
-            self.poly.Notices.delete('overload')
-        elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
-        
         else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)      
             self.EV_setDriver('CHARGEAMPS', None, 25)              
 
+        self._send_connection_status(code)
+        if code not in  ['ok', 'overload']:            
+            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+            self.EV_setDriver('ST', self.state2ISY(res), 25)        
 
     id = 'evcharge'
 
