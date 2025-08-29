@@ -253,7 +253,6 @@ class TeslaEVController(udi_interface.Node):
       
                 data = self.messageQueue.get(timeout = 10) 
                 logging.debug('Received message - Q size={}'.format(self.messageQueue.qsize()))
-
                 evID = self.TEVcloud.teslaEV_stream_get_id(data)
                 logging.debug(f'EVid in data = {evID}')
                 if evID == self.EVid:
