@@ -432,9 +432,8 @@ def _send_connection_status(self, status_code):
         elif status_code in ['overload']:
             self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
 
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        self.EV_setDriver('ST', self.state2ISY(res), 25)
-        
+
+
     except Exception as error:
         logging.error(f"Local Status cmd failes: { error }")
 

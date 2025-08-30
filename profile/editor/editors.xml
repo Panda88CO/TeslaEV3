@@ -204,7 +204,7 @@
      <range  uom="25" subset="0,1,2,98,99" nls="UNKNOWN"  />  
   </editor>
    <editor id="LASTCMD" > 
-     <range  uom="25" subset="0,1,2,3,4,97,98,99" nls="CMD_RES"  />  
+     <range  uom="25" subset="0,1,4,5,97,99" nls="CMD_RES"  />  
   </editor>
    <editor id="STREAMSYNC" > 
      <range  uom="25" subset="0,1,97,98,99" nls="STREAMSYNC"  />  
