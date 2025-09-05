@@ -23,7 +23,7 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVapi import teslaAccess
 
 
-VERSION = '0.2.8'
+VERSION = '0.2.9'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import _send_connection_status, node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -971,55 +971,6 @@ class TeslaEVController(udi_interface.Node):
             # GV0 Access to TeslaApi
             # GV1 Number of EVs
 
-    '''
-        <nodeDef id="controller" nls="nlsevstatus">
-        <editors />
-        <sts>
-         <!--<st id="ST" editor="NODEST" />-->
-         <st id="ST" editor="CARSTATE" />
-         <st id="GV1" editor="CONSOLE" />
-         <st id="GV2" editor="BOOLSTATE" />
-         <st id="GV0" editor="NUMBER" />
-         <st id="GV3" editor="LOCKUNLOCK" />
-         <st id="GV4" editor="ODOMETER" />
-         <!--<st id="GV5" editor="BOOLSTATE" />-->
-         <st id="GV6" editor="WINDOW" />
-         <st id="GV7" editor="WINDOW" />
-         <st id="GV8" editor="WINDOW" />
-         <st id="GV9" editor="WINDOW" />
-         <!--<st id="GV10" editor="PERCENT" />-->
-         <st id="GV11" editor="OPENCLOSE" />
-         <st id="GV12" editor="OPENCLOSE" />
-         <!-- <st id="GV13" editor="CARSTATE" /> -->
-         <!-- <st id="GV16" editor="IDEADIST" /> !-->
-         <st id="GV17" editor="LONGITUDE" />         
-         <st id="GV18" editor="LATITUDE" />  
-         <st id="GV19" editor="unixtime" />         
-         <!--<st id="GV20" editor="MINU" />    -->
-         <st id="GV21" editor="LASTCMD" />   
-        </sts>
-        <cmds>
-         <sends>
-            <cmd id="DON" /> 
-            <cmd id="DOF" />          
-         </sends>
-         <accepts>
-            <cmd id="UPDATE" /> 
-            <cmd id="WAKEUP" />
-            <cmd id="HONKHORN" />
-            <cmd id="FLASHLIGHT" />   
-            <cmd id="DOORS" > 
-               <p id="" editor="LOCKUNLOCK" init="GV3" /> 
-            </cmd>
-            <cmd id="SUNROOF" > 
-               <p id="" editor="SUNROOFCTRL" init="0" /> 
-            </cmd >
-            <cmd id="TRUNK" /> 
-            <cmd id="FRUNK" /> 
-            <cmd id="HOMELINK" /> 
-            <cmd id="PLAYSOUND" > 
-               <p id="" editor="SOUNDS" init="0" /> 
-    '''
 
 if __name__ == "__main__":
     try:
