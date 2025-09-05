@@ -170,22 +170,6 @@ class teslaEV_ClimateNode(udi_interface.Node):
             code = 'error'
             res = f'Wrong command for evWndows: {windowCtrl}'
         self._send_connection_status(code)
-        if code not in  ['ok', 'overload']:            
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)  
-        '''
-        if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)    
-            self.poly.Notices.delete('overload')
-        elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
-
-        else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
-        '''
-
 
     def evSunroof (self, command):
         logging.info('evSunroof called')
@@ -202,22 +186,9 @@ class teslaEV_ClimateNode(udi_interface.Node):
             code = 'error'
             res = f'Wrong command for evSunroof: {sunroofCtrl}'
         self._send_connection_status(code)
-        if code not in  ['ok', 'overload']:            
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)  
 
-        '''
-        if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)    
-            self.poly.Notices.delete('overload')
-        elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
 
-        else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)      
-        '''
+
 
     def evAutoCondition (self, command):
         logging.info('evAutoCondition called')  
@@ -237,10 +208,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
         else:
             self.EV_setDriver('GV10',None, 25 )
         self._send_connection_status(code)
-        if code not in  ['ok', 'overload']:            
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)          
-    
+
     
     def evDefrostMax (self, command):
         logging.info('evDefrostMax called')
@@ -259,21 +227,6 @@ class teslaEV_ClimateNode(udi_interface.Node):
             res = f'Wrong command for evDefrostMax: {defrost}'
             self.EV_setDriver('GV11', None, 25)
         self._send_connection_status(code)
-        if code not in  ['ok', 'overload']:            
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)        
-        '''
-        if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
-            self.poly.Notices.delete('overload')
-        elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
-
-        else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
-        '''
 
 
     def evSetCabinTemp (self, command):
@@ -299,9 +252,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.EV_setDriver('GV4', None, 25)
 
         self._send_connection_status(code)
-        if code not in  ['ok', 'overload']:            
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)        
+
 
     def evSetSeatHeat (self, command):
         logging.info('evSetSeat1Heat called')
@@ -327,9 +278,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
                 self.setDriverTemp(GVstr, seatTemp )
 
         self._send_connection_status(code)
-        if code not in  ['ok', 'overload']:            
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)        
+
 
     def evSetSeat0Heat (self, command):
         logging.info('evSetSeat0Heat called')
@@ -343,9 +292,8 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.EV_setDriver('GV5', None, 25)
 
         self._send_connection_status(code)
-        if code not in  ['ok', 'overload']:            
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)        
+
+
 
     def evSetSeat1Heat (self, command):
         logging.info('evSetSeat1Heat called')
@@ -359,9 +307,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.EV_setDriver('GV6', None, 25)
 
         self._send_connection_status(code)
-        if code not in  ['ok', 'overload']:            
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)        
+
 
     def evSetSeat2Heat (self, command):
         logging.info('evSetSea2tHeat called')
@@ -375,9 +321,8 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.EV_setDriver('GV7', None, 25)
         
         self._send_connection_status(code)
-        if code not in  ['ok', 'overload']:            
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)        
+
+  
 
     def evSetSeat4Heat (self, command):
         logging.info('evSetSeat4Heat called')
@@ -392,9 +337,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.EV_setDriver('GV8', None, 25)
 
         self._send_connection_status(code)
-        if code not in  ['ok', 'overload']:            
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)        
+       
 
     def evSetSeat5Heat (self, command):
         logging.info('evSetSeat5Heat called') 
@@ -408,9 +351,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.EV_setDriver('GV9', None, 25)            
 
         self._send_connection_status(code)
-        if code not in  ['ok', 'overload']:            
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)        
+    
 
     def evSteeringWheelHeat (self, command):
         logging.info('evSteeringWheelHeat called')
@@ -424,9 +365,6 @@ class teslaEV_ClimateNode(udi_interface.Node):
             res = f'Wrong command for evDefrostMax: {wheel}'
 
         self._send_connection_status(code)
-        if code not in  ['ok', 'overload']:            
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)        
 
 
 

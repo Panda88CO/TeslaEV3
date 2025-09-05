@@ -753,50 +753,20 @@ class TeslaEVController(udi_interface.Node):
         logging.info(f'EVhonkHorn called')        
         code, res = self.TEVcloud.teslaEV_HonkHorn(self.EVid)
         logging.info(f'return  {code} - {res}')
-        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus()), 25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid))), 25)
 
         self._send_connection_status(code)
-        #if code not in  ['ok', 'overload']:            
-        #code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
 
-        '''
-        if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res),25)
-            self.EV_setDriver('ST', 1, 25)
-            self.poly.Notices.delete('overload')
-        elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
 
-        else:
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)
-        '''
 
     def evFlashLights (self, command):
         logging.info(f'EVflashLights called')
         code, res = self.TEVcloud.teslaEV_FlashLights(self.EVid)
         logging.info(f'return  {code} - {res}')
-        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus()), 25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid))), 25)
 
         self._send_connection_status(code)
-        #if code not in  ['ok', 'overload']:            
-        #code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        #self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus()), 25)
 
-
-        '''
-        if code in ['ok']:
-            self.poly.Notices.delete('overload')
-        elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
-        else:
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)
-
-        #self.forceUpdateISYdrivers()
-        '''
 
     def evControlDoors (self, command):
         logging.info(f'EVctrlDoors called')
@@ -818,26 +788,12 @@ class TeslaEVController(udi_interface.Node):
         code, res =  self.TEVcloud.teslaEV_Doors(self.EVid, cmd)
         logging.info(f'return  {code} - {res}')
         self.EV_setDriver('GV3', doorCtrl, 25)
-        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus()), 25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid))), 25)
 
         self._send_connection_status(code)
-        #if code not in  ['ok', 'overload']:            
-        #code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
 
-        '''
-        if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res),25)
-            self.poly.Notices.delete('overload')
-        elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
 
-        else:
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
-            self.EV_setDriver('GV3', None, 25)
-        code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        self.EV_setDriver('ST', self.state2ISY(res), 25)
-        '''
+
 
     def evPlaySound (self, command):
         logging.info(f'evPlaySound called')
@@ -845,26 +801,10 @@ class TeslaEVController(udi_interface.Node):
         sound = int(float(command.get('value')))
         if sound == 0 or sound == 2000: 
             code, res = self.TEVcloud.teslaEV_PlaySound(self.EVid, sound)
-            self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus()), 25)
+            self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid))), 25)
 
             self._send_connection_status(code)
-            #if code not in  ['ok', 'overload']:            
-            #    code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            #self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus()), 25)
 
-            '''
-            if code in ['ok']:
-                self.EV_setDriver('GV21', self.command_res2ISY(res),25)
-                self.poly.Notices.delete('overload')
-            elif code in ['overload']:
-                self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
-                self.EV_setDriver('GV21', self.code2ISY(code),25)
-            
-            else:
-                self.EV_setDriver('GV21', self.code2ISY(code),25)
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)
-            '''
 
     def evSentryMode (self, command):
         logging.info(f'evSentryMode called')
@@ -872,24 +812,10 @@ class TeslaEVController(udi_interface.Node):
         ctrl = int(float(command.get('value')))
      
         code, res = self.TEVcloud.teslaEV_SentryMode(self.EVid, ctrl)
-        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus()), 25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid))), 25)
 
         self._send_connection_status(code)
-        #if code not in  ['ok', 'overload']:            
-        #code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        '''    
-        if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res),25)
-            self.poly.Notices.delete('overload')
-        elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
 
-        else:
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
-        code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        self.EV_setDriver('ST', self.state2ISY(res), 25)
-        '''
     # needs update
     def evControlSunroof (self, command):
         logging.info(f'evControlSunroof called')
@@ -906,23 +832,9 @@ class TeslaEVController(udi_interface.Node):
         else:
             logging.error(f'Wrong command for evSunroof: {sunroofCtrl}')
             code = 'error'
-        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus()), 25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid))), 25)
         self._send_connection_status(code)
-        #if code not in  ['ok', 'overload']:            
-        #code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        '''
-        if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
-            self.poly.Notices.delete('overload')
-        elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
 
-        else:
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
-        code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        self.EV_setDriver('ST', self.state2ISY(res), 25)
-        '''
 
     def evOpenFrunk (self, command):
         logging.info(f'evOpenFrunk called')
@@ -933,30 +845,10 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV12', 1, 25)
         else:
             self.EV_setDriver('GV12', None, 25) 
-        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus()), 25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid))), 25)
 
         self._send_connection_status(code)
-        #if code not in  ['ok', 'overload']:            
-        #    code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        #    self.EV_setDriver('ST', self.state2ISY(res), 25)  
 
-
-        '''
-        if code in ['ok']:
-            self.EV_setDriver('GV12', 1, 25)
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
-            self.poly.Notices.delete('overload')
-        elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
-        
-        else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
-            self.EV_setDriver('GV12', None, 25)
-        code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        self.EV_setDriver('ST', self.state2ISY(res), 25)
-        '''
 
     def evOpenTrunk (self, command):
         logging.info('evOpenTrunk called')   
@@ -966,91 +858,20 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV12', 1, 25)
         else:
             self.EV_setDriver('GV12', None, 25) 
-        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus()), 25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid))), 25)
 
         self._send_connection_status(code)
-        #if code not in  ['ok', 'overload']:            
-        #    code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        #    self.EV_setDriver('ST', self.state2ISY(res), 25)  
 
-        '''
-        if code in ['ok']:
-            self.EV_setDriver('GV11', 1, 25)
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)    
-            self.poly.Notices.delete('overload')
-        elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
-
-        else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
-            self.EV_setDriver('GV11', None, 25)
-        code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        self.EV_setDriver('ST', self.state2ISY(res), 25)
-        '''
 
     def evHomelink (self, command):
         logging.info('evHomelink called')
         code, res = self.TEVcloud.teslaEV_HomeLink(self.EVid)
-        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus()), 25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid))), 25)
 
         self._send_connection_status(code)
-        #if code not in  ['ok', 'overload']:            
-        #    code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        #    self.EV_setDriver('ST', self.state2ISY(res), 25)  
-        '''        
-        if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
-            self.poly.Notices.delete('overload')
-        elif code in ['overload']:
-            self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
-
-        else:
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
-        code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        self.EV_setDriver('ST', self.state2ISY(res), 25)
-        ''' 
-
-
-    #def updateISYdrivers(self):
-    #    logging.debug('System updateISYdrivers - Controller')       
-    #    value = self.TEVcloud.authenticated()
-    #    self.EV_setDriver('GV0', self.bool2ISY(value), 25)
-    #    #self.EV_setDriver('GV1', self.GV1, 56)
-    #    self.EV_setDriver('GV2', self.distUnit, 25)
-    #    self.EV_setDriver('GV3', self.tempUnit, 25)
 
 
 
-    #def ISYupdate (self, command):
-    #    logging.debug('ISY-update main node called')
-    #    if self.TEVcloud.authenticated():
-    #        self.longPoll()
-    '''
-    def _send_connection_status(self, status_code):
-        try:
-            if status_code in ['offline','ok', 'overload', 'error','invalid' ]:
-                body = {
-                    'event': 'status_change',
-                    'data': {'status':status_code,
-                            'description' : 'weebhhok status_code'
-                            }
-                }
-            self.TEVcloud.testWebhook(body)
-            logging.debug(f'Webhook status code {status_code} sent successfully.')
-            if status_code in ['ok']:
-                self.poly.Notices.delete('overload')
-            elif status_code in ['overload']:
-                self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
-
-                code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)
-        except Exception as error:
-            logging.error(f"Test Webhook API call failed: { error }")
-            self.setDriver('GV30', 4, True, True) # 4=failure
-    '''
 
 
     def webhookTimeout(self):
@@ -1063,8 +884,6 @@ class TeslaEVController(udi_interface.Node):
             logging.info('Webhook test message received successfully.')
             self.webhookTimer.cancel()
             self.setDriver('GV30', 2, True, True) # 2=Success
-
-
 
     def test(self, param=None):
         try:

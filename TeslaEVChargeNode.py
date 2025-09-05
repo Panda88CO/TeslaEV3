@@ -156,9 +156,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
             self.EV_setDriver('GV2', None, 25)  
             
         self._send_connection_status(code)
-        if code not in  ['ok', 'overload']:            
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)        
+     
 
     def evChargeControl (self, command):
         logging.info('evChargeControl called')
@@ -181,9 +179,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
             self.EV_setDriver('GV6', None, 25)
 
         self._send_connection_status(code)
-        if code not in  ['ok', 'overload']:            
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)        
+  
 
 
 
@@ -197,9 +193,6 @@ class teslaEV_ChargeNode(udi_interface.Node):
             self.EV_setDriver('GV9', None, 25)              
 
         self._send_connection_status(code)
-        if code not in  ['ok', 'overload']:            
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)        
 
 
     def evSetCurrentChargeLimit (self, command):
@@ -214,9 +207,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
             self.EV_setDriver('CHARGEAMPS', None, 25)              
 
         self._send_connection_status(code)
-        if code not in  ['ok', 'overload']:            
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)        
+    
 
     id = 'evcharge'
 
