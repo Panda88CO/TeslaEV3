@@ -376,7 +376,7 @@ class teslaEVAccess(object):
                     if code == 'ok':
                         self.carInfo[EVid] = self.process_EV_data(res)
                         #self.extract_gui_info(EVid)
-                        return(self.teslaEV_GetCarState(EVid))
+                        return(self.teslaEV_UpdateCarState(EVid))
                     else:
                         return(code, state)            
             else:
@@ -395,7 +395,7 @@ class teslaEVAccess(object):
                 code, res = self._teslaEV_get_ev_data(EVid)
                 if code == 'ok':
                     self.carInfo[EVid] = self.process_EV_data(res)
-                    return(self.teslaEV_GetCarState(EVid))
+                    return(self.teslaEV_UpdateCarState(EVid))
                 else:
                     return(code, state)
             else:
@@ -462,13 +462,13 @@ class teslaEVAccess(object):
 
 
 
-    def teslaEV_GetCarState(self, EVid):
+    def teslaEV_UpdateCarState(self, EVid):
         try:
-            logging.debug('teslaEV_GetCarState:')
+            logging.debug('teslaEV_UpdateCarState:')
             code, res = self.teslaEV_update_vehicle_status(EVid)
             return(code, self.carInfo[EVid]['state'])
         except Exception as e:
-            logging.error(f'teslaEV_GetCarState Exception : {e}')
+            logging.error(f'teslaEV_UpdateCarState Exception : {e}')
             return(None, None)
 
 

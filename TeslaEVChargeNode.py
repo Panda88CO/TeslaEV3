@@ -86,7 +86,7 @@ class teslaEV_ChargeNode(udi_interface.Node):
 
             logging.info(f'ChargeNode updateISYdrivers {self.EVid} {self.drivers}')
             self.update_time()
-            #if self.TEVcloud.teslaEV_GetCarState(self.EVid) in ['online']:                
+            #if self.TEVcloud.teslaEV_UpdateCarState(self.EVid) in ['online']:                
             self.EV_setDriver('GV1', self.bool2ISY(self.TEVcloud.teslaEV_FastChargerPresent(self.EVid)), 25)
             self.EV_setDriver('GV2', self.bool2ISY(self.TEVcloud.teslaEV_ChargePortOpen(self.EVid)),25)
             self.EV_setDriver('GV3', self.latch2ISY(self.TEVcloud.teslaEV_ChargePortLatched(self.EVid)),25)
