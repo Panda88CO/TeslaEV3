@@ -44,8 +44,8 @@ class teslaAccess(OAuth):
     def __init__(self, polyglot, scope):
         super().__init__(polyglot)
         logging.info(f'OAuth initializing')
-        self.yourApiEndpoint = 'https://my.isy.io/api/tesla'
-        #self.yourApiEndpoint = 'https://my.isy.io/api/tesla-limit'
+        #self.yourApiEndpoint = 'https://my.isy.io/api/tesla'
+        self.yourApiEndpoint = 'https://my.isy.io/api/tesla-limit'
         self.poly = polyglot
         self.scope = str(scope)
         self.EndpointNA= 'https://fleet-api.prd.na.vn.cloud.tesla.com'
