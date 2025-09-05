@@ -147,8 +147,11 @@ class teslaAccess(OAuth):
 
         logging.debug(f'region {self.region} {self.scope}')
         oauthSettingsUpdate['scope'] = self.scope 
-        oauthSettingsUpdate['auth_endpoint'] = 'https://auth.tesla.com/oauth2/v3/authorize'
-        oauthSettingsUpdate['token_endpoint'] = 'https://auth.tesla.com/oauth2/v3/token'
+
+        oauthSettingsUpdate['auth_endpoint'] = 'https://fleet-auth.prd.vn.cloud.tesla.com/oauth2/v3/authorize'
+        oauthSettingsUpdate['token_endpoint'] = 'https://fleet-auth.prd.vn.cloud.tesla.com/oauth2/v3/token'
+        #oauthSettingsUpdate['auth_endpoint'] = 'https://auth.tesla.com/oauth2/v3/authorize'
+        #oauthSettingsUpdate['token_endpoint'] = 'https://auth.tesla.com/oauth2/v3/token'
         #oauthSettingsUpdate['redirect_uri'] = 'https://my.isy.io/api/cloudlink/redirect'
         #oauthSettingsUpdate['cloudlink'] = True
         oauthSettingsUpdate['addRedirect'] = True
