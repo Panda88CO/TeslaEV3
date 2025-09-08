@@ -7,7 +7,9 @@ STATUS-1=Connected
 STATUS-2=Failed
 STATUS-3=Connected
 STATUS-4=Failed
-
+psierror-98=Unknown
+psierror-99=Invalid Data Received
+timeerror-99=Unknown
 STATUS-97=Data Invalid
 ST-nlscontroller-GV0-NAME=Connected to Tesla Cloud
 API-0=Disonnected
