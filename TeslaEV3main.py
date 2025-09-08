@@ -23,10 +23,11 @@ from TeslaEVPwrShareNode import teslaEV_PwrShareNode
 from TeslaEVapi import teslaAccess
 
 
-VERSION = '0.1.44'
+
+VERSION = '0.2.10'
 
 class TeslaEVController(udi_interface.Node):
-    from  udiLib import node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
+    from  udiLib import _send_connection_status, node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
 
     def __init__(self, polyglot, primary, address, name, tesla_api ):
         super(TeslaEVController, self).__init__(polyglot, primary, address, name)
@@ -56,6 +57,7 @@ class TeslaEVController(udi_interface.Node):
         self.KM = 0
         self.MILES = 1
         self.supportedParams = ['DIST_UNIT', 'TEMP_UNIT']
+        self.STATUS_CODES=['offline','ok', 'overload', 'error','invalid' ]
         self.paramsProcessed = False
         self.customParameters = Custom(self.poly, 'customparams')
         self.portalData = Custom(self.poly, 'customNSdata')
@@ -166,20 +168,7 @@ class TeslaEVController(udi_interface.Node):
         oauthSettingsUpdate['token_parameters'] = {}
         # Example for a boolean field
 
-        if 'REGION' in userParams:
-            if self.customParameters['REGION'] != 'Input region NA, EU, CN':
-                region = str(self.customParameters['REGION'])
-                if region.upper() not in ['NA', 'EU', 'CN']:
-                    logging.error(f'Unsupported region {region}')
-                    self.poly.Notices['REGION'] = 'Unknown Region specified (NA = North America + Asia (-China), EU = Europe. middle East, Africa, CN = China)'
-                else:
-                    self.tesla_api.cloud_set_region(region)
-        else:
-            logging.warning('No region found')
-            self.customParameters['REGION'] = 'Input region NA, EU, CN'
-            region = None
-            self.poly.Notices['region'] = 'Region not specified (NA = Nort America + Asia (-China), EU = Europe. middle East, Africa, CN = China)'
-   
+ 
         if 'DIST_UNIT' in userParams:
             if self.customParameters['DIST_UNIT'] != 'Km or Miless':
                 dist_unit = str(self.customParameters['DIST_UNIT'])
@@ -233,14 +222,30 @@ class TeslaEVController(udi_interface.Node):
                     self.poly.Notices['location'] = 'Unknown Location setting '
                 else:
                     self.tesla_api.teslaEV_set_location_enabled(self.locationEn)
-                    if self.locationEn.upper() == 'TRUE':
-                        self.tesla_api.append_scope('vehicle_location')
+                    if self.locationEn.upper() != 'TRUE':
+                        self.tesla_api.remove_scope('vehicle_location')
+                        logging.info('Location disabled - removing scope')
                     
         else:
             logging.warning('No LOCATION')
             self.customParameters['LOCATION_EN'] = 'True or False'   
         self.customParam_done = True
 
+
+        if 'REGION' in userParams:
+            if self.customParameters['REGION'] != 'Input region NA, EU, CN':
+                region = str(self.customParameters['REGION'])
+                if region.upper() not in ['NA', 'EU', 'CN']:
+                    logging.error(f'Unsupported region {region}')
+                    self.poly.Notices['REGION'] = 'Unknown Region specified (NA = North America + Asia (-China), EU = Europe. middle East, Africa, CN = China)'
+                else:
+                    self.tesla_api.cloud_set_region(region)
+        else:
+            logging.warning('No region found')
+            self.customParameters['REGION'] = 'Input region NA, EU, CN'
+            region = None
+            self.poly.Notices['region'] = 'Region not specified (NA = Nort America + Asia (-China), EU = Europe. middle East, Africa, CN = China)'
+   
         logging.debug('customParamsHandler finish ')
         
     def process_message(self):
@@ -250,14 +255,13 @@ class TeslaEVController(udi_interface.Node):
       
                 data = self.messageQueue.get(timeout = 10) 
                 logging.debug('Received message - Q size={}'.format(self.messageQueue.qsize()))
-
                 evID = self.TEVcloud.teslaEV_stream_get_id(data)
                 logging.debug(f'EVid in data = {evID}')
                 if evID == self.EVid:
                     self.TEVcloud.teslaEV_stream_process_data(data)
                     if self.subnodesReady():            
                         self.update_all_drivers()
-                        self.EV_setDriver('ST', 1, 25) # Car must be online to stream data 
+                        #self.EV_setDriver(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid), 1, 25) # Car must be online to stream data 
                 time.sleep(1)
 
             except Exception as e:
@@ -292,16 +296,19 @@ class TeslaEVController(udi_interface.Node):
         time.sleep(2)
         #self.test()
 
-
     def webhook(self, data): 
         try:
             logging.info(f"Webhook received: { data }")  
             if 'body' in data:
-                logging.info(f'webhook test received')
+                logging.info(f'webhook local received')
                 eventInfo = json.loads(data['body'])
-
+                logging.debug(f'webhook eventInfo {eventInfo}')
                 if  eventInfo['event'] == 'webhook-test':
                     self.activate()
+                elif eventInfo['event'] == 'status_change':
+                    self.EV_setDriver('GV21', self.code2ISY(eventInfo['data']['status'] ),25)
+                    self.climateNode.EV_setDriver('GV21', self.code2ISY(eventInfo['data']['status'] ),25)
+                    self.chargeNode.EV_setDriver('GV21', self.code2ISY(eventInfo['data']['status']  ),25)
             else:
                 self.data_flowing = True
                 self.insert_message(data)
@@ -401,10 +408,10 @@ class TeslaEVController(udi_interface.Node):
         code, state = self.TEVcloud._teslaEV_wake_ev(self.EVid)
         logging.debug(f'Wake EV {code} {state}')
         if state not in ['online']:
-            self.poly.Notices['NOTONLINE']=f'{EVname} appears offline - cannot continue with EV being online'
+            self.poly.Notices['NOTONLINE']=f'{EVname} appears offline - cannot continue without EV being online'
         # force creation of new config - assume this will enable retransmit of all data 
         self.poly.Notices['subscribe1'] = 'Subscribing to datastream from EV'
-        if not self.tesla_api.teslaEV_streaming_check_certificate_update(self.EVid, True ): #We need to update streaming server credentials
+        if not self.tesla_api.teslaEV_streaming_check_certificate_update(self.EVid, True): #We need to update streaming server credentials
             logging.info('')
             self.poly.Notices['SYNC']=f'{EVname} ERROR failed to connect to streaming server - EV may be too old'
             #self.stop()
@@ -426,7 +433,7 @@ class TeslaEVController(udi_interface.Node):
         self.poly.Notices.delete('subscribe2')
 
 
-        self.EV_setDriver('ST', 1, 25)  # EV is synched so online 
+        self.EV_setDriver(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid), 1, 25) 
         #logging.debug(f'climate drivers5 {self.climateNode.drivers}')                    
         logging.debug(f'Scanning db for extra nodes : {assigned_addresses} - {self.node_addresses}')
 
@@ -447,6 +454,9 @@ class TeslaEVController(udi_interface.Node):
         time.sleep(2)
         self.poly.Notices.clear()
         #logging.debug(f'climate drivers7 {self.climateNode.drivers}')
+
+      
+
 
     def validate_params(self):
         logging.debug('validate_params: {}'.format(self.Parameters.dump()))
@@ -481,7 +491,7 @@ class TeslaEVController(udi_interface.Node):
                 last_time = self.TEVcloud.teslaEV_GetTimestamp(self.EVid)
                 logging.debug(f'tine now {time_n} , last_time {last_time}')
                 if last_time is None:
-                    code, state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+                    code, state = self.TEVcloud.teslaEV_UpdateCarState(self.EVid)
                     if state:
                         self.EV_setDriver('ST', self.state2ISY(state), 25)
                         self.poly.Notices.delete('offline')
@@ -491,7 +501,7 @@ class TeslaEVController(udi_interface.Node):
                             #self.TEVcloud.teslaEV_get_vehicles()
                 elif isinstance(time_n, int) and isinstance(last_time, int):
                     if (time_n - last_time) > self.STATE_UPDATE_MIN * 60:
-                        code, state = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+                        code, state = self.TEVcloud.teslaEV_UpdateCarState(self.EVid)
                         if state:
                             self.EV_setDriver('ST', self.state2ISY(state), 25)
                             self.poly.Notices.delete('offline')
@@ -585,32 +595,7 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV19', None, 25)
 
 
-    '''
-    def poll (self, type ):    
-        logging.info(f'Status Node Poll for {self.EVid} - poll type: {type}')        
-        #pass
-        
-        try:
-            if type in ['short']:
-               #code, state  = self.TEVcloud.teslaEV_UpdateCloudInfoAwake(self.EVid)
-            elif type in ['long']:
-                #code, state =  self.TEVcloud.teslaEV_UpdateCloudInfo(self.EVid)
-            else:
-                return
-            logging.debug(f'Poll data code {code} , {state}')
-            self.update_all_drivers()
-            self.display_update()
 
-            #if state in[ 'online', 'offline', 'asleep', 'overload', 'error', 'on-link']:
-            #    self.EV_setDriver('ST', self.state2ISY(state), 25)
-                #logging.info('Car appears off-line/sleeping or overload  - not updating data')
-
-            #else:
-            #    self.EV_setDriver('ST', 99, 25)
-
-        except Exception as e:
-                logging.error(f'Status Poll exception : {e}')
-    '''    
 
     def update_all_drivers(self):
         try:
@@ -688,23 +673,24 @@ class TeslaEVController(udi_interface.Node):
             self.EV_setDriver('GV16', self.bool2ISY(self.TEVcloud.teslaEV_LocatedAtFavorite(self.EVid)), 25)
 
 
-            location = self.TEVcloud.teslaEV_GetLocation(self.EVid)
-            #logging.debug(f'teslaEV_GetLocation {location}')
-            if location['longitude']:
-                logging.debug('GV17: {}'.format(round(location['longitude'], 2)))
-                self.EV_setDriver('GV17', round(location['longitude'], 3), 56)
+            if self.tesla_api.location_enabled():
+                location = self.TEVcloud.teslaEV_GetLocation(self.EVid)
+                #logging.debug(f'teslaEV_GetLocation {location}')
+                if location['longitude']:
+                    logging.debug('GV17: {}'.format(round(location['longitude'], 2)))
+                    self.EV_setDriver('GV17', round(location['longitude'], 3), 56)
+                else:
+                    logging.debug(f'GV17: NONE')
+                    self.EV_setDriver('GV17', None, 25)
+                if location['latitude']:
+                    logging.debug('GV18: {}'.format(round(location['latitude'], 2)))
+                    self.EV_setDriver('GV18', round(location['latitude'], 3), 56)
+                else:
+                    logging.debug('GV18: NONE')
+                    self.EV_setDriver('GV18', None, 25)
             else:
-                logging.debug(f'GV17: NONE')
-                self.EV_setDriver('GV17', None, 25)
-            if location['latitude']:
-                logging.debug('GV18: {}'.format(round(location['latitude'], 2)))
-                self.EV_setDriver('GV18', round(location['latitude'], 3), 56)
-            else:
-                logging.debug('GV18: NONE')
-                self.EV_setDriver('GV18', None, 25)
-            #else:
-            #    self.EV_setDriver('GV17', 98, 25)
-            #    self.EV_setDriver('GV18', 98, 25)
+                self.EV_setDriver('GV17', 98, 25)
+                self.EV_setDriver('GV18', 98, 25)
         except Exception as e:
             logging.error(f'updateISYdriver main node failed: node may not be 100% ready {e}')
 
@@ -713,12 +699,14 @@ class TeslaEVController(udi_interface.Node):
         #code, state = self.TEVcloud.teslaEV_update_connection_status(self.EVid)
         self.update_all_drivers()
         #self.display_update()
-        code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
+        code, res = self.TEVcloud.teslaEV_UpdateCarState(self.EVid)
+
         self.EV_setDriver('ST', self.state2ISY(res), 25)
-        if code in ['ok']:
-             self.EV_setDriver('GV21', self.command_res2ISY(res),25)
-        else:
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
+        self._send_connection_status(code)
+        #if code in ['ok']:
+        #     self.EV_setDriver('GV21', self.command_res2ISY(res),25)
+        #else:
+        #    self.EV_setDriver('GV21', self.code2ISY(code),25)
 
     def evWakeUp (self, command):
         logging.info(f'EVwakeUp called')
@@ -727,9 +715,12 @@ class TeslaEVController(udi_interface.Node):
         if code in ['ok']:               
             time.sleep(2)
             self.update_all_drivers()
-        if code in ['ok']:
-             self.EV_setDriver('GV21', self.command_res2ISY(res),25)
-             self.EV_setDriver('ST', self.state2ISY(res), 25)
+            self.EV_setDriver('GV21', self.command_res2ISY(res),25)
+            self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid)), 25)
+            self.poly.Notices.delete('overload')
+        elif code in ['overload']:
+             self.poly.Notices['overload'] = 'Too many api calls - max 3 wakeups and 10 commands / day'
+             self.EV_setDriver('GV21', self.code2ISY(code),25)
         else:
             self.EV_setDriver('GV21', self.code2ISY(code),25)
 
@@ -738,30 +729,20 @@ class TeslaEVController(udi_interface.Node):
         logging.info(f'EVhonkHorn called')        
         code, res = self.TEVcloud.teslaEV_HonkHorn(self.EVid)
         logging.info(f'return  {code} - {res}')
+        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid)), 25)
 
-   
-        if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res),25)
-            self.EV_setDriver('ST', 1, 25)
-        else:
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
-            code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-            self.EV_setDriver('ST', self.state2ISY(res), 25)
+        self._send_connection_status(code)
+
 
 
     def evFlashLights (self, command):
         logging.info(f'EVflashLights called')
         code, res = self.TEVcloud.teslaEV_FlashLights(self.EVid)
         logging.info(f'return  {code} - {res}')
+        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid)), 25)
 
-        if code in ['ok']:
-             self.EV_setDriver('GV21', self.command_res2ISY(res),25)
-        else:
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
-        code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        self.EV_setDriver('ST', self.state2ISY(res), 25)
+        self._send_connection_status(code)
 
-        #self.forceUpdateISYdrivers()
 
     def evControlDoors (self, command):
         logging.info(f'EVctrlDoors called')
@@ -783,13 +764,11 @@ class TeslaEVController(udi_interface.Node):
         code, res =  self.TEVcloud.teslaEV_Doors(self.EVid, cmd)
         logging.info(f'return  {code} - {res}')
         self.EV_setDriver('GV3', doorCtrl, 25)
-        if code in ['ok']:
-             self.EV_setDriver('GV21', self.command_res2ISY(res),25)
-        else:
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
-            self.EV_setDriver('GV3', None, 25)
-        code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        self.EV_setDriver('ST', self.state2ISY(res), 25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid)), 25)
+
+        self._send_connection_status(code)
+
+
 
 
     def evPlaySound (self, command):
@@ -798,12 +777,10 @@ class TeslaEVController(udi_interface.Node):
         sound = int(float(command.get('value')))
         if sound == 0 or sound == 2000: 
             code, res = self.TEVcloud.teslaEV_PlaySound(self.EVid, sound)
-            if code in ['ok']:
-                self.EV_setDriver('GV21', self.command_res2ISY(res),25)
-            else:
-                self.EV_setDriver('GV21', self.code2ISY(code),25)
-        code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        self.EV_setDriver('ST', self.state2ISY(res), 25)
+            self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid)), 25)
+
+            self._send_connection_status(code)
+
 
     def evSentryMode (self, command):
         logging.info(f'evSentryMode called')
@@ -811,12 +788,9 @@ class TeslaEVController(udi_interface.Node):
         ctrl = int(float(command.get('value')))
      
         code, res = self.TEVcloud.teslaEV_SentryMode(self.EVid, ctrl)
-        if code in ['ok']:
-             self.EV_setDriver('GV21', self.command_res2ISY(res),25)
-        else:
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
-        code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        self.EV_setDriver('ST', self.state2ISY(res), 25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid)), 25)
+
+        self._send_connection_status(code)
 
     # needs update
     def evControlSunroof (self, command):
@@ -834,12 +808,8 @@ class TeslaEVController(udi_interface.Node):
         else:
             logging.error(f'Wrong command for evSunroof: {sunroofCtrl}')
             code = 'error'
-        if code in ['ok']:
-             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
-        else:
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
-        code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        self.EV_setDriver('ST', self.state2ISY(res), 25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid)), 25)
+        self._send_connection_status(code)
 
 
     def evOpenFrunk (self, command):
@@ -849,13 +819,11 @@ class TeslaEVController(udi_interface.Node):
         logging.debug(f'Frunk result {code} - {res}')
         if code in ['ok']:
             self.EV_setDriver('GV12', 1, 25)
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
         else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
-            self.EV_setDriver('GV12', None, 25)
-        code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        self.EV_setDriver('ST', self.state2ISY(res), 25)
+            self.EV_setDriver('GV12', None, 25) 
+        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid)), 25)
+
+        self._send_connection_status(code)
 
 
     def evOpenTrunk (self, command):
@@ -863,42 +831,23 @@ class TeslaEVController(udi_interface.Node):
         code, res = self.TEVcloud.teslaEV_TrunkFrunk(self.EVid, 'Trunk')
         logging.debug(f'Trunk result {code} - {res}')
         if code in ['ok']:
-            self.EV_setDriver('GV11', 1, 25)
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)    
+            self.EV_setDriver('GV12', 1, 25)
         else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
-            self.EV_setDriver('GV11', None, 25)
-        code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        self.EV_setDriver('ST', self.state2ISY(res), 25)
+            self.EV_setDriver('GV12', None, 25) 
+        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid)), 25)
+
+        self._send_connection_status(code)
 
 
     def evHomelink (self, command):
         logging.info('evHomelink called')
         code, res = self.TEVcloud.teslaEV_HomeLink(self.EVid)
-        if code in ['ok']:
-             self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
-        else:
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
-        code, res = self.TEVcloud.teslaEV_GetCarState(self.EVid)
-        self.EV_setDriver('ST', self.state2ISY(res), 25)
+        self.EV_setDriver('ST', self.state2ISY(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid)), 25)
+
+        self._send_connection_status(code)
 
 
 
-    #def updateISYdrivers(self):
-    #    logging.debug('System updateISYdrivers - Controller')       
-    #    value = self.TEVcloud.authenticated()
-    #    self.EV_setDriver('GV0', self.bool2ISY(value), 25)
-    #    #self.EV_setDriver('GV1', self.GV1, 56)
-    #    self.EV_setDriver('GV2', self.distUnit, 25)
-    #    self.EV_setDriver('GV3', self.tempUnit, 25)
-
-
-
-    #def ISYupdate (self, command):
-    #    logging.debug('ISY-update main node called')
-    #    if self.TEVcloud.authenticated():
-    #        self.longPoll()
 
 
     def webhookTimeout(self):
@@ -998,55 +947,6 @@ class TeslaEVController(udi_interface.Node):
             # GV0 Access to TeslaApi
             # GV1 Number of EVs
 
-    '''
-        <nodeDef id="controller" nls="nlsevstatus">
-        <editors />
-        <sts>
-         <!--<st id="ST" editor="NODEST" />-->
-         <st id="ST" editor="CARSTATE" />
-         <st id="GV1" editor="CONSOLE" />
-         <st id="GV2" editor="BOOLSTATE" />
-         <st id="GV0" editor="NUMBER" />
-         <st id="GV3" editor="LOCKUNLOCK" />
-         <st id="GV4" editor="ODOMETER" />
-         <!--<st id="GV5" editor="BOOLSTATE" />-->
-         <st id="GV6" editor="WINDOW" />
-         <st id="GV7" editor="WINDOW" />
-         <st id="GV8" editor="WINDOW" />
-         <st id="GV9" editor="WINDOW" />
-         <!--<st id="GV10" editor="PERCENT" />-->
-         <st id="GV11" editor="OPENCLOSE" />
-         <st id="GV12" editor="OPENCLOSE" />
-         <!-- <st id="GV13" editor="CARSTATE" /> -->
-         <!-- <st id="GV16" editor="IDEADIST" /> !-->
-         <st id="GV17" editor="LONGITUDE" />         
-         <st id="GV18" editor="LATITUDE" />  
-         <st id="GV19" editor="unixtime" />         
-         <!--<st id="GV20" editor="MINU" />    -->
-         <st id="GV21" editor="LASTCMD" />   
-        </sts>
-        <cmds>
-         <sends>
-            <cmd id="DON" /> 
-            <cmd id="DOF" />          
-         </sends>
-         <accepts>
-            <cmd id="UPDATE" /> 
-            <cmd id="WAKEUP" />
-            <cmd id="HONKHORN" />
-            <cmd id="FLASHLIGHT" />   
-            <cmd id="DOORS" > 
-               <p id="" editor="LOCKUNLOCK" init="GV3" /> 
-            </cmd>
-            <cmd id="SUNROOF" > 
-               <p id="" editor="SUNROOFCTRL" init="0" /> 
-            </cmd >
-            <cmd id="TRUNK" /> 
-            <cmd id="FRUNK" /> 
-            <cmd id="HOMELINK" /> 
-            <cmd id="PLAYSOUND" > 
-               <p id="" editor="SOUNDS" init="0" /> 
-    '''
 
 if __name__ == "__main__":
     try:
@@ -1058,7 +958,7 @@ if __name__ == "__main__":
         #polyglot.updateProfile()
         polyglot.setCustomParamsDoc()
 
-        TeslaApi = teslaApiAccess(polyglot,'energy_device_data energy_cmds vehicle_device_data vehicle_cmds vehicle_charging_cmds open_id offline_access')
+        TeslaApi = teslaApiAccess(polyglot,'energy_device_data energy_cmds vehicle_device_data vehicle_cmds vehicle_charging_cmds open_id offline_access vehicle_location')
         #TEV_cloud = teslaEVAccess(polyglot, 'energy_device_data energy_cmds open_id offline_access')
         #TEV_cloud = teslaEVAccess(polyglot, 'open_id vehicle_device_data vehicle_cmds  vehicle_charging_cmds offline_access')
         logging.debug(f'TeslaAPI {TeslaApi}')

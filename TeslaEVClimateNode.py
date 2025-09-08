@@ -11,7 +11,8 @@ import time
         
                
 class teslaEV_ClimateNode(udi_interface.Node):
-    from  udiLib import node_queue, command_res2ISY, wait_for_node_done, tempUnitAdjust, latch2ISY, chargeState2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, code2ISY, state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
+
+    from  udiLib import _send_connection_status, node_queue, command_res2ISY, wait_for_node_done, tempUnitAdjust, latch2ISY, chargeState2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, code2ISY, state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
 
     def __init__(self, polyglot, primary, address, name, evid,  TEVcloud):
         super(teslaEV_ClimateNode, self).__init__(polyglot, primary, address, name)
@@ -168,12 +169,7 @@ class teslaEV_ClimateNode(udi_interface.Node):
             logging.error(f'Wrong command for evWndows: {windowCtrl}')
             code = 'error'
             res = f'Wrong command for evWndows: {windowCtrl}'
-        if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)    
-        else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
-
+        self._send_connection_status(code)
 
     def evSunroof (self, command):
         logging.info('evSunroof called')
@@ -189,11 +185,9 @@ class teslaEV_ClimateNode(udi_interface.Node):
 
             code = 'error'
             res = f'Wrong command for evSunroof: {sunroofCtrl}'
-        if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)    
-        else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)      
+        self._send_connection_status(code)
+
+
 
 
     def evAutoCondition (self, command):
@@ -209,13 +203,13 @@ class teslaEV_ClimateNode(udi_interface.Node):
             code = 'error'
             res = f'Wrong command for evAutoCondition: {autoCond}'
         if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
+
             self.EV_setDriver('GV10',autoCond, 25 )
         else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
             self.EV_setDriver('GV10',None, 25 )
-        
+        self._send_connection_status(code)
+
+    
     def evDefrostMax (self, command):
         logging.info('evDefrostMax called')
         
@@ -231,12 +225,8 @@ class teslaEV_ClimateNode(udi_interface.Node):
             logging.error(f'Wrong command for evDefrostMax: {defrost}')
             code = 'error'
             res = f'Wrong command for evDefrostMax: {defrost}'
-        if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
-        else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
             self.EV_setDriver('GV11', None, 25)
+        self._send_connection_status(code)
 
 
     def evSetCabinTemp (self, command):
@@ -254,14 +244,14 @@ class teslaEV_ClimateNode(udi_interface.Node):
             passengerTemp = int((int(query.get('passenger.uom17'))-32)*5/9)
         code, res = self.TEVcloud.teslaEV_SetCabinTemps(self.EVid, driverTemp, passengerTemp)
         if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.setDriverTemp( 'GV3', driverTemp )
             self.setDriverTemp( 'GV4', passengerTemp)
         else:
             logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
             self.EV_setDriver('GV3', None, 25)
             self.EV_setDriver('GV4', None, 25)
+
+        self._send_connection_status(code)
 
 
     def evSetSeatHeat (self, command):
@@ -286,10 +276,9 @@ class teslaEV_ClimateNode(udi_interface.Node):
                 else:
                     GVstr ='GV'+str(seat_select+4)
                 self.setDriverTemp(GVstr, seatTemp )
-        else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
-            #self.EV_setDriver('GV3', None, 25)
+
+        self._send_connection_status(code)
+
 
     def evSetSeat0Heat (self, command):
         logging.info('evSetSeat0Heat called')
@@ -298,12 +287,12 @@ class teslaEV_ClimateNode(udi_interface.Node):
         code, res = self.TEVcloud.teslaEV_SetSeatHeating(self.EVid, 0, seatTemp)
                 
         if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
-            self.EV_setDriver('GV5', seatTemp, 25)
+             self.EV_setDriver('GV5', seatTemp, 25)
         else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
             self.EV_setDriver('GV5', None, 25)
+
+        self._send_connection_status(code)
+
 
 
     def evSetSeat1Heat (self, command):
@@ -313,12 +302,12 @@ class teslaEV_ClimateNode(udi_interface.Node):
         code, res = self.TEVcloud.teslaEV_SetSeatHeating(self.EVid, 1, seatTemp)
                 
         if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.EV_setDriver('GV6', seatTemp, 25)
         else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
             self.EV_setDriver('GV6', None, 25)
+
+        self._send_connection_status(code)
+
 
     def evSetSeat2Heat (self, command):
         logging.info('evSetSea2tHeat called')
@@ -327,12 +316,13 @@ class teslaEV_ClimateNode(udi_interface.Node):
         code, res = self.TEVcloud.teslaEV_SetSeatHeating(self.EVid, 2, seatTemp)
                 
         if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
             self.EV_setDriver('GV7', seatTemp, 25)
         else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
             self.EV_setDriver('GV7', None, 25)
+        
+        self._send_connection_status(code)
+
+  
 
     def evSetSeat4Heat (self, command):
         logging.info('evSetSeat4Heat called')
@@ -341,12 +331,13 @@ class teslaEV_ClimateNode(udi_interface.Node):
         code, res = self.TEVcloud.teslaEV_SetSeatHeating(self.EVid, 4, seatTemp)
                 
         if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
+
             self.EV_setDriver('GV8', seatTemp, 25)
         else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
             self.EV_setDriver('GV8', None, 25)
+
+        self._send_connection_status(code)
+       
 
     def evSetSeat5Heat (self, command):
         logging.info('evSetSeat5Heat called') 
@@ -354,12 +345,13 @@ class teslaEV_ClimateNode(udi_interface.Node):
         code, res = self.TEVcloud.teslaEV_SetSeatHeating(self.EVid, 5, seatTemp)
                 
         if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res), 25)
+
             self.EV_setDriver('GV9', seatTemp, 25)
         else:
-            logging.info('Not able to send command - EV is not online')
-            self.EV_setDriver('GV21', self.code2ISY(code), 25)
             self.EV_setDriver('GV9', None, 25)            
+
+        self._send_connection_status(code)
+    
 
     def evSteeringWheelHeat (self, command):
         logging.info('evSteeringWheelHeat called')
@@ -371,10 +363,9 @@ class teslaEV_ClimateNode(udi_interface.Node):
             logging.error(f'Wrong command for evDefrostMax: {wheel}') 
             code = 'error'
             res = f'Wrong command for evDefrostMax: {wheel}'
-        if code in ['ok']:
-            self.EV_setDriver('GV21', self.command_res2ISY(res),25)
-        else:
-            self.EV_setDriver('GV21', self.code2ISY(code),25)
+
+        self._send_connection_status(code)
+
 
 
     id = 'evclimate'

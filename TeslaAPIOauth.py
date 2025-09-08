@@ -142,7 +142,7 @@ class teslaApiAccess(teslaAccess):
         logging.debug('_teslaEV_get_streaming_certificate ')
         try:
             if self.stream_cert:
-                if 'expectedRenewal' in self.stream_cert:
+                if 'expectedRenewal' in self.stream_cert :
                     if self.stream_cert['expectedRenewal'] <= time.time():
                         self._teslaEV_retrieve_streaming_certificate()
                 else:
@@ -162,10 +162,10 @@ class teslaApiAccess(teslaAccess):
             logging.debug(f'cert = {cert}')
 
             if force_reset:
-                logging.debug('Forced config reset')
+                logging.debug('Forced config ')
                 code, res = self.teslaEV_streaming_delete_config(EV_vin)
                 time.sleep(1)
-                #cert = self._teslaEV_get_streaming_certificate()
+                cert = self._teslaEV_get_streaming_certificate()
                 code, res = self.teslaEV_streaming_create_config([EV_vin], cert['ca'])
                 time.sleep(2) # give car chance to sync
             if 'expectedRenewal' in cert and cert['expectedRenewal'] <= time.time():

@@ -312,26 +312,24 @@ class teslaEVAccess(object):
         try:
             code, state = self.teslaEV_update_connection_status(EVid)
             if code == 'ok':
-                if timeNow >= self.next_wake_call:
-                    if state in ['asleep','offline']:
-                        code, res  = self.tesla_api._callApi('POST','/vehicles/'+str(EVid) +'/wake_up')
-                        logging.debug(f'wakeup: {code} - {res}')
-                        if code in  ['ok']:
-                            time.sleep(5)
+                if state in ['asleep','offline']:
+                    code, res  = self.tesla_api._callApi('POST','/vehicles/'+str(EVid) +'/wake_up')
+                    logging.debug(f'wakeup: {code} - {res}')
+                    if code in  ['ok']:
+                        time.sleep(5)
+                        code, state = self.teslaEV_update_connection_status(EVid)
+                        logging.debug(f'wake_ev while loop {code} - {state}')
+                        while code in ['ok'] and state not in ['online'] and trys < 5:
+                            trys += 1
+                            time.sleep(15)
                             code, state = self.teslaEV_update_connection_status(EVid)
-                            logging.debug(f'wake_ev while loop {code} - {state}')
-                            while code in ['ok'] and state not in ['online'] and trys < 5:
-                                trys += 1
-                                time.sleep(15)
-                                code, state = self.teslaEV_update_connection_status(EVid)
-                                logging.debug(f'wake_ev while loop {trys} {code} {state}')
-                        if code in ['overload']:
-                            delay = self.extract_needed_delay(res)
-                            self.next_wake_call = timeNow + int(delay)
-                    return(code, state)
-                else:          
-                    logging.warning(f'Too many calls to wake API - need to wait {delay} secods')
-                    return(code, state)
+                            logging.debug(f'wake_ev while loop {trys} {code} {state}')
+                    #if code in ['overload']:
+                    #    delay = self.extract_needed_delay(res)
+                    #    self.next_wake_call = timeNow + int(delay)
+                return(code, state)
+            else:          
+                return(code, state)
         except Exception as e:
             logging.error(f'_teslaEV_wake_ev Exception : {e}')
 
@@ -357,11 +355,8 @@ class teslaEVAccess(object):
             time.sleep(5)
             code, res = self.tesla_api._callApi('POST','/vehicles/'+str(EVid) +'/command'+str(command),  payload ) 
             logging.debug(f'_teslaEV_send_ev_command {code} - {res}')
-                    
-        if code in ['overload']:
-            return(code, self.get_delay(res))
-        else:
-           return(code, res) 
+
+        return(code, res) 
 
     def get_delay(self, string):
         numbers = [int(word) for word in string.split() if word.isdigit()]
@@ -381,12 +376,9 @@ class teslaEVAccess(object):
                     if code == 'ok':
                         self.carInfo[EVid] = self.process_EV_data(res)
                         #self.extract_gui_info(EVid)
-                        return(self.teslaEV_GetCarState(EVid))
+                        return(self.teslaEV_UpdateCarState(EVid))
                     else:
                         return(code, state)            
-            elif code == 'overload':
-                delay = self.next_wake_call - time.time()
-                return(code, state)
             else:
                 return(code, state)
             
@@ -396,24 +388,21 @@ class teslaEVAccess(object):
             return('error', e)
 
     def teslaEV_UpdateCloudInfoAwake(self, EVid, online_known = False):
-            logging.debug(f'teslaEV_UpdateCloudInfoAwake: {EVid}')
-            try:
-                code, state = self.teslaEV_update_connection_status(EVid)
-                if code == 'ok' and state in ['online']:
-                    code, res = self._teslaEV_get_ev_data(EVid)
-                    if code == 'ok':
-                        self.carInfo[EVid] = self.process_EV_data(res)
-                        return(self.teslaEV_GetCarState(EVid))
-                    else:
-                        return(code, state)
-                elif code == 'overload':
-                    delay = self.next_wake_call - time.time()
-                    return(code, delay)
+        logging.debug(f'teslaEV_UpdateCloudInfoAwake: {EVid}')
+        try:
+            code, state = self.teslaEV_update_connection_status(EVid)
+            if code == 'ok' and state in ['online']:
+                code, res = self._teslaEV_get_ev_data(EVid)
+                if code == 'ok':
+                    self.carInfo[EVid] = self.process_EV_data(res)
+                    return(self.teslaEV_UpdateCarState(EVid))
                 else:
                     return(code, state)
-            except Exception as e:
-                logging.debug(f'Exception teslaEV_UpdateCloudInfo: {e}')
-                return('error', 'error')
+            else:
+                return(code, state)
+        except Exception as e:
+            logging.debug(f'Exception teslaEV_UpdateCloudInfo: {e}')
+            return('error', 'error')
    
     '''
     def extract_gui_info(self, EVid):
@@ -473,13 +462,13 @@ class teslaEVAccess(object):
 
 
 
-    def teslaEV_GetCarState(self, EVid):
+    def teslaEV_UpdateCarState(self, EVid):
         try:
-            logging.debug('teslaEV_GetCarState:')
+            logging.debug('teslaEV_UpdateCarState:')
             code, res = self.teslaEV_update_vehicle_status(EVid)
             return(code, self.carInfo[EVid]['state'])
         except Exception as e:
-            logging.error(f'teslaEV_GetCarState Exception : {e}')
+            logging.error(f'teslaEV_UpdateCarState Exception : {e}')
             return(None, None)
 
 
@@ -905,9 +894,9 @@ class teslaEVAccess(object):
         logging.debug(f'teslaEV_ChargePort {ctrl} for {EVid}')
 
         try:
-            code, state = self.teslaEV_update_connection_status(EVid) 
-            if state in ['asleep', 'offline']:
-                code, state = self._teslaEV_wake_ev(EVid)
+            #code, state = self.teslaEV_update_connection_status(EVid) 
+            #if state in ['asleep', 'offline']:
+            code, state = self._teslaEV_wake_ev(EVid)
             if state in ['online']:
                 if ctrl == 'open':
                     code, res = self._teslaEV_send_ev_command(EVid,'/charge_port_door_open') 
@@ -921,7 +910,7 @@ class teslaEVAccess(object):
                     logging.error(f'Non 200 response: {code} {res}')
                     return(code, res)
             else:
-                return('error', 'error')
+                return(code, state)
 
     
         except Exception as e:
@@ -934,9 +923,9 @@ class teslaEVAccess(object):
 
         try:
     
-            code, state = self.teslaEV_update_connection_status(EVid) 
-            if state in ['asleep', 'offline']:
-                code, state = self._teslaEV_wake_ev(EVid)
+            #code, state = self.teslaEV_update_connection_status(EVid) 
+            #if state in ['asleep', 'offline']:
+            code, state = self._teslaEV_wake_ev(EVid)
             if state in ['online']:
                 if ctrl == 'start':  
                     code, res = self._teslaEV_send_ev_command(EVid, '/charge_start' )
@@ -951,7 +940,7 @@ class teslaEVAccess(object):
                     logging.error(f'Non 200 response: {code} {res}')
                     return(code, res)
             else:
-                return('error', 'error')
+                return(code, state)
 
         except Exception as e:
             logging.debug(f'Exception teslaEV_Charging for vehicle id {EVid}: {e}')
@@ -962,9 +951,9 @@ class teslaEVAccess(object):
     def teslaEV_SetChargeLimit (self, EVid, limit):
         logging.debug(f'teslaEV_SetChargeLimit {limit} for {EVid}')
         try:
-            code, state = self.teslaEV_update_connection_status(EVid) 
-            if state in ['asleep', 'offline']:
-                code, state = self._teslaEV_wake_ev(EVid)
+            #code, state = self.teslaEV_update_connection_status(EVid) 
+            #if state in ['asleep', 'offline']:
+            code, state = self._teslaEV_wake_ev(EVid)
             if state in ['online']:    
                 if int(limit) > 100 or int(limit) < 0:
                     logging.error(f'Invalid seat heat level passed (0-100%) : {limit}')
@@ -980,7 +969,7 @@ class teslaEVAccess(object):
                     logging.error(f'Non 200 response: {code} {res}')
                     return(code, res)
             else:
-                return('error', 'error')
+                return(code, state)
         except Exception as e:
             logging.debug(f'Exception teslaEV_SetChargeLimit for vehicle id {EVid}: {e}')      
             return('error', e)
@@ -990,9 +979,9 @@ class teslaEVAccess(object):
     def teslaEV_SetChargeLimitAmps (self, EVid, limit):
         logging.debug(f'teslaEV_SetChargeLimitAmps {limit} for {EVid} -')
         try:
-            code, state = self.teslaEV_update_connection_status(EVid) 
-            if state in ['asleep', 'offline']:
-                code, state = self._teslaEV_wake_ev(EVid)
+            #code, state = self.teslaEV_update_connection_status(EVid) 
+            #if state in ['asleep', 'offline']:
+            code, state = self._teslaEV_wake_ev(EVid)
             if state in ['online']:    
        
                 if limit > 300 or limit < 0:
@@ -1006,7 +995,7 @@ class teslaEVAccess(object):
                     logging.error(f'Non 200 response: {code} {res}')
                     return(code, res)
             else:
-                return('error', 'error')
+                return(code, state)
 
         except Exception as e:
             logging.debug(f'Exception teslaEV_SetChargeLimitAmps for vehicle id {EVid}: {e}')
@@ -1206,9 +1195,9 @@ class teslaEVAccess(object):
         logging.debug(f'teslaEV_Windows {cmd} for {EVid}')
 
         try:
-            code, state = self.teslaEV_update_connection_status(EVid) 
-            if state in ['asleep', 'offline']:
-                code, state = self._teslaEV_wake_ev(EVid)
+            #code, state = self.teslaEV_update_connection_status(EVid) 
+            #if state in ['asleep', 'offline']:
+            code, state = self._teslaEV_wake_ev(EVid)
             if state in ['online']:    
                 #self.teslaEV_GetLocation()
                 if cmd != 'vent' and cmd != 'close':
@@ -1225,7 +1214,7 @@ class teslaEVAccess(object):
                     logging.error(f'Non 200 response: {code} {res}')
                     return(code, res)
             else:
-                return('error', 'error')
+                return(code, state)
         except Exception as e:
             logging.debug(f'Exception teslaEV_Windows for vehicle id {EVid}: {e}')       
             return('error', e)
@@ -1235,9 +1224,9 @@ class teslaEVAccess(object):
         logging.debug(f'teslaEV_SunRoof {cmd} for {EVid}')
 
         try:
-            code, state = self.teslaEV_update_connection_status(EVid) 
-            if state in ['asleep', 'offline']:
-                code, state = self._teslaEV_wake_ev(EVid)
+            #code, state = self.teslaEV_update_connection_status(EVid) 
+            #if state in ['asleep', 'offline']:
+            code, state = self._teslaEV_wake_ev(EVid)
             if state in ['online']:                
                 if cmd not in ['vent','close', 'stop'] :
                     logging.error(f'Wrong command passed to (vent or close) to teslaEV_SunRoof: {cmd}')
@@ -1251,7 +1240,7 @@ class teslaEVAccess(object):
                     logging.error(f'Non 200 response: {code} {res}')
                     return(code, res)
             else:
-                return('error', 'error')
+                return(code, state)
             
         except Exception as e:
             logging.debug(f'Exception teslaEV_SunRoof for vehicle id {EVid}: {e}')            
@@ -1262,9 +1251,9 @@ class teslaEVAccess(object):
         logging.debug(f'teslaEV_AutoCondition {ctrl} for {EVid}')
 
         try:
-            code, state = self.teslaEV_update_connection_status(EVid) 
-            if state in ['asleep', 'offline']:
-                code, state = self._teslaEV_wake_ev(EVid)
+            #code, state = self.teslaEV_update_connection_status(EVid) 
+            #if state in ['asleep', 'offline']:
+            code, state = self._teslaEV_wake_ev(EVid)
             if state in ['online']:    
                 if ctrl == 'start':  
                     code, res = self._teslaEV_send_ev_command(EVid, '/auto_conditioning_start') 
@@ -1279,7 +1268,7 @@ class teslaEVAccess(object):
                     logging.error(f'Non 200 response: {code} {res}')
                     return(code, res)
             else:
-                return('error', 'error')
+                return(code, state)
 
         except Exception as e:
             logging.debug(f'Exception teslaEV_AutoCondition for vehicle id {EVid}: {e}')
@@ -1292,9 +1281,9 @@ class teslaEVAccess(object):
         logging.debug(f'teslaEV_SetCabinTemps {driverTempC} / {passergerTempC} for {EVid}')
     
         try:
-            code, state = self.teslaEV_update_connection_status(EVid) 
-            if state in ['asleep', 'offline']:
-                code, state = self._teslaEV_wake_ev(EVid)
+            #code, state = self.teslaEV_update_connection_status(EVid) 
+            #if state in ['asleep', 'offline']:
+            code, state = self._teslaEV_wake_ev(EVid)
             if state in ['online']:    
 
                 payload = {'driver_temp' : int(driverTempC), 'passenger_temp':int(passergerTempC) }      
@@ -1305,7 +1294,7 @@ class teslaEVAccess(object):
                     logging.error(f'Non 200 response: {code} {res}')
                     return(code, res)
             else:
-                return('error', 'error')
+                return(code, state)
 
     
         except Exception as e:
@@ -1317,9 +1306,9 @@ class teslaEVAccess(object):
         logging.debug(f'teslaEV_DefrostMax {ctrl} for {EVid}')
  
         try:
-            code, state = self.teslaEV_update_connection_status(EVid) 
-            if state in ['asleep', 'offline']:
-                code, state = self._teslaEV_wake_ev(EVid)
+            #code, state = self.teslaEV_update_connection_status(EVid) 
+            #if state in ['asleep', 'offline']:
+            code, state = self._teslaEV_wake_ev(EVid)
             if state in ['online']:                
                 payload = {}    
                 if ctrl == 'on':
@@ -1338,7 +1327,7 @@ class teslaEVAccess(object):
                     logging.error(f'Non 200 response: {code} {res}')
                     return(code, res)
             else:
-                return('error', 'error')
+                return(code, state)
 
         except Exception as e:
             logging.debug(f'Exception teslaEV_DefrostMax for vehicle id {EVid}: {e}')
@@ -1349,9 +1338,9 @@ class teslaEVAccess(object):
     def teslaEV_SetSeatHeating (self, EVid, seat, levelHeat):
         logging.debug(f'teslaEV_SetSeatHeating {levelHeat}, {seat} for {EVid}')
         try:
-            code, state = self.teslaEV_update_connection_status(EVid) 
-            if state in ['asleep', 'offline']:
-                code, state = self._teslaEV_wake_ev(EVid)
+            #code, state = self.teslaEV_update_connection_status(EVid) 
+            #if state in ['asleep', 'offline']:
+            code, state = self._teslaEV_wake_ev(EVid)
             if state in ['online']:    
 
                 seats = [0, 1, 2,3, 4, 5, 6, 7, 8 ] 
@@ -1375,7 +1364,7 @@ class teslaEVAccess(object):
                     logging.error(f'Non 200 response: {code} {res}')
                     return(code, res)
             else:
-                return('error', 'error')
+                return(code, state)
 
         except Exception as e:
             logging.debug(f'Exception teslaEV_SetSeatHeating for vehicle id {EVid}: {e}')
@@ -1387,9 +1376,9 @@ class teslaEVAccess(object):
 
         try:
             if self.steeringWheelHeatDetected:
-                code, state = self.teslaEV_update_connection_status(EVid) 
-                if state in ['asleep', 'offline']:
-                    code, state = self._teslaEV_wake_ev(EVid)
+                #code, state = self.teslaEV_update_connection_status(EVid) 
+                #if state in ['asleep', 'offline']:
+                code, state = self._teslaEV_wake_ev(EVid)
                 if state in ['online']:    
 
                     payload = {}    
@@ -1407,7 +1396,7 @@ class teslaEVAccess(object):
                         logging.error(f'Non 200 response: {code} {res}')
                         return(code, res)
                 else:
-                    return('error', 'error')
+                    return(code, state)
 
             else:
                 logging.error(f'Steering Wheet does not seem to support heating')
@@ -1725,16 +1714,17 @@ class teslaEVAccess(object):
 # Controls
 ################
     def teslaEV_FlashLights(self, EVid):
-        logging.debug(f'teslaEV_GetVehicleInfo: for {EVid}')       
+        logging.debug(f'teslaEV_FlashLights for {EVid}')       
 
         try:
 
-            code, state = self.teslaEV_update_connection_status(EVid) 
-            if state in ['asleep', 'offline']:             
-                state = self._teslaEV_wake_ev(EVid)
+            #code, state = self.teslaEV_update_connection_status(EVid) 
+            #if state in ['asleep', 'offline']:             
+            code, state = self._teslaEV_wake_ev(EVid)
+            logging.debug(f'teslaEV_FlashLights wake {code} {state}')
             if state in ['online']:   
                 code, temp = self._teslaEV_send_ev_command(EVid, '/flash_lights')  
-                logging.debug(f'temp {temp}')
+                logging.debug(f'temp  {code} {temp}')
             #temp = r.json()
                 if  code in ['ok']:
                     temp['response']['result']
@@ -1744,7 +1734,7 @@ class teslaEVAccess(object):
             else:
                 return(code, state)
         except Exception as e:
-            logging.debug(f'Exception teslaEV_FlashLight for vehicle id {EVid}: {e}')
+            logging.error(f'Exception teslaEV_FlashLight for vehicle id {EVid}: {e}')
             return('error', e)
 
 
@@ -1752,10 +1742,10 @@ class teslaEVAccess(object):
         logging.debug(f'teslaEV_HonkHorn for {EVid}')
 
         try:
-            code, state = self.teslaEV_update_connection_status(EVid) 
-            logging.debug(f'teslaEV_HonkHorn {code} - {state}')
-            if state in ['asleep', 'offline']:             
-                state = self._teslaEV_wake_ev(EVid)
+            #code, state = self.teslaEV_update_connection_status(EVid) 
+            #logging.debug(f'teslaEV_HonkHorn {code} - {state}')
+            #if state in ['asleep', 'offline']:             
+            code, state = self._teslaEV_wake_ev(EVid)
             if state in ['online']:    
           
                 code, temp = self._teslaEV_send_ev_command(EVid, '/honk_horn')   
@@ -1767,7 +1757,7 @@ class teslaEVAccess(object):
                 else:
                     return(code, temp)
             else:
-                return('error', state)
+                return(code, state)
     
         except Exception as e:
             logging.debug(f'Exception teslaEV_HonkHorn for vehicle id {EVid}: {e}')           
@@ -1779,9 +1769,9 @@ class teslaEVAccess(object):
 
         try:
 
-            code, state = self.teslaEV_update_connection_status(EVid) 
-            if state in ['asleep', 'offline']:             
-                code, state = self._teslaEV_wake_ev(EVid)
+            #code, state = self.teslaEV_update_connection_status(EVid) 
+            #if state in ['asleep', 'offline']:             
+            code, state = self._teslaEV_wake_ev(EVid)
             if state in ['online']:    
                 payload = {'sound' : sound}        
                 code, res = self._teslaEV_send_ev_command(EVid, '/remote_boombox', payload ) 
@@ -1793,7 +1783,7 @@ class teslaEVAccess(object):
                 else:
                     return(code, res)
             else:
-                return('error', 'error')
+                return(code, state)
     
         except Exception as e:
             logging.debug(f'Exception teslaEV_PlaySound for vehicle id {EVid}: {e}')
@@ -1803,9 +1793,9 @@ class teslaEVAccess(object):
         logging.debug(f'teslaEV_SentryMode for {EVid} {ctrl}')
 
         try:
-            code, state = self.teslaEV_update_connection_status(EVid) 
-            if state in ['asleep', 'offline']:             
-                code, state = self._teslaEV_wake_ev(EVid)
+            #code, state = self.teslaEV_update_connection_status(EVid) 
+            #if state in ['asleep', 'offline']:             
+            code, state = self._teslaEV_wake_ev(EVid)
             if state in ['online']:
                 payload = {'on' : ctrl == 1}        
                 code, res = self._teslaEV_send_ev_command(EVid, '/set_sentry_mode', payload ) 
@@ -1816,7 +1806,7 @@ class teslaEVAccess(object):
                 else:
                     return(code, res)
             else:
-                return('error', 'error')
+                return(code, state)
     
         except Exception as e:
             logging.debug(f'Exception teslaEV_PlaySound for vehicle id {EVid}: {e}')
@@ -1827,9 +1817,9 @@ class teslaEVAccess(object):
         logging.debug(f'teslaEV_Doors {ctrl} for {EVid}')
 
         try:
-            code, state = self.teslaEV_update_connection_status(EVid) 
-            if state in ['asleep', 'offline']:             
-                code, state = self._teslaEV_wake_ev(EVid)
+            #code, state = self.teslaEV_update_connection_status(EVid) 
+            #if state in ['asleep', 'offline']:             
+            code, state = self._teslaEV_wake_ev(EVid)
             if state in ['online']:    
                 if ctrl == 'unlock':  
                     code, res = self._teslaEV_send_ev_command(EVid, '/door_unlock')
@@ -1843,7 +1833,7 @@ class teslaEVAccess(object):
                 else:
                     return(code, state)
             else:
-                return('error', state)
+                return(code, state)
 
         except Exception as e:
             logging.error(f'Exception teslaEV_Doors for vehicle id {EVid}: {e}')
@@ -1855,9 +1845,9 @@ class teslaEVAccess(object):
         logging.debug(f'teslaEV_Doors {frunkTrunk} for {EVid}')
         
         try:
-            code, state = self.teslaEV_update_connection_status(EVid) 
-            if state in ['asleep', 'offline']:             
-                code, state = self._teslaEV_wake_ev(EVid)
+            #code, state = self.teslaEV_update_connection_status(EVid) 
+            #if state in ['asleep', 'offline']:             
+            code, state = self._teslaEV_wake_ev(EVid)
             if state in ['online']:   
                 if frunkTrunk.upper() == 'FRUNK' or frunkTrunk.upper() == 'FRONT':
                     cmd = 'front' 
@@ -1874,7 +1864,7 @@ class teslaEVAccess(object):
                 else:
                     return(code, state)
             else:
-                return('error', state)
+                return(code, state)
                     
         except Exception as e:
             logging.debug(f'Exception teslaEV_TrunkFrunk for vehicle id {EVid}: {e}')
@@ -1887,9 +1877,9 @@ class teslaEVAccess(object):
 
         try:
 
-            code, state = self.teslaEV_update_connection_status(EVid) 
-            if state in ['asleep', 'offline']:             
-                code, state = self._teslaEV_wake_ev(EVid)
+            #code, state = self.teslaEV_update_connection_status(EVid) 
+            #if state in ['asleep', 'offline']:             
+            code, state = self._teslaEV_wake_ev(EVid)
             if state in ['online']:   
             
                 payload = {'lat':self.carInfo[EVid]['drive_state']['latitude'],
@@ -1901,7 +1891,7 @@ class teslaEVAccess(object):
                 else:
                     return(code, state)
             else:
-                return('error', state)
+                return(code, state)
 
         except Exception as e:
             logging.debug(f'Exception teslaEV_HomeLink for vehicle id {EVid}: {e}')

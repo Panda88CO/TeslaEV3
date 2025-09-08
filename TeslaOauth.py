@@ -40,18 +40,19 @@ except ImportError:
 # It inherits the OAuth class
 class teslaAccess(OAuth):
     #yourApiEndpoint = 'https://fleet-api.prd.na.vn.cloud.tesla.com'
-    yourApiEndpoint = 'https://my.isy.io/api/tesla'
+
     def __init__(self, polyglot, scope):
         super().__init__(polyglot)
         logging.info(f'OAuth initializing')
-  
+        #self.yourApiEndpoint = 'https://my.isy.io/api/tesla'
+        self.yourApiEndpoint = 'https://my.isy.io/api/tesla-limit'
         self.poly = polyglot
-        self.scope = scope
+        self.scope = str(scope)
         self.EndpointNA= 'https://fleet-api.prd.na.vn.cloud.tesla.com'
         self.EndpointEU= 'https://fleet-api.prd.eu.vn.cloud.tesla.com'
         self.EndpointCN= 'https://fleet-api.prd.cn.vn.cloud.tesla.cn'
         self.api  = '/api/1'
-        self.yourPortalEndpoint = 'https://my.isy.io/api/tesla'+self.api
+        self.yourPortalEndpoint = self.yourApiEndpoint + self.api
         self.token_info = {}
         self.portal_connected = False
         self.cloud_access_enabled = False
@@ -124,6 +125,12 @@ class teslaAccess(OAuth):
     def customDateDone(self):
         return(self.customDataHandlerDone )
 
+    def remove_scope(self, scope_str):
+        try:
+            logging.debug(f'removing  {scope_str} from scope {self.scope}')
+            self.scope.replace(scope_str, '')
+        except Exception as e:
+            logging.debug(f'NOT ABLE TO REMOVE {scope_str} from {self.scope}')
 
     def append_scope(self, scope_str):
         logging.debug(f'Appending {scope_str} to scope {self.scope}')
@@ -140,11 +147,17 @@ class teslaAccess(OAuth):
 
         logging.debug(f'region {self.region} {self.scope}')
         oauthSettingsUpdate['scope'] = self.scope 
-        oauthSettingsUpdate['auth_endpoint'] = 'https://auth.tesla.com/oauth2/v3/authorize'
-        oauthSettingsUpdate['token_endpoint'] = 'https://auth.tesla.com/oauth2/v3/token'
+
+        oauthSettingsUpdate['auth_endpoint'] = 'https://fleet-auth.prd.vn.cloud.tesla.com/oauth2/v3/authorize'
+        oauthSettingsUpdate['token_endpoint'] = 'https://fleet-auth.prd.vn.cloud.tesla.com/oauth2/v3/token'
+        #oauthSettingsUpdate['auth_endpoint'] = 'https://auth.tesla.com/oauth2/v3/authorize'
+        #oauthSettingsUpdate['token_endpoint'] = 'https://auth.tesla.com/oauth2/v3/token'
         #oauthSettingsUpdate['redirect_uri'] = 'https://my.isy.io/api/cloudlink/redirect'
         #oauthSettingsUpdate['cloudlink'] = True
         oauthSettingsUpdate['addRedirect'] = True
+        oauthSettingsUpdate['require_requested_scopes'] = True  #added 08/22/25
+        oauthSettingsUpdate['prompt_missing_scopes'] = True     #added 08/22/25     
+
         #oauthSettingsUpdate['state'] = self.state
         if region.upper() == 'NA':
             endpoint = self.EndpointNA
@@ -291,11 +304,10 @@ class teslaAccess(OAuth):
                 response = requests.post(completeUrl, headers=headers, json=payload)
             elif method == 'PUT':
                 response = requests.put(completeUrl, headers=headers)
-            logging.debug(f'request response: {response}')
 
+            logging.debug(f'request response: {response}, {response.status_code }, {response.text}')
             
-            
-            response.raise_for_status()
+            #response.raise_for_status()
             if response.status_code == 200:
                 try:
                     return 'ok', response.json()
@@ -311,12 +323,16 @@ class teslaAccess(OAuth):
                 return 'unknown', response.text
 
         except requests.exceptions.HTTPError as error:
-            logging.error(f"Call { method } { completeUrl } failed: { error }")
+            logging.error(f"ERROR Call { method } { completeUrl } failed: { error }")
+            logging.error(f"ERROR Response {response}")
             #self.apiLock.release()
             if response.status_code == 400:
                 return('error', response.text)
+            if response.status_code == 429:
+                return('overload', response.text)
             else:
                 return ('unknown', response.text)
+            
     '''    
     # Call your external service API
     def _callApiORG(self, method='GET', url=None, body=''):
