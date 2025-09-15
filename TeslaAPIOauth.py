@@ -232,7 +232,7 @@ class teslaApiAccess(teslaAccess):
 
     def teslaEV_streaming_synched(self, EVid):
         try:
-            logging.debug(f'teslaEV_streaming_synched {EVid}')
+            logging.debug(f'Testing if Synched teslaEV_streaming_synched {EVid}')
             code, res  = self._callApi('GET','/vehicles/'+str(EVid) +'/fleet_telemetry_config')
             if code == 'ok':
                 self.stream_synched = res['response']['synced']
