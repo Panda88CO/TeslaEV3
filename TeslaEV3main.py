@@ -24,7 +24,7 @@ from TeslaEVapi import teslaAccess
 
 
 
-VERSION = '0.2.10'
+VERSION = '0.2.11'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import _send_connection_status, node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -433,7 +433,7 @@ class TeslaEVController(udi_interface.Node):
         self.poly.Notices.delete('subscribe2')
 
 
-        self.EV_setDriver(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid), 1, 25) 
+        self.EV_setDriver('ST', self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid), 25) 
         #logging.debug(f'climate drivers5 {self.climateNode.drivers}')                    
         logging.debug(f'Scanning db for extra nodes : {assigned_addresses} - {self.node_addresses}')
 
