@@ -319,6 +319,8 @@ class teslaAccess(OAuth):
                 return 'offline', response.text
             elif response.status_code == 429:
                 return 'overload', response.text
+            elif response.status_code == 403:
+                return 'auth_error', response.text            
             else:
                 return 'unknown', response.text
 

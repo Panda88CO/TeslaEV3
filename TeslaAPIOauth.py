@@ -174,7 +174,7 @@ class teslaApiAccess(teslaAccess):
                 code, res = self.teslaEV_streaming_create_config([EV_vin], cert['ca'])
                 time.sleep(2) # give car chance to sync
 
-            return(cert is not {})
+            return(cert is not {} and not code in ['auth_error', 'overload', 'offline', 'erro'])
         except ValueError as e:  #First time - we need to create config
             logging.error(f'ERROR teslaEV_update_streaming_certificate creating config : {e}')
  
