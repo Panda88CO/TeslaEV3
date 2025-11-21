@@ -217,12 +217,12 @@ class TeslaEVController(udi_interface.Node):
         if 'LOCATION_EN' in userParams:
             if self.customParameters['LOCATION_EN'] != 'True or False':
                 self.locationEn = str(self.customParameters['LOCATION_EN'])
-                if self.locationEn.upper() not in ['TRUE', 'FALSE']:
+                if self.locationEn.upper() not in ['TRUE', 'FALSE', 'F', 'T']:
                     logging.error(f'Unsupported Location Setting {self.locationEn}')
                     self.poly.Notices['location'] = 'Unknown Location setting '
                 else:
                     self.tesla_api.teslaEV_set_location_enabled(self.locationEn)
-                    if self.locationEn.upper() != 'TRUE':
+                    if self.locationEn.upper() not in [ 'TRUE', 'T']:
                         self.tesla_api.remove_scope('vehicle_location')
                         logging.info('Location disabled - removing scope')
                     
