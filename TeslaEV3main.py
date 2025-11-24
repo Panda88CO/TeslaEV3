@@ -366,10 +366,13 @@ class TeslaEVController(udi_interface.Node):
             time.sleep(2)   
             attempts += 1
         if self.webhookSuccess != 'Success':
-            self.poly.Notices['webhook'] = 'Webhook test failed or timed out - no data will be received'
+            self.poly.Notices['webhook'] = 'Webhook test failed or timed out - no data will be received - check documentation on how to enable'
             logging.error('Webhook test failed or timed out')
             time.sleep(10)
             exit()
+        else:
+            self.poly.Notices.delete('webhook')
+
         self.poly.Notices['products'] = 'Acquiring supported products'
         self.PW_siteid, self.nbr_wall_conn = self.TPWcloud.tesla_get_energy_products()
         logging.debug(f'Nbr Wall Cons main {self.nbr_wall_conn}')
