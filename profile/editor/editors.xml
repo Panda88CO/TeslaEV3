@@ -3,7 +3,7 @@
      <range  uom="25" subset="0,1,2,3,4"  nls='STATUS'/>
   </editor>
     <editor id="TESTCON" > 
-     <range  uom="25" subset="0,1,2"  nls='TEST'/>
+     <range  uom="25" subset="0,1,2,3,4"  nls='TEST'/>
   </editor>
   
   <editor id="API" > 
