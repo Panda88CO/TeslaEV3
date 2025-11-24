@@ -24,7 +24,7 @@ from TeslaEVapi import teslaAccess
 
 
 
-VERSION = '0.2.12'
+VERSION = '0.2.13'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import _send_connection_status, node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -101,6 +101,7 @@ class TeslaEVController(udi_interface.Node):
         self.EVid = None
         self.data_flowing = False
         self.nbr_wall_conn = 0
+        self.webhookSuccess = 'Unknown'
 
         logging.info('Controller init DONE')
         logging.debug(f'drivers ; {self.drivers}')
@@ -294,7 +295,7 @@ class TeslaEVController(udi_interface.Node):
         logging.debug(f'webhook_init {init_w}')        
         self.poly.webhookStart(init_w)
         time.sleep(2)
-        #self.test()
+        #self.webhook_test)
 
     def webhook(self, data): 
         try:
@@ -356,6 +357,19 @@ class TeslaEVController(udi_interface.Node):
 
         assigned_addresses =[self.id]
         self.node_addresses = [self.id]
+        self.poly.Notices['webhook'] = 'Checking webhook connection'
+        self.webhook_test()
+        time.sleep(2)
+        attempts = 0
+        while self.webhookSuccess == 'Unknown' and attempts < self.webhookTestTimeoutSeconds/2:
+            logging.info('Waiting for webhook test to complete')
+            time.sleep(2)   
+            attempts += 1
+        if self.webhookSuccess != 'Success':
+            self.poly.Notices['webhook'] = 'Webhook test failed or timed out - no data will be received'
+            logging.error('Webhook test failed or timed out')
+            time.sleep(10)
+            exit()
         self.poly.Notices['products'] = 'Acquiring supported products'
         self.PW_siteid, self.nbr_wall_conn = self.TPWcloud.tesla_get_energy_products()
         logging.debug(f'Nbr Wall Cons main {self.nbr_wall_conn}')
@@ -854,15 +868,18 @@ class TeslaEVController(udi_interface.Node):
         if self.getDriver('GV30') == 1: # Test in progress
             logging.error(f"Webhook test message timed out after { self.webhookTestTimeoutSeconds } seconds.")
             self.setDriver('GV30', 3, True, True) # 3=Timeout
-
+            self.webhookSuccess = 'Timeout'
+        
     def activate(self):
         if self.getDriver('GV30') == 1: # Test in progress
             logging.info('Webhook test message received successfully.')
             self.webhookTimer.cancel()
             self.setDriver('GV30', 2, True, True) # 2=Success
+            self.webhookSuccess = 'Success'
 
-    def test(self, param=None):
+    def webhook_test(self, param=None):
         try:
+            self.webhookSuccess = 'Unknown'
             self.setDriver('GV30', 1, True, True) # 1=Test in progress
             time.sleep(1)
             # Our webhook handler will route this to our activate() function
@@ -898,7 +915,7 @@ class TeslaEVController(udi_interface.Node):
                  'FRUNK' : evOpenFrunk,
                  'HOMELINK' : evHomelink,
                  'PLAYSOUND' : evPlaySound,
-                 'TESTCON'  : test,
+                 'TESTCON'  : webhook_test,
                 }
 
 
