@@ -357,21 +357,7 @@ class TeslaEVController(udi_interface.Node):
 
         assigned_addresses =[self.id]
         self.node_addresses = [self.id]
-        self.poly.Notices['webhook'] = 'Checking webhook connection'
-        self.webhook_test()
-        time.sleep(2)
-        attempts = 0
-        while self.webhookSuccess == 'Unknown' and attempts < self.webhookTestTimeoutSeconds/2:
-            logging.info('Waiting for webhook test to complete')
-            time.sleep(2)   
-            attempts += 1
-        if self.webhookSuccess != 'Success':
-            self.poly.Notices['webhook'] = 'Webhook test failed or timed out - no data will be received - check documentation on how to enable'
-            logging.error('Webhook test failed or timed out')
-            time.sleep(10)
-            exit()
-        else:
-            self.poly.Notices.delete('webhook')
+
 
         self.poly.Notices['products'] = 'Acquiring supported products'
         self.PW_siteid, self.nbr_wall_conn = self.TPWcloud.tesla_get_energy_products()
@@ -403,6 +389,23 @@ class TeslaEVController(udi_interface.Node):
 
         logging.debug(f'EVname {EVname}') 
         self.init_webhook(self.EVid)       
+        #time.sleep(1)
+        self.poly.Notices['webhook'] = 'Checking webhook connection'
+        self.webhook_test()
+        time.sleep(2)
+        attempts = 0
+        while self.webhookSuccess == 'Unknown' and attempts < self.webhookTestTimeoutSeconds/2:
+            logging.info('Waiting for webhook test to complete')
+            time.sleep(2)   
+            attempts += 1
+        if self.webhookSuccess != 'Success':
+            self.poly.Notices['webhook'] = 'Webhook test failed or timed out - no data will be received - check documentation on how to enable'
+            logging.error('Webhook test failed or timed out')
+            time.sleep(10)
+            exit()
+        else:
+            self.poly.Notices.delete('webhook')
+
         #self.EV_setDriver('GV0', self.bool2ISY(self.EVid is not None), 25)            
         if EVname == None or EVname == '':
             # should not happen but just in case or user has not given name to EV
