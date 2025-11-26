@@ -338,7 +338,7 @@ def EV_setDriver(self, key, value, Unit=None):
             self.node.setDriver(key, 97, True, True, 25)
         else:
             if Unit:
-                self.node.setDriver(key, value, True, True, Unit)
+                self.node.setDriver(key, value, True, False, Unit)
             else:
                 self.node.setDriver(key, value)
     except ValueError: #A non number was passed 
