@@ -2,7 +2,7 @@
 
 import sys
 import time 
-from queue import Queue
+from queue import Queue, Empty
 from threading import Thread, Event, Lock
 try:
     import udi_interface
@@ -24,7 +24,7 @@ from TeslaEVapi import teslaAccess
 
 
 
-VERSION = '0.2.13'
+VERSION = '0.2.14'
 
 class TeslaEVController(udi_interface.Node):
     from  udiLib import _send_connection_status, node_queue, command_res2ISY, code2ISY, wait_for_node_done,tempUnitAdjust, display2ISY, sentry2ISY, setDriverTemp, cond2ISY,  mask2key, heartbeat, state2ISY, sync_state2ISY, bool2ISY, online2ISY, EV_setDriver, openClose2ISY
@@ -264,7 +264,8 @@ class TeslaEVController(udi_interface.Node):
                         self.update_all_drivers()
                         #self.EV_setDriver(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid), 1, 25) # Car must be online to stream data 
                 time.sleep(1)
-
+            except Empty:
+                pass
             except Exception as e:
                 logging.debug('message processing timeout - no new commands')
                 pass
@@ -431,9 +432,10 @@ class TeslaEVController(udi_interface.Node):
             self.poly.Notices['NOTONLINE']=f'{EVname} appears offline - cannot continue without EV being online'
         # force creation of new config - assume this will enable retransmit of all data 
         self.poly.Notices['subscribe1'] = 'Subscribing to datastream from EV'
-        if not self.tesla_api.teslaEV_streaming_check_certificate_update(self.EVid, True): #We need to update streaming server credentials
-            logging.info('')
-            self.poly.Notices['SYNC']=f'{EVname} ERROR failed to connect to streaming server - EV may be too old'
+        conf_code, conf_res = self.tesla_api.teslaEV_streaming_check_certificate_update(self.EVid, True)
+        if not conf_code: #We need to update streaming server credentials
+            logging.error(f'{EVname} ERROR failed to connect to streaming server - {conf_res}')
+            self.poly.Notices['SYNC']=f'{EVname} ERROR failed to connect to streaming server - {conf_res}'
             #self.stop()
             sys.exit()
         
