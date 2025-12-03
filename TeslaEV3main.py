@@ -2,7 +2,7 @@
 
 import sys
 import time 
-from queue import Queue
+from queue import Queue, Empty
 from threading import Thread, Event, Lock
 try:
     import udi_interface
@@ -264,7 +264,8 @@ class TeslaEVController(udi_interface.Node):
                         self.update_all_drivers()
                         #self.EV_setDriver(self.TEVcloud.teslaEV_GetConnectionStatus(self.EVid), 1, 25) # Car must be online to stream data 
                 time.sleep(1)
-
+            except Empty:
+                pass
             except Exception as e:
                 logging.debug('message processing timeout - no new commands')
                 pass
