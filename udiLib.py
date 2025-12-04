@@ -333,16 +333,16 @@ def EV_setDriver(self, key, value, Unit=None):
     try:
         if value is None:
             #logging.debug('None value passed = seting 99, UOM 25')
-            self.node.setDriver(key, 99, True, True, 25)
+            self.node.setDriver(key, 99, True, False, 25)
         elif isinstance(value, str) and value == 'invalid':
-            self.node.setDriver(key, 97, True, True, 25)
+            self.node.setDriver(key, 97, True, False, 25)
         else:
             if Unit:
                 self.node.setDriver(key, value, True, False, Unit)
             else:
-                self.node.setDriver(key, value)
+                self.node.setDriver(key, value, True, False)
     except ValueError: #A non number was passed 
-        self.node.setDriver(key, 99, True, True, 25)
+        self.node.setDriver(key, 99, True, False, 25)
         
 
 def tempUnitAdjust(self, tempC):
