@@ -400,7 +400,7 @@ class TeslaEVController(udi_interface.Node):
             time.sleep(2)   
             attempts += 1
         if self.webhookSuccess != 'Success':
-            self.poly.Notices['webhook'] = 'Webhook test failed or timed out - no data will be received - check documentation on how to enable'
+            self.poly.Notices['webhook'] = 'Webhook test failed - no data will be received - check node documentation on how to open external access to the eISY/Polisy'
             logging.error('Webhook test failed or timed out')
             time.sleep(10)
             exit()
