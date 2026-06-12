@@ -894,7 +894,7 @@ class TeslaEVController(udi_interface.Node):
             body = {
                'event': 'webhook-test',
                'data': {'type':'test',
-                        'description' : 'weebhhok test'
+                        'description' : 'webhook test'
                }
             }
 
