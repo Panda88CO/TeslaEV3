@@ -106,12 +106,12 @@ class teslaAccess(OAuth):
 
     def oauthHandler(self, token):
         logging.debug(f'oauthHandler called')
-        super().oauthHandler(token)
+        result = super().oauthHandler(token)
         #while not self.customNsDone():
         #    logging.debug(f'Waiting for initilization to complete before oAuth')
         #    time.sleep(5)
 
-        logging.debug(f'oauthHandler result: {super().oauthHandler(token)}')
+        logging.debug(f'oauthHandler result: {result}')
         self.oauthHandlerCalled = True
         #while not self.authendication_done :
         #time.sleep(2)
