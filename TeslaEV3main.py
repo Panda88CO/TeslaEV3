@@ -443,7 +443,7 @@ class TeslaEVController(udi_interface.Node):
         self.poly.Notices['subscribe2'] = 'Waiting for EV to synchronize datastream - this may take some time '
         
         count = 0
-        while not self.tesla_api.teslaEV_streaming_synched(self.EVid) or self.data_flowing:
+        while not self.tesla_api.teslaEV_streaming_synched(self.EVid) or not self.data_flowing:
             count += 1
             if count <= 12:
                 time.sleep(10)
