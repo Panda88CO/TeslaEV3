@@ -14,6 +14,8 @@ MIT License
 import json
 import requests
 import time
+from collections import deque
+from threading import Lock
 from datetime import timedelta, datetime
 from TeslaOauth import teslaAccess
 from TeslaPWapi import teslaPWAccess
@@ -88,6 +90,11 @@ class teslaEVAccess(object):
         self.next_command_call = temp
         self.next_chaging_call = temp
         self.next_device_data_call = temp
+        self.wake_rate_limit_count = 3
+        self.wake_rate_limit_window_sec = 60
+        self.wake_backoff_default_sec = 60
+        self._wake_attempts = deque()
+        self._wake_lock = Lock()
         self.stream_data = {}
         self.wall_connector = 0
         self.teslaPW_cloud = None
@@ -101,6 +108,29 @@ class teslaEVAccess(object):
             return(temp[0])
         else:
             return(0)
+
+    def _trim_wake_attempts(self, now):
+        cutoff = now - self.wake_rate_limit_window_sec
+        while self._wake_attempts and self._wake_attempts[0] <= cutoff:
+            self._wake_attempts.popleft()
+
+    def _wake_wait_remaining(self, now):
+        """Return seconds until next wake is allowed, or 0 if allowed now."""
+        wait = 0
+        if self.next_wake_call > now:
+            wait = max(wait, int(self.next_wake_call - now))
+
+        self._trim_wake_attempts(now)
+        if len(self._wake_attempts) >= self.wake_rate_limit_count:
+            oldest = self._wake_attempts[0]
+            window_wait = int((oldest + self.wake_rate_limit_window_sec) - now)
+            wait = max(wait, window_wait)
+
+        return max(wait, 0)
+
+    def _register_wake_attempt(self, now):
+        self._trim_wake_attempts(now)
+        self._wake_attempts.append(now)
         
     def teslaEV_get_vehicle_list(self) -> list:
         return(self.ev_list)
@@ -308,13 +338,28 @@ class teslaEVAccess(object):
     def _teslaEV_wake_ev(self, EVid):
         logging.debug(f'_teslaEV_wake_ev - {EVid}')
         trys = 1
-        timeNow = time.time()
         try:
             code, state = self.teslaEV_update_connection_status(EVid)
             if code == 'ok':
                 if state in ['asleep','offline']:
+                    with self._wake_lock:
+                        now = time.time()
+                        wait = self._wake_wait_remaining(now)
+                        if wait > 0:
+                            msg = f'wake rate limit active, retry in {wait}s'
+                            logging.warning(f'_teslaEV_wake_ev throttled for {EVid}: {msg}')
+                            return('overload', msg)
+                        self._register_wake_attempt(now)
+
                     code, res  = self.tesla_api._callApi('POST','/vehicles/'+str(EVid) +'/wake_up')
                     logging.debug(f'wakeup: {code} - {res}')
+                    if code in ['overload']:
+                        delay = self.extract_needed_delay(str(res))
+                        if delay <= 0:
+                            delay = self.wake_backoff_default_sec
+                        with self._wake_lock:
+                            self.next_wake_call = max(self.next_wake_call, time.time() + delay)
+                        logging.warning(f'_teslaEV_wake_ev overload for {EVid}, delaying future wakes for {delay}s')
                     if code in  ['ok']:
                         time.sleep(5)
                         code, state = self.teslaEV_update_connection_status(EVid)
@@ -324,9 +369,6 @@ class teslaEVAccess(object):
                             time.sleep(15)
                             code, state = self.teslaEV_update_connection_status(EVid)
                             logging.debug(f'wake_ev while loop {trys} {code} {state}')
-                    #if code in ['overload']:
-                    #    delay = self.extract_needed_delay(res)
-                    #    self.next_wake_call = timeNow + int(delay)
                 return(code, state)
             else:          
                 return(code, state)
