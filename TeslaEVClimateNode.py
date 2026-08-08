@@ -96,34 +96,16 @@ class teslaEV_ClimateNode(udi_interface.Node):
             self.setDriverTemp('GV3', self.TEVcloud.teslaEV_GetLeftTemp(self.EVid))
             self.setDriverTemp('GV4', self.TEVcloud.teslaEV_GetRightTemp(self.EVid))
             seatHeat = self.TEVcloud.teslaEV_GetSeatHeating(self.EVid)
-            if 'seat_heater_left' in seatHeat:
-                seatHeat['FrontLeft'] = seatHeat['seat_heater_left']
-            elif 'FrontLeft' not in seatHeat:
-                seatHeat['FrontLeft'] = None
-            if 'seat_heater_left' in seatHeat:
-                seatHeat['FrontRight'] = seatHeat['seat_heater_right']
-            elif 'FrontRight' not in seatHeat:
-                seatHeat['FrontRight'] = None
-            if 'seat_heater_left' in seatHeat:
-                seatHeat['RearLeft'] = seatHeat['seat_heater_rear_left']
-            elif 'RearLeft' not in seatHeat:
-                seatHeat['RearLeft'] = None
-            if 'seat_heater_rear_center' in seatHeat:
-                seatHeat['RearMiddle'] = seatHeat['seat_heater_rear_center']
-            elif 'RearMiddle' not in seatHeat:
-                seatHeat['RearMiddle'] = None
-            if 'seat_heater_rear_right' in seatHeat:
-                seatHeat['RearRight'] = seatHeat['seat_heater_rigth']
-            elif 'RearRight' not in seatHeat:             
-                seatHeat['RearRight'] = None
-            if 'seat_heater_third_row_left' in seatHeat:
-                seatHeat['ThirdLeft'] = seatHeat['seat_heater_third_row_left']
-            elif 'ThirdLeft' not in seatHeat:             
-                seatHeat['ThirdLeft'] = None
-            if 'seat_heater_third_row_right' in seatHeat:
-                seatHeat['ThirdRight'] = seatHeat['seat_heater_third_row_right']
-            elif 'ThirdRight' not in seatHeat:             
-                seatHeat['ThirdRight'] = None                        
+            if not isinstance(seatHeat, dict):
+                seatHeat = {}
+
+            seatHeat['FrontLeft'] = seatHeat.get('seat_heater_left', seatHeat.get('FrontLeft'))
+            seatHeat['FrontRight'] = seatHeat.get('seat_heater_right', seatHeat.get('FrontRight'))
+            seatHeat['RearLeft'] = seatHeat.get('seat_heater_rear_left', seatHeat.get('RearLeft'))
+            seatHeat['RearMiddle'] = seatHeat.get('seat_heater_rear_center', seatHeat.get('RearMiddle'))
+            seatHeat['RearRight'] = seatHeat.get('seat_heater_rear_right', seatHeat.get('RearRight'))
+            seatHeat['ThirdLeft'] = seatHeat.get('seat_heater_third_row_left', seatHeat.get('ThirdLeft'))
+            seatHeat['ThirdRight'] = seatHeat.get('seat_heater_third_row_right', seatHeat.get('ThirdRight'))
 
             self.EV_setDriver('GV5', self.cond2ISY(seatHeat['FrontLeft']), 25)
             self.EV_setDriver('GV6', self.cond2ISY(seatHeat['FrontRight']), 25)
